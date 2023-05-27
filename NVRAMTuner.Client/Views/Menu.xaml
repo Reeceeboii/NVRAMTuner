@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="NVRAMTuner.Client.Views.Menu"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NVRAMTuner.Client.Views"
+             xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:MenuViewModel, IsDesignTimeCreatable=False}"
+             d:DesignHeight="30"
+             d:DesignWidth="800">
+
+    <Menu>
+        <MenuItem Header="_File">
+            <MenuItem Header="Connect to router...">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial Kind="RouterWireless" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Disconnect from router">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial Kind="RouterWirelessOff" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator />
+            <MenuItem Header="Exit">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconRadixIcons Kind="Exit" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </MenuItem>
+        <MenuItem Header="_Tools">
+            <MenuItem Header="Dump live NVRAM contents to file...">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconFontisto Kind="Save" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Dump edited NVRAM contents to file...">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconFontisto Kind="Save" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </MenuItem>
+        <MenuItem Header="_Help">
+            <MenuItem Header="View source" Command="{Binding ViewSourceCommand}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconFontAwesome Kind="GithubBrands" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Submit bug report" Command="{Binding ReportBugCommand}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconBoxIcons Kind="RegularBug" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <Separator/>
+            <MenuItem Header="About" Click="AboutMenuItem_OnClick">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconPicolIcons Kind="BadgeInformation" />
+                </MenuItem.Icon>
+            </MenuItem>
+        </MenuItem>
+    </Menu>
+
+</UserControl>

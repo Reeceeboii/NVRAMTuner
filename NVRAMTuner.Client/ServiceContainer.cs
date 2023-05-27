@@ -1,6 +1,8 @@
 ﻿namespace NVRAMTuner.Client
 {
+    using MahApps.Metro.Controls.Dialogs;
     using Microsoft.Extensions.DependencyInjection;
+    using Services;
     using System;
     using System.IO.Abstractions;
     using ViewModels;
@@ -19,12 +21,15 @@
 
             // Misc
             collection.AddScoped<IFileSystem, FileSystem>();
+            collection.AddScoped<IDialogCoordinator, DialogCoordinator>();
 
             // Services
-            //collection.AddScoped<IProcessService, ProcessService>();
+            collection.AddScoped<IProcessService, ProcessService>();
 
             // ViewModels
             collection.AddScoped<MainWindowViewModel>();
+            collection.AddScoped<AboutWindowViewModel>();
+            collection.AddScoped<MenuViewModel>();
 
             this.Services = collection.BuildServiceProvider();
         }

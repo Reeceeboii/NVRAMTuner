@@ -1,0 +1,69 @@
+﻿<mah:MetroWindow x:Class="NVRAMTuner.Client.Views.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NVRAMTuner.Client.Views"
+        xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        mc:Ignorable="d"
+        Title="About"
+        Height="400"
+        Width="450"
+        d:DataContext="{d:DesignInstance Type=vm:AboutWindowViewModel, IsDesignTimeCreatable=False}"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Topmost="True"
+        MinHeight="300"
+        MinWidth="450">
+
+    <Grid Style="{StaticResource TopLevelGrid}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2.5*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="4*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" 
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Text="About NVRAMTuner"
+                   FontSize="{StaticResource MahApps.Font.Size.Dialog.Title}"/>
+
+        <TextBlock 
+            Grid.Row="1"
+            Text="{Binding Copyright}"
+            d:Text="Copyright © Author Name 0000"
+            FontStyle="Italic"
+            HorizontalAlignment="Center"/>
+
+        <TextBlock 
+            Grid.Row="2" 
+            Text="License" 
+            HorizontalAlignment="Center"
+            FontSize="{StaticResource MahApps.Font.Size.Dialog.Message}"
+            Padding="0 5 0 5"/>
+
+        <ScrollViewer Grid.Row="3">
+            <TextBox Text="{Binding License, Mode=OneWay}"
+                     d:Text="Some&#x0a;multiline&#x0a;license&#x0a;content&#x0a;goes&#x0a;here&#x0a;along&#x0a;with&#x0a;a&#x0a;scrollbar"
+                     Background="#4b4b4b"
+                     BorderThickness="0"
+                     IsReadOnly="True"/>
+        </ScrollViewer>
+
+        <TextBlock Grid.Row="4" 
+                   Style="{StaticResource LinkStyle}"
+                   Text="Open in browser" 
+                   HorizontalAlignment="Center">
+            <TextBlock.InputBindings>
+                <MouseBinding Command="{Binding OpenLicenseInBrowserCommand}"
+                              MouseAction="LeftClick"/>
+            </TextBlock.InputBindings>
+        </TextBlock>
+    </Grid>
+
+</mah:MetroWindow>

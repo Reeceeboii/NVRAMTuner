@@ -18,6 +18,8 @@
         {
             this.InitializeComponent();
             this.DataContext = ((App)Application.Current).ServiceContainer.Services.GetService<MainWindowViewModel>();
+
+            // sync the application's theme to the host OS
             ThemeManager.Current.ThemeSyncMode = ThemeSyncMode.SyncWithAppMode;
             ThemeManager.Current.SyncTheme();
         }

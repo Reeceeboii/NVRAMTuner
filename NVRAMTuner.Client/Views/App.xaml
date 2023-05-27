@@ -1,10 +1,28 @@
 ﻿<Application x:Class="NVRAMTuner.Client.Views.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="MainWindow.xaml">
+             StartupUri="MainWindow.xaml"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <Application.Resources>
         <ResourceDictionary>
+            <Thickness x:Key="StandardMargin">0</Thickness>
+
+            <Style TargetType="Grid" x:Key="TopLevelGrid">
+                <Setter Property="Margin" Value="{StaticResource StandardMargin}"/>
+            </Style>
+
+            <Style TargetType="TextBlock" x:Key="LinkStyle">
+                <Setter Property="Foreground" Value="#5097f4" />
+                <Setter Property="TextDecorations" Value="Underline"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Foreground" Value="#254774"></Setter>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
             <ResourceDictionary.MergedDictionaries>
                 <!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />

@@ -7,6 +7,6 @@
     /// </summary>
     public class MainWindowViewModel : ObservableObject
     {
-        
+
     }
 }
