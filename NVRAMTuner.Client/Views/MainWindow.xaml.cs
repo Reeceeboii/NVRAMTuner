@@ -1,4 +1,4 @@
-﻿namespace NVRAMTuner.Client
+﻿namespace NVRAMTuner.Client.Views
 {
     using System.Windows;
 

@@ -5,6 +5,8 @@ VisualStudioVersion = 17.6.33712.159
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVRAMTuner.Client", "NVRAMTuner.Client\NVRAMTuner.Client.csproj", "{BA436DDE-351F-4D81-9603-F8A98B2D0C02}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVRAMTuner.Test", "NVRAMTuner.Test\NVRAMTuner.Test.csproj", "{4A37DD4E-7A40-4097-88DB-B949B49632D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{BA436DDE-351F-4D81-9603-F8A98B2D0C02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA436DDE-351F-4D81-9603-F8A98B2D0C02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA436DDE-351F-4D81-9603-F8A98B2D0C02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A37DD4E-7A40-4097-88DB-B949B49632D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A37DD4E-7A40-4097-88DB-B949B49632D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A37DD4E-7A40-4097-88DB-B949B49632D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A37DD4E-7A40-4097-88DB-B949B49632D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
