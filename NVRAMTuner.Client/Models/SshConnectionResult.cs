@@ -1,4 +1,6 @@
-﻿namespace NVRAMTuner.Client.Models
+﻿#nullable enable
+
+namespace NVRAMTuner.Client.Models
 {
     using Enums;
     using Exceptions;

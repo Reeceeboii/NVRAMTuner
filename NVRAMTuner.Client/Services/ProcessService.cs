@@ -1,5 +1,6 @@
 ﻿namespace NVRAMTuner.Client.Services
 {
+    using Interfaces;
     using System.Diagnostics;
 
     /// <summary>

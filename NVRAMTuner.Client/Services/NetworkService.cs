@@ -1,9 +1,63 @@
 ﻿namespace NVRAMTuner.Client.Services
 {
+    using CommunityToolkit.Mvvm.Messaging;
+    using Interfaces;
+    using Messages;
+    using Models;
+    using System;
+    using System.IO.Abstractions;
     using System.Linq;
 
-    public class NetworkService
+    /// <summary>
+    /// An implementation of a service for handling various network related operations
+    /// pertinent to the operation of the NVRAMTuner application
+    /// </summary>
+    public class NetworkService : INetworkService
     {
+        /// <summary>
+        /// An instance of <see cref="ISshClientService"/>
+        /// </summary>
+        private readonly ISshClientService sshClientService;
+
+        /// <summary>
+        /// An instance of <see cref="IFileSystem"/>
+        /// </summary>
+        private readonly IFileSystem fileSystem;
+
+        /// <summary>
+        /// An instance of <see cref="IEnvironmentService"/>
+        /// </summary>
+        private readonly IEnvironmentService environmentService;
+
+        /// <summary>
+        /// An instance of <see cref="IMessenger"/>
+        /// </summary>
+        private readonly IMessenger messenger;
+
+        /// <summary>
+        /// The default SSH port to assume a router is using
+        /// </summary>
+        public static string DefaultSshPort = "22";
+
+        /// <summary>
+        /// Initialises a new instance of the <see cref="NetworkService"/> class
+        /// </summary>
+        /// <param name="sshClientService">An instance of <see cref="ISshClientService"/></param>
+        /// <param name="fileSystem">An instance of <see cref="IFileSystem"/></param>
+        /// <param name="environmentService">An instance of <see cref="IEnvironmentService"/></param>
+        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
+        public NetworkService(
+            ISshClientService sshClientService,
+            IFileSystem fileSystem,
+            IEnvironmentService environmentService,
+            IMessenger messenger)
+        {
+            this.sshClientService = sshClientService;
+            this.fileSystem = fileSystem;
+            this.environmentService = environmentService;
+            this.messenger = messenger;
+        }
+
         /// <summary>
         /// Verifies that a given string can be assumed to be a correctly formatted IPv4 address.
         /// This function does not test that a given address exist and/or is reachable over the local
@@ -52,8 +106,38 @@
                 return false;
             }
 
-            int.TryParse(port, out int intPort);
-            return VerifyNetworkPort(intPort);
+            return int.TryParse(port, out int intPort) && VerifyNetworkPort(intPort);
+        }
+
+        public void LocateLocalSshKeys()
+        {
+            string homeDir = this.environmentService.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string sshDir = this.fileSystem.Path.Combine(homeDir, ".ssh");
+
+            if (this.FolderContainsSshKeys(sshDir))
+            {
+                // TODO - change this
+                this.messenger.Send(new SshKeysFoundMessage(new SshKeyPair
+                {
+                    PubKeyPath = "pubKeyPath",
+                    PrivKeyPath = "privKeyPath"
+                }));
+            }
+        }
+
+        /// <summary>
+        /// Checks whether a given folder contains a private and public SSH key pair
+        /// </summary>
+        /// <param name="folder">The absolute path of the folder to test</param>
+        /// <returns>True if the folder contains an SSH key pair, false if not</returns>
+        public bool FolderContainsSshKeys(string folder)
+        {
+            string pubKeyPath = this.fileSystem.Path.Combine(folder, "id_rsa.pub");
+            string privKeyPath = this.fileSystem.Path.Combine(folder, "id_rsa");
+            bool pubKeyExists = this.fileSystem.File.Exists(pubKeyPath);
+            bool privKeyExists = this.fileSystem.File.Exists(privKeyPath);
+
+            return pubKeyExists && privKeyExists;
         }
     }
 }

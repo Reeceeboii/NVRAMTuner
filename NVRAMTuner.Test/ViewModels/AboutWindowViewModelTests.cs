@@ -2,13 +2,12 @@
 
 namespace NVRAMTuner.Test.ViewModels
 {
-    using Client.Services;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Client.Services.Interfaces;
     using Client.ViewModels;
     using FluentAssertions;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using System;
-    using System.ComponentModel;
     using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
@@ -28,6 +27,9 @@ namespace NVRAMTuner.Test.ViewModels
         /// </summary>
         private Mock<IProcessService> mockProcessService;
 
+        /// <summary>
+        /// Test initialisation method
+        /// </summary>
         [TestInitialize]
         public void TestInitialise()
         {

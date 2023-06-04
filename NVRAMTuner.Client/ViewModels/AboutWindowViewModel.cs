@@ -3,11 +3,12 @@
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
     using Services;
+    using Services.Interfaces;
     using System;
     using System.Windows.Input;
 
     /// <summary>
-    /// ViewModel for the about window
+    /// NavigableViewModel for the about window
     /// </summary>
     public class AboutWindowViewModel : ObservableObject
     {

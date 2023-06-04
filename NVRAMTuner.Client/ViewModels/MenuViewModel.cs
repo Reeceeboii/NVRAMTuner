@@ -2,12 +2,12 @@
 {
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
-    using Services;
+    using Services.Interfaces;
     using System.IO.Abstractions;
     using System.Windows.Input;
 
     /// <summary>
-    /// ViewModel for the <see cref="Views.Menu"/> view
+    /// NavigableViewModel for the <see cref="Views.Menu"/> view
     /// </summary>
     public class MenuViewModel : ObservableObject
     {

@@ -16,7 +16,7 @@
         /// Initialises a new instance of the <see cref="SshConnectionException"/> class
         /// </summary>
         /// <param name="message">A message explaining the exception</param>
-        public SshConnectionException(string message) :base(message) { }
+        public SshConnectionException(string message) : base(message) { }
 
         /// <summary>
         /// Initialises a new instance of the <see cref="SshConnectionException"/> class

@@ -4,7 +4,7 @@
     /// Model representing a username and password combination that a
     /// user wishes to use when authenticating with the remote server
     /// </summary>
-    public class SshPasswordCredentialPair
+    public class SshCredentialPair
     {
         /// <summary>
         /// Gets or sets the user's username
