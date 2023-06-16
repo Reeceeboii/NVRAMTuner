@@ -1,10 +1,22 @@
-﻿namespace NVRAMTuner.Client.ViewModels
+﻿#nullable enable
+
+namespace NVRAMTuner.Client.ViewModels
 {
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
+    using CommunityToolkit.Mvvm.Messaging;
+    using MahApps.Metro.Controls.Dialogs;
+    using Messages;
+    using Models;
+    using Models.Enums;
+    using Resources;
     using Services;
     using Services.Interfaces;
+    using System;
+    using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
+    using System.Diagnostics;
+    using System.Linq;
     using System.Threading.Tasks;
     using System.Windows.Input;
     using Validators;
@@ -22,57 +34,96 @@
         private readonly IDialogService dialogService;
 
         /// <summary>
-        /// The Ipv4 address of the router being targeted in this setup
+        /// Instance of <see cref="IMessenger"/>
+        /// </summary>
+        private readonly IMessenger messenger;
+
+        /// <summary>
+        /// Backing field for <see cref="RouterIpv4Address"/>
         /// </summary>
         private string routerIpv4Address;
 
         /// <summary>
-        /// The network port the target router uses to expose its SSH server
+        /// Backing field for <see cref="SshPort"/>
         /// </summary>
         private string sshPort;
 
         /// <summary>
-        /// The full path to a folder containing a private and public SSH key pair on the user's
-        /// system
+        /// Backing field for <see cref="SshKeyFolder"/>
         /// </summary>
         private string sshKeyFolder;
 
         /// <summary>
-        /// A bool representing whether or not the user has decided that this setup
-        /// will make use of SSH keys instead of a password
+        /// Backing field for <see cref="UserIsUsingSshKeys"/>
         /// </summary>
         private bool userIsUsingSshKeys;
 
         /// <summary>
-        /// The username that will be used to authenticate with the router's SSH server
+        /// Backing field for <see cref="SshUsername"/>
         /// </summary>
         private string sshUsername;
 
         /// <summary>
-        /// The password that will be used to authenticate with the router's SSH server.
-        /// This value will only be utilised if <see cref="userIsUsingSshKeys"/> is false.
+        /// Backing field for <see cref="SshPassword"/>
         /// </summary>
         private string sshPassword;
+
+        /// <summary>
+        /// Backing field for <see cref="FormValidationStatus"/>
+        /// </summary>
+        private GenericStatus formValidationStatus;
+
+        /// <summary>
+        /// Backing field for <see cref="SpecificRouterVerificationError"/>
+        /// </summary>
+        private string specificRouterVerificationError;
+
+        /// <summary>
+        /// Backing field for <see cref="Loading"/>
+        /// </summary>
+        private bool loading;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="RouterSetupViewModel"/> class
         /// </summary>
         /// <param name="networkService">An instance of <see cref="INetworkService"/></param>
         /// <param name="dialogService">An instance of <see cref="IDialogService"/></param>
-        public RouterSetupViewModel(INetworkService networkService, IDialogService dialogService)
+        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
+        public RouterSetupViewModel(
+            INetworkService networkService,
+            IDialogService dialogService,
+            IMessenger messenger)
         {
             this.networkService = networkService;
             this.dialogService = dialogService;
+            this.messenger = messenger;
+
+            this.routerIpv4Address = string.Empty;
+            this.sshPort = string.Empty;
+            this.sshKeyFolder = string.Empty;
+            this.userIsUsingSshKeys = false;
+            this.sshUsername = string.Empty;
+            this.sshPassword = string.Empty;
+
+            this.formValidationStatus = GenericStatus.Warning;
+            this.specificRouterVerificationError = string.Empty;
+
+            this.loading = false;
+
             this.SshPort = NetworkService.DefaultSshPort;
 
             this.BrowseForSshKeysCommand = new RelayCommand(this.BrowseForSshKeysCommandHandler);
+            this.ScanForSshKeysCommand = new RelayCommand(this.ScanForSshKeysCommandHandler);
+            this.VerifyRouterDetailsCommandAsync = new AsyncRelayCommand(this.VerifyRouterDetailsCommandHandlerAsync);
+            this.ExitSetupCommand = new RelayCommand(this.ExitSetupCommandHandler);
+            this.CompleteSetupCommand = new RelayCommand(this.CompleteSetupCommandHandler);
         }
 
         /// <summary>
         /// A <see cref="CustomValidationAttribute"/> validator for validating that a provided
         /// absolute folder path contains a pair of SSH keys. Being a <see cref="CustomValidationAttribute"/>
         /// allows this validator to resolve dependency injected services via the ViewModel instance's
-        /// fields, allowing non-static validation contexts.
+        /// fields, allowing for non-static validation contexts.
         /// </summary>
         /// <param name="folder">The folder to scan for SSH keys</param>
         /// <param name="ctx">A <see cref="ValidationContext"/> instance</param>
@@ -93,27 +144,55 @@
         public ICommand BrowseForSshKeysCommand { get; }
 
         /// <summary>
-        /// Gets or sets the IPv4 address of the router.
-        /// Uses the underlying property of <see cref="router"/>
+        /// Gets the command used when the user issues the action to let NVRAMTuner
+        /// automatically scan their system for a folder containing a pair of SSH keys
+        /// </summary>
+        public ICommand ScanForSshKeysCommand { get; }
+
+        /// <summary>
+        /// Gets the async command used when the user wants to verify the information they have provided to
+        /// the NVRAMTuner setup page by attempting a connection to the router
+        /// </summary>
+        public IAsyncRelayCommand VerifyRouterDetailsCommandAsync { get; }
+
+        /// <summary>
+        /// Gets the command used when the user wants to exit the setup process
+        /// </summary>
+        public ICommand ExitSetupCommand { get; }
+
+        /// <summary>
+        /// Gets the command used when the user wants to complete the setup process
+        /// </summary>
+        public ICommand CompleteSetupCommand { get; }
+
+        /// <summary>
+        /// Gets or sets the IPv4 address of the router
         /// </summary>
         [Required(ErrorMessage = "You need to provide an IP address")]
         [ValidIpv4Address]
         public string RouterIpv4Address
         {
             get => this.routerIpv4Address;
-            set => this.SetProperty(ref this.routerIpv4Address, value, true);
+            set
+            {
+                this.SetProperty(ref this.routerIpv4Address, value, true);
+                this.FormValidationStatus = GenericStatus.Warning;
+            }
         }
 
         /// <summary>
-        /// Gets or sets the port on the router used to expose its SSH server.
-        /// Uses the underlying property of <see cref="router"/>
+        /// Gets or sets the port on the router used to expose its SSH server
         /// </summary>
         [Required(ErrorMessage = "You need to provide a port")]
         [ValidNetworkPort]
         public string SshPort
         {
             get => this.sshPort;
-            set => this.SetProperty(ref this.sshPort, value, true);
+            set
+            {
+                this.SetProperty(ref this.sshPort, value, true);
+                this.FormValidationStatus = GenericStatus.Warning;
+            }
         }
 
         /// <summary>
@@ -125,14 +204,17 @@
         public string SshKeyFolder
         {
             get => this.sshKeyFolder;
-            set => this.SetProperty(ref this.sshKeyFolder, value, true);
+            set
+            {
+                this.SetProperty(ref this.sshKeyFolder, value, true);
+                this.FormValidationStatus = GenericStatus.Warning;
+            }
         }
 
         /// <summary>
         /// Gets or sets a bool representing whether or not the user is using SSH keys to authenticate
         /// with their router
         /// </summary>
-        [Required]
         public bool UserIsUsingSshKeys
         {
             get => this.userIsUsingSshKeys;
@@ -140,6 +222,21 @@
             {
                 this.SetProperty(ref this.userIsUsingSshKeys, value, true);
                 this.OnPropertyChanged(nameof(this.ShowSshPasswordTextBox));
+                this.FormValidationStatus = GenericStatus.Warning;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a value from the <see cref="GenericStatus"/> enumeration to denote the status
+        /// of the form's validation against the user's router
+        /// </summary>
+        public GenericStatus FormValidationStatus
+        {
+            get => this.formValidationStatus;
+            set
+            {
+                this.formValidationStatus = value;
+                this.OnPropertyChanged(nameof(this.FormValidationStatus));
             }
         }
 
@@ -151,7 +248,11 @@
         public string SshUsername
         {
             get => this.sshUsername;
-            set => this.SetProperty(ref this.sshUsername, value, true);
+            set
+            {
+                this.SetProperty(ref this.sshUsername, value, true);
+                this.FormValidationStatus = GenericStatus.Warning;
+            }
         }
 
         /// <summary>
@@ -161,7 +262,11 @@
         public string SshPassword
         {
             get => this.sshPassword;
-            set => this.SetProperty(ref this.sshPassword, value, true);
+            set
+            {
+                this.SetProperty(ref this.sshPassword, value, true);
+                this.FormValidationStatus = GenericStatus.Warning;
+            }
         }
 
         /// <summary>
@@ -172,7 +277,50 @@
         public bool ShowSshPasswordTextBox => !this.UserIsUsingSshKeys;
 
         /// <summary>
-        /// Method for handing the <see cref="BrowseForSshKeysCommand"/>
+        /// Gets or sets a bool representing whether or not any loading is taking place in the background
+        /// which should be interpreted as a sign to disable certain UI elements or block certain actions
+        /// </summary>
+        public bool Loading
+        {
+            get => this.loading;
+            set => this.SetProperty(ref this.loading, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a string that provides feedback to the user on why their
+        /// </summary>
+        public string SpecificRouterVerificationError
+        {
+            get => this.specificRouterVerificationError;
+            set => this.SetProperty(ref this.specificRouterVerificationError, value);
+        }
+
+        /// <summary>
+        /// Constructs a new <see cref="Router"/> model instance from the current state of the setup form
+        /// (only if there are no errors). This method also validates all fields in the form
+        /// </summary>
+        /// <returns>A new <see cref="Router"/> instance, or null if there are any errors in the form</returns>
+        private Router? ConstructRouterFromForm()
+        {
+            if (!this.HasErrorsFiltered())
+            {
+                return new Router
+                {
+                    RouterIpv4Address = this.RouterIpv4Address,
+                    SshPort = int.Parse(this.SshPort),
+                    AuthType = this.UserIsUsingSshKeys ? SshAuthType.PubKeyBasedAuth : SshAuthType.PasswordBasedAuth,
+                    SshUsername = this.UserIsUsingSshKeys ? null : this.SshUsername,
+                    SshPassword = this.UserIsUsingSshKeys ? null : this.SshPassword,
+                    SskKeyDir = this.UserIsUsingSshKeys ? this.SshKeyFolder : null
+                };
+            }
+
+            this.ApplySpecificErrorPointingToFormErrors();
+            return null;
+        }
+
+        /// <summary>
+        /// Method for handling the <see cref="BrowseForSshKeysCommand"/>
         /// </summary>
         private void BrowseForSshKeysCommandHandler()
         {
@@ -185,13 +333,175 @@
 
             Task.Run(async () =>
             {
-                await this.dialogService.ShowMessageAsync(
-                    this,
-                    "SSH keys located",
-                    $"A pair of SSH keys have been located inside '{path}'!");
+                // TODO: is there a way to avoid calling this method twice? - maybe move this dialog?
+                if (this.networkService.FolderContainsSshKeys(path))
+                {
+                    await this.dialogService.ShowMessageAsync(
+                        this,
+                        "SSH keys located",
+                        $"A pair of SSH keys have been located inside '{path}'!");
+                }
             });
 
             this.SshKeyFolder = path;
+        }
+
+        /// <summary>
+        /// Method for handling the <see cref="ScanForSshKeysCommand"/>
+        /// </summary>
+        private void ScanForSshKeysCommandHandler()
+        {
+            string? path = this.networkService.ScanLocalSystemForSshKeys();
+
+            if (path == null)
+            {
+                Task.Run(async () =>
+                {
+                    await this.dialogService.ShowMessageAsync(
+                        this,
+                        "No keys were found",
+                        "The scan didn't turn up any directories. Please enter the path manually");
+                });
+
+                return;
+            }
+
+            if (path == this.SshKeyFolder)
+            {
+                return;
+            }
+
+            Task.Run(async () =>
+            {
+                await this.dialogService.ShowMessageAsync(
+                    this,
+                    "Keys found!",
+                    $"SSH keys found in '{path}'. It has been auto filled");
+            });
+
+            this.SshKeyFolder = path;
+        }
+
+        private async Task VerifyRouterDetailsCommandHandlerAsync()
+        {
+            this.Loading = true;
+
+            Router? router = this.ConstructRouterFromForm();
+
+            if (router != null)
+            {
+                SshConnectionResult res;
+                try
+                {
+                    res = await this.networkService.AttemptConnectionToRouterAsync(router);
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.StackTrace);
+                    this.FormValidationStatus = GenericStatus.Failure;
+                    this.SpecificRouterVerificationError = e.Message;
+
+                    Task.Run(() =>
+                    {
+                        this.dialogService.ShowMessageAsync(
+                            this,
+                            "Connection failure",
+                            $"An attempt was made to connect to your router at {router.RouterIpv4Address}, but an error occurred:\n\n{e.Message}");
+                    });
+                }
+            }
+
+            this.Loading = false;
+        }
+
+        /// <summary>
+        /// Method for handling the <see cref="ExitSetupCommand"/>
+        /// </summary>
+        private void ExitSetupCommandHandler()
+        {
+            Task.Run(async () =>
+            {
+                MessageDialogResult userExitChoice = await this.dialogService.ShowMessageAsync(
+                    this,
+                    "Exit?",
+                    "Are you sure you wish to exit? This will return you to the home page.",
+                    MessageDialogStyle.AffirmativeAndNegative,
+                    new MetroDialogSettings
+                    {
+                        AffirmativeButtonText = "Yes, exit setup",
+                        DefaultButtonFocus = MessageDialogResult.Affirmative,
+                        NegativeButtonText = "No, stay on setup page"
+                    });
+
+                if (userExitChoice == MessageDialogResult.Affirmative)
+                {
+                    this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.HomeViewModel));
+                }
+            });
+        }
+
+        /// <summary>
+        /// Method for handling the <see cref="CompleteSetupCommand"/>
+        /// </summary>
+        private void CompleteSetupCommandHandler()
+        {
+            this.ValidateAllProperties();
+
+            if (this.HasErrors)
+            {
+                this.ApplySpecificErrorPointingToFormErrors();
+            }
+        }
+
+        /// <summary>
+        /// Sets an overall form error message directing the user to the values they have entered
+        /// into the actual form itself, as they are still throwing validation errors.
+        /// </summary>
+        private void ApplySpecificErrorPointingToFormErrors()
+        {
+            this.FormValidationStatus = GenericStatus.Failure;
+            this.SpecificRouterVerificationError = ViewModelFormErrors.RouterSetupOverallFormErrorsMessage;
+        }
+
+        /// <summary>
+        /// Sets an overall form error message to the user that can have its content dynamically set
+        /// </summary>
+        /// <param name="message">The specific error message to display to the user</param>
+        private void ApplySpecificErrorWithMessage(string message)
+        {
+            this.FormValidationStatus = GenericStatus.Failure;
+            this.SpecificRouterVerificationError = message;
+        }
+
+        /// <summary>
+        /// Analogous to the <see cref="ObservableValidator.HasErrors"/> property, except applies the custom filtering
+        /// of the <see cref="GetFilteredErrors"/> method
+        /// </summary>
+        /// <returns>A bool representing whether or not the form has any errors. This bool takes into account
+        /// the filtering applied to the underlying <see cref="ObservableValidator"/>s list of errors carried out
+        /// by the <see cref="GetFilteredErrors"/> method</returns>
+        private bool HasErrorsFiltered()
+        {
+            return this.GetFilteredErrors().Any();
+        }
+
+        /// <summary>
+        /// Analogous to the <see cref="ObservableValidator.GetErrors"/> method, except with some custom filtering on
+        /// top of the returned <see cref="IEnumerable{T}"/> object. In this case, we want to filter out some specific
+        /// errors based on the state of the <see cref="UserIsUsingSshKeys"/> property. As either the SSH password or
+        /// the SSH key folder text box will be hidden based on the state of the <see cref="UserIsUsingSshKeys"/>, we
+        /// want to dynamically filter out errors attached to the bound properties, as if the box for either one
+        /// is hidden from the user, its value will not be used as is therefore immaterial to the actual
+        /// error state of the ViewModel
+        /// </summary>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="ValidationResult"/> instances</returns>
+        private IEnumerable<ValidationResult> GetFilteredErrors()
+        {
+            this.ValidateAllProperties();
+
+            return this.UserIsUsingSshKeys
+                ? this.GetErrors().Where(vr => vr.MemberNames.Any(mn => !mn.Equals(nameof(this.SshPassword))))
+                : this.GetErrors().Where(vr => vr.MemberNames.Any(mn => !mn.Equals(nameof(this.SshKeyFolder))));
         }
     }
 }

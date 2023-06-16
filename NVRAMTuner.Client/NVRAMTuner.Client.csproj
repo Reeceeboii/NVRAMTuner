@@ -239,9 +239,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\ConfigurableBoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\InverseBoolConverter.cs" />
     <Compile Include="Exceptions\SshConnectionException.cs" />
     <Compile Include="Messages\NavigationRequestMessage.cs" />
     <Compile Include="Messages\SshKeysFoundMessage.cs" />
+    <Compile Include="Models\Enums\GenericStatus.cs" />
     <Compile Include="Models\Enums\SshAuthType.cs" />
     <Compile Include="Models\Enums\NavigableViewModel.cs" />
     <Compile Include="Models\Router.cs" />
@@ -250,9 +253,9 @@
     <Compile Include="Models\SshCredentialPair.cs" />
     <Compile Include="Services\DialogService.cs" />
     <Compile Include="Services\EnvironmentService.cs" />
+    <Compile Include="Services\Interfaces\INetworkService.cs" />
     <Compile Include="Services\Interfaces\IDialogService.cs" />
     <Compile Include="Services\Interfaces\IEnvironmentService.cs" />
-    <Compile Include="Services\Interfaces\INetworkService.cs" />
     <Compile Include="Services\Interfaces\ISshClientService.cs" />
     <Compile Include="Services\NetworkService.cs" />
     <Compile Include="Services\SshClientService.cs" />
@@ -261,6 +264,11 @@
     <Compile Include="ViewModels\AboutWindowViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
     <Compile Include="ViewModels\MenuViewModel.cs" />
+    <Compile Include="ViewModels\Resources\ViewModelFormErrors.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ViewModelFormErrors.resx</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\RouterSetupViewModel.cs" />
     <Compile Include="Views\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
@@ -324,6 +332,10 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ViewModels\Resources\ViewModelFormErrors.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ViewModelFormErrors.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

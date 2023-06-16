@@ -1,8 +1,8 @@
 ﻿<Application x:Class="NVRAMTuner.Client.Views.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="MainWindow.xaml"
-             xmlns:sys="clr-namespace:System;assembly=mscorlib">
+             xmlns:conv="clr-namespace:NVRAMTuner.Client.Converters"
+             StartupUri="MainWindow.xaml">
 
     <Application.Resources>
         <ResourceDictionary>
@@ -23,7 +23,9 @@
                 </Style.Triggers>
             </Style>
 
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <!-- Converters -->
+            <conv:InverseBoolConverter x:Key="InverseBoolConverter" />
+            <conv:ConfigurableBoolToVisibilityConverter x:Key="ConfigurableBoolToVisibilityConverter" />
 
             <ResourceDictionary.MergedDictionaries>
                 <!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->

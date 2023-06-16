@@ -3,7 +3,6 @@
 namespace NVRAMTuner.Client.Models
 {
     using Enums;
-    using Exceptions;
 
     /// <summary>
     /// Model representing the result of an attempt to connect with a remote SSH server
@@ -22,10 +21,8 @@ namespace NVRAMTuner.Client.Models
         public SshAuthType AuthType { get; set; }
 
         /// <summary>
-        /// Gets or sets an instance of <see cref="SshConnectionException"/> representing any errors that occurred
-        /// during the connection attempt that this result is pertaining to. If the connection was a success, this
-        /// property will be null.
+        /// A <see cref="Router"/> instance containg the details that were used in this specific connection attempt
         /// </summary>
-        public SshConnectionException? ConnectionException { get; set; }
+        public Router router { get; set; }
     }
 }

@@ -6,7 +6,6 @@
     using Messages;
     using Models.Enums;
     using Services.Interfaces;
-    using System.Diagnostics;
     using System.Windows.Input;
 
     /// <summary>
@@ -25,14 +24,21 @@
         private readonly IDialogService dialogService;
 
         /// <summary>
+        /// Instance of <see cref="IMessenger"/>
+        /// </summary>
+        private readonly IMessenger messenger;
+
+        /// <summary>
         /// Initialises a new instance of the <see cref="HomeViewModel"/> class
         /// </summary>
         /// <param name="networkService">An instance of <see cref="INetworkService"/></param>
         /// <param name="dialogService">An instance of <see cref="IDialogService"/></param>
-        public HomeViewModel(INetworkService networkService, IDialogService dialogService)
+        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
+        public HomeViewModel(INetworkService networkService, IDialogService dialogService, IMessenger messenger)
         {
             this.networkService = networkService;
             this.dialogService = dialogService;
+            this.messenger = messenger;
 
             this.InitiateRouterSetupCommand = new RelayCommand(this.InitiateRouterSetupCommandHandler);
         }
@@ -42,10 +48,12 @@
         /// </summary>
         public ICommand InitiateRouterSetupCommand { get; }
 
+        /// <summary>
+        /// Method to handle the <see cref="InitiateRouterSetupCommand"/>
+        /// </summary>
         private void InitiateRouterSetupCommandHandler()
         {
-            Debug.WriteLine("Moving to router setup...");
-            WeakReferenceMessenger.Default.Send(new NavigationRequestMessage(NavigableViewModel.RouterSetupViewModel));
+            this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.RouterSetupViewModel));
         }
     }
 }

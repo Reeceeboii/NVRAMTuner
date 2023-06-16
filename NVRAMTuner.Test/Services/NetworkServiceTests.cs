@@ -95,7 +95,7 @@
 
             // Act
             this.CreateSut();
-            this.sut.LocateLocalSshKeys();
+            this.sut.ScanLocalSystemForSshKeys();
 
             // Assert
             1.Should().Be(1);

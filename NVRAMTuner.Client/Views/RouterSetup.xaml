@@ -6,7 +6,11 @@
              xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:local="clr-namespace:NVRAMTuner.Client.Views"
              xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels"
+             xmlns:enums="clr-namespace:NVRAMTuner.Client.Models.Enums"
              d:DataContext="{d:DesignInstance Type=vm:RouterSetupViewModel, IsDesignTimeCreatable=False}"
+             xmlns:dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             dialog:DialogParticipation.Register="{Binding}"
              mc:Ignorable="d"
              d:DesignHeight="1000"
              d:DesignWidth="1500">
@@ -16,25 +20,31 @@
             <RowDefinition Height="150"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height=".05*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
         <WrapPanel Grid.Row="0" 
                    Grid.Column="0"
                    Orientation="Vertical"
-                   Grid.ColumnSpan="4"
+                   Grid.ColumnSpan="5"
                    VerticalAlignment="Center"
                    HorizontalAlignment="Center">
 
-            <TextBlock Text="Router setup" 
+            <TextBlock Text="Router setup"
+                       TextAlignment="Center"
                        FontSize="{StaticResource MahApps.Font.Size.Header}"/>
             <TextBlock Text="Please enter some details about your router below..." 
+                       TextAlignment="Center"
                        FontSize="{StaticResource MahApps.Font.Size.SubHeader}"/>
         </WrapPanel>
 
@@ -129,7 +139,7 @@
                     UpdateSourceTrigger=PropertyChanged,
                     ValidatesOnNotifyDataErrors=True,
                     Delay=400}"
-                         Visibility="{Binding ShowSshPasswordTextBox, Converter={StaticResource BooleanToVisibilityConverter}}"
+                         Visibility="{Binding ShowSshPasswordTextBox, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Normal}"
                          Margin="5"
                          mah:TextBoxHelper.ClearTextButton="True"
                          mah:TextBoxHelper.UseFloatingWatermark="True"
@@ -149,8 +159,9 @@
                              Margin="5"
                              Visibility="{Binding UserIsUsingSshKeys, Converter={StaticResource BooleanToVisibilityConverter}}">
 
-                    <Button Margin="0 0 5 0" 
-                            Content="Scan system"
+                    <Button Command="{Binding ScanForSshKeysCommand}"
+                            Margin="0 0 5 0" 
+                            Content="Scan system for keys"
                             ToolTip="Let NVRAMTuner scan your system in an attempt to automatically locate a pair of SSH keys"/>
 
                     <Button Command="{Binding BrowseForSshKeysCommand}"
@@ -161,5 +172,112 @@
 
             </UniformGrid>
         </AdornerDecorator>
+
+        <!-- Second separator -->
+        <Rectangle Grid.Row="1" 
+                   Grid.Column="3" 
+                   Grid.RowSpan="2" 
+                   VerticalAlignment="Stretch"
+                   Width="1"
+                   Margin="2"
+                   Stroke="#4b4b4b"/>
+
+        <!-- Step 3 title WrapPanel -->
+        <WrapPanel 
+            Grid.Row="1" 
+            Grid.Column="4"
+            Orientation="Vertical"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top">
+
+            <TextBlock Text="Step 3"
+                       Margin="0 0 0 10"
+                       FontSize="{StaticResource MahApps.Font.Size.SubHeader}"
+                       HorizontalAlignment="Center"/>
+            <TextBlock Text="Details confirmation and connection" 
+                       FontSize="{StaticResource MahApps.Font.Size.Default}"
+                       HorizontalAlignment="Center"/>
+        </WrapPanel>
+
+        <!-- Step 3 form: details confirmation and connection -->
+        <UniformGrid Grid.Row="2" Grid.Column="4" Margin="15" Columns="1" Rows="3">
+            <TextBlock d:Text="Please verify your details before being allowed to proceed"
+                       d:Foreground="Orange">
+                <TextBlock.Style>
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="TextWrapping" Value="Wrap" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding FormValidationStatus}" Value="{x:Static enums:GenericStatus.Success}">
+                                <Setter Property="Foreground" Value="Green"/>
+                                <Setter Property="Text" Value="Your information has been verified"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding FormValidationStatus}" Value="{x:Static enums:GenericStatus.Warning}">
+                                <Setter Property="Foreground" Value="Orange"/>
+                                <Setter Property="Text" Value="Please verify your details before being allowed to proceed"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding FormValidationStatus}" Value="{x:Static enums:GenericStatus.Failure}">
+                                <Setter Property="Foreground" Value="Red"/>
+                                <Setter Property="Text" Value="{Binding SpecificRouterVerificationError}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+
+            <Button Command="{Binding VerifyRouterDetailsCommandAsync}"
+                    MaxHeight="30"
+                    MaxWidth="150"
+                    Content="Verify router details..."
+                    Height="Auto"
+                    IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"/>
+
+            <StackPanel Orientation="Vertical"
+                        HorizontalAlignment="Center"
+                        Visibility="{Binding Loading, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Normal}">
+                <TextBlock Text="Contacting router. Please wait..." 
+                           VerticalAlignment="Center" 
+                           Foreground="Orange"/>
+                <mah:ProgressRing Width="25" 
+                                  Height="25"
+                                  Foreground="{DynamicResource MahApps.Brushes.Accent}"
+                                  VerticalAlignment="Center"/>
+            </StackPanel>
+
+        </UniformGrid>
+
+        <!-- exit and finish setup buttons -->
+        <Button Command="{Binding ExitSetupCommand}"
+                Grid.Row="5" 
+                Grid.Column="0" 
+                Margin="20"
+                Width="100"
+                HorizontalAlignment="Left">
+            <Button.Content>
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconFontisto Kind="AngleLeft" Margin="0 0 5 0"/>
+                    <TextBlock Text="EXIT SETUP" 
+                               FontSize="{StaticResource MahApps.Font.Size.Button}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
+
+        <Button Command="{Binding CompleteSetupCommand}"
+                Grid.Row="5" 
+                Grid.Column="4" 
+                Margin="20"
+                Width="100"
+                HorizontalAlignment="Right">
+            <Button.Content>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="FINISH SETUP"
+                               FontSize="{StaticResource MahApps.Font.Size.Button}"
+                               VerticalAlignment="Center"/>
+                    <iconPacks:PackIconFontisto Kind="AngleRight" Margin="5 0 0 0"/>
+                </StackPanel>
+            </Button.Content>
+        </Button>
     </Grid>
 </UserControl>
