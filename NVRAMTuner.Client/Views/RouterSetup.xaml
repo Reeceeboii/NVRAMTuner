@@ -72,6 +72,7 @@
                     UpdateSourceTrigger=PropertyChanged,
                     ValidatesOnNotifyDataErrors=True,
                     Delay=400}"
+                         IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"
                          d:Text="192.168.0.1"
                          Margin="5"
                          mah:TextBoxHelper.ClearTextButton="True"
@@ -82,6 +83,7 @@
                     UpdateSourceTrigger=PropertyChanged,
                     ValidatesOnNotifyDataErrors=True,
                     Delay=400}"
+                         IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"
                          d:Text="5000"
                          Margin="5"
                          mah:TextBoxHelper.ClearTextButton="True"
@@ -90,7 +92,8 @@
 
                 <WrapPanel Orientation="Horizontal" Margin="5">
                     <CheckBox mah:CheckBoxHelper.CheckCornerRadius="2"
-                              IsChecked="{Binding UserIsUsingSshKeys}"/>
+                              IsChecked="{Binding UserIsUsingSshKeys}"
+                              IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"/>
                     <Label Content="Use SSH keys for authentication"/>
                 </WrapPanel>
 
@@ -130,6 +133,7 @@
                     UpdateSourceTrigger=PropertyChanged,
                     ValidatesOnNotifyDataErrors=True,
                     Delay=400}"
+                         IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"
                          Margin="5"
                          mah:TextBoxHelper.ClearTextButton="True"
                          mah:TextBoxHelper.UseFloatingWatermark="True"
@@ -139,6 +143,7 @@
                     UpdateSourceTrigger=PropertyChanged,
                     ValidatesOnNotifyDataErrors=True,
                     Delay=400}"
+                         IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"
                          Visibility="{Binding ShowSshPasswordTextBox, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Normal}"
                          Margin="5"
                          mah:TextBoxHelper.ClearTextButton="True"
@@ -151,6 +156,7 @@
                     Delay=400}"
                          Visibility="{Binding UserIsUsingSshKeys, Converter={StaticResource BooleanToVisibilityConverter}}"
                          Margin="5"
+                         IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"
                          mah:TextBoxHelper.ClearTextButton="True"
                          mah:TextBoxHelper.UseFloatingWatermark="True"
                          mah:TextBoxHelper.Watermark="SSH key directory*"/>
@@ -160,11 +166,13 @@
                              Visibility="{Binding UserIsUsingSshKeys, Converter={StaticResource BooleanToVisibilityConverter}}">
 
                     <Button Command="{Binding ScanForSshKeysCommand}"
+                            IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"
                             Margin="0 0 5 0" 
                             Content="Scan system for keys"
                             ToolTip="Let NVRAMTuner scan your system in an attempt to automatically locate a pair of SSH keys"/>
 
                     <Button Command="{Binding BrowseForSshKeysCommand}"
+                            IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"
                             Margin="1 0 0 0" 
                             Content="Browse for keys..."
                             ToolTip="Manually select a folder on your system containing both a private and public SSH key"/>
@@ -248,7 +256,7 @@
         </UniformGrid>
 
         <!-- exit and finish setup buttons -->
-        <Button Command="{Binding ExitSetupCommand}"
+        <Button Command="{Binding ExitSetupCommandAsync}"
                 Grid.Row="5" 
                 Grid.Column="0" 
                 Margin="20"
@@ -260,22 +268,6 @@
                     <TextBlock Text="EXIT SETUP" 
                                FontSize="{StaticResource MahApps.Font.Size.Button}"
                                VerticalAlignment="Center"/>
-                </StackPanel>
-            </Button.Content>
-        </Button>
-
-        <Button Command="{Binding CompleteSetupCommand}"
-                Grid.Row="5" 
-                Grid.Column="4" 
-                Margin="20"
-                Width="100"
-                HorizontalAlignment="Right">
-            <Button.Content>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="FINISH SETUP"
-                               FontSize="{StaticResource MahApps.Font.Size.Button}"
-                               VerticalAlignment="Center"/>
-                    <iconPacks:PackIconFontisto Kind="AngleRight" Margin="5 0 0 0"/>
                 </StackPanel>
             </Button.Content>
         </Button>

@@ -34,6 +34,11 @@ namespace NVRAMTuner.Client.ViewModels
         private readonly IDialogService dialogService;
 
         /// <summary>
+        /// Instance of <see cref="IDataPersistenceService"/>
+        /// </summary>
+        private readonly IDataPersistenceService dataPersistenceService;
+
+        /// <summary>
         /// Instance of <see cref="IMessenger"/>
         /// </summary>
         private readonly IMessenger messenger;
@@ -88,14 +93,17 @@ namespace NVRAMTuner.Client.ViewModels
         /// </summary>
         /// <param name="networkService">An instance of <see cref="INetworkService"/></param>
         /// <param name="dialogService">An instance of <see cref="IDialogService"/></param>
+        /// <param name="dataPersistenceService">An instance of <see cref="IDataPersistenceService"/></param>
         /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
         public RouterSetupViewModel(
             INetworkService networkService,
             IDialogService dialogService,
+            IDataPersistenceService dataPersistenceService,
             IMessenger messenger)
         {
             this.networkService = networkService;
             this.dialogService = dialogService;
+            this.dataPersistenceService = dataPersistenceService;
             this.messenger = messenger;
 
             this.routerIpv4Address = string.Empty;
@@ -115,8 +123,7 @@ namespace NVRAMTuner.Client.ViewModels
             this.BrowseForSshKeysCommand = new RelayCommand(this.BrowseForSshKeysCommandHandler);
             this.ScanForSshKeysCommand = new RelayCommand(this.ScanForSshKeysCommandHandler);
             this.VerifyRouterDetailsCommandAsync = new AsyncRelayCommand(this.VerifyRouterDetailsCommandHandlerAsync);
-            this.ExitSetupCommand = new RelayCommand(this.ExitSetupCommandHandler);
-            this.CompleteSetupCommand = new RelayCommand(this.CompleteSetupCommandHandler);
+            this.ExitSetupCommandAsync = new AsyncRelayCommand(this.ExitSetupCommandHandlerAsync);
         }
 
         /// <summary>
@@ -156,14 +163,9 @@ namespace NVRAMTuner.Client.ViewModels
         public IAsyncRelayCommand VerifyRouterDetailsCommandAsync { get; }
 
         /// <summary>
-        /// Gets the command used when the user wants to exit the setup process
+        /// Gets the async command used when the user wants to exit the setup process
         /// </summary>
-        public ICommand ExitSetupCommand { get; }
-
-        /// <summary>
-        /// Gets the command used when the user wants to complete the setup process
-        /// </summary>
-        public ICommand CompleteSetupCommand { get; }
+        public IAsyncRelayCommand ExitSetupCommandAsync { get; }
 
         /// <summary>
         /// Gets or sets the IPv4 address of the router
@@ -309,7 +311,7 @@ namespace NVRAMTuner.Client.ViewModels
                     RouterIpv4Address = this.RouterIpv4Address,
                     SshPort = int.Parse(this.SshPort),
                     AuthType = this.UserIsUsingSshKeys ? SshAuthType.PubKeyBasedAuth : SshAuthType.PasswordBasedAuth,
-                    SshUsername = this.UserIsUsingSshKeys ? null : this.SshUsername,
+                    SshUsername = this.SshUsername,
                     SshPassword = this.UserIsUsingSshKeys ? null : this.SshPassword,
                     SskKeyDir = this.UserIsUsingSshKeys ? this.SshKeyFolder : null
                 };
@@ -382,6 +384,10 @@ namespace NVRAMTuner.Client.ViewModels
             this.SshKeyFolder = path;
         }
 
+        /// <summary>
+        /// Asynchronous handler for the <see cref="VerifyRouterDetailsCommandAsync"/> command
+        /// </summary>
+        /// <returns>An asynchronous <see cref="Task"/></returns>
         private async Task VerifyRouterDetailsCommandHandlerAsync()
         {
             this.Loading = true;
@@ -390,10 +396,35 @@ namespace NVRAMTuner.Client.ViewModels
 
             if (router != null)
             {
-                SshConnectionResult res;
                 try
                 {
-                    res = await this.networkService.AttemptConnectionToRouterAsync(router);
+                    SshConnectionInfo connectionInfo = await this.networkService.AttemptConnectionToRouterAsync(router);
+
+                    if (connectionInfo.ConnectionSuccessful)
+                    {
+                        this.FormValidationStatus = GenericStatus.Success;
+
+                        MessageDialogResult verifySuccessChoice = await this.dialogService.ShowMessageAsync(
+                            this,
+                            "Connection success!",
+                            $"NVRAMTuner is able to connect to {connectionInfo.HostName} ({connectionInfo.OperatingSystem}).\n" +
+                            $"Do you want to save this router and complete the setup process, or go back to alter any " +
+                            $"details?",
+                            MessageDialogStyle.AffirmativeAndNegative,
+                            new MetroDialogSettings()
+                            {
+                                AffirmativeButtonText = "Complete setup",
+                                NegativeButtonText = "Go back",
+                                DefaultButtonFocus = MessageDialogResult.Affirmative
+                            });
+
+                        if (verifySuccessChoice == MessageDialogResult.Affirmative)
+                        {
+                            await this.dataPersistenceService.SerialiseRouterToEncryptedFileAsync(router);
+                            this.messenger.Send(
+                                new NavigationRequestMessage(NavigableViewModel.HomeViewModel));
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
@@ -401,13 +432,11 @@ namespace NVRAMTuner.Client.ViewModels
                     this.FormValidationStatus = GenericStatus.Failure;
                     this.SpecificRouterVerificationError = e.Message;
 
-                    Task.Run(() =>
-                    {
-                        this.dialogService.ShowMessageAsync(
-                            this,
-                            "Connection failure",
-                            $"An attempt was made to connect to your router at {router.RouterIpv4Address}, but an error occurred:\n\n{e.Message}");
-                    });
+                    await this.dialogService.ShowMessageAsync(
+                        this,
+                        "Connection failure",
+                        $"An attempt was made to connect to your router at {router.RouterIpv4Address}, but an error occurred:\n\n{e.Message}");
+                    
                 }
             }
 
@@ -415,41 +444,25 @@ namespace NVRAMTuner.Client.ViewModels
         }
 
         /// <summary>
-        /// Method for handling the <see cref="ExitSetupCommand"/>
+        /// Method for handling the <see cref="ExitSetupCommandAsync"/> command
         /// </summary>
-        private void ExitSetupCommandHandler()
+        private async Task ExitSetupCommandHandlerAsync()
         {
-            Task.Run(async () =>
-            {
-                MessageDialogResult userExitChoice = await this.dialogService.ShowMessageAsync(
-                    this,
-                    "Exit?",
-                    "Are you sure you wish to exit? This will return you to the home page.",
-                    MessageDialogStyle.AffirmativeAndNegative,
-                    new MetroDialogSettings
-                    {
-                        AffirmativeButtonText = "Yes, exit setup",
-                        DefaultButtonFocus = MessageDialogResult.Affirmative,
-                        NegativeButtonText = "No, stay on setup page"
-                    });
-
-                if (userExitChoice == MessageDialogResult.Affirmative)
+            MessageDialogResult userExitChoice = await this.dialogService.ShowMessageAsync(
+                this,
+                "Exit?",
+                "Are you sure you wish to exit? This will return you to the home page.",
+                MessageDialogStyle.AffirmativeAndNegative,
+                new MetroDialogSettings
                 {
-                    this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.HomeViewModel));
-                }
-            });
-        }
+                    AffirmativeButtonText = "Yes, exit setup",
+                    DefaultButtonFocus = MessageDialogResult.Affirmative,
+                    NegativeButtonText = "No, stay on setup page"
+                });
 
-        /// <summary>
-        /// Method for handling the <see cref="CompleteSetupCommand"/>
-        /// </summary>
-        private void CompleteSetupCommandHandler()
-        {
-            this.ValidateAllProperties();
-
-            if (this.HasErrors)
+            if (userExitChoice == MessageDialogResult.Affirmative)
             {
-                this.ApplySpecificErrorPointingToFormErrors();
+                this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.HomeViewModel));
             }
         }
 
@@ -489,9 +502,9 @@ namespace NVRAMTuner.Client.ViewModels
         /// Analogous to the <see cref="ObservableValidator.GetErrors"/> method, except with some custom filtering on
         /// top of the returned <see cref="IEnumerable{T}"/> object. In this case, we want to filter out some specific
         /// errors based on the state of the <see cref="UserIsUsingSshKeys"/> property. As either the SSH password or
-        /// the SSH key folder text box will be hidden based on the state of the <see cref="UserIsUsingSshKeys"/>, we
+        /// the SSH key folder text box will be hidden based on the state of <see cref="UserIsUsingSshKeys"/>, we
         /// want to dynamically filter out errors attached to the bound properties, as if the box for either one
-        /// is hidden from the user, its value will not be used as is therefore immaterial to the actual
+        /// is hidden from the user, its value will not be used and is therefore immaterial to the actual
         /// error state of the ViewModel
         /// </summary>
         /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="ValidationResult"/> instances</returns>

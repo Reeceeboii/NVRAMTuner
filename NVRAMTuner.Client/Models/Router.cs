@@ -3,10 +3,12 @@
 namespace NVRAMTuner.Client.Models
 {
     using Enums;
+    using System.Xml.Serialization;
 
     /// <summary>
     /// Model representing a router
     /// </summary>
+    [XmlRoot("Router", Namespace = "NVRAMTuner.Client")]
     public class Router
     {
         /// <summary>
@@ -23,7 +25,7 @@ namespace NVRAMTuner.Client.Models
         /// Gets or sets the router's SSH username. Will be null if <see cref="AuthType"/>
         /// is set to <see cref="SshAuthType.PubKeyBasedAuth"/>
         /// </summary>
-        public string? SshUsername { get; set; }
+        public string SshUsername { get; set; }
 
         /// <summary>
         /// Gets or sets the router's SSH password. Will be null if <see cref="AuthType"/>
@@ -32,7 +34,8 @@ namespace NVRAMTuner.Client.Models
         public string? SshPassword { get; set; }
 
         /// <summary>
-        /// Gets or sets the directory on the host system within which
+        /// Gets or sets the directory on the host system within which a pair of SSH keys are stored.
+        /// This will be null if <see cref="AuthType"/> is set to <see cref="SshAuthType.PubKeyBasedAuth"/>
         /// </summary>
         public string? SskKeyDir { get; set; }
 

@@ -3,6 +3,22 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <LangVersion>8</LangVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <AutorunEnabled>true</AutorunEnabled>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -17,21 +33,7 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
@@ -56,6 +58,18 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>8BEE01F751FB28AB2E81532179F0AD3E0AB5F7AA</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>NVRAMTuner.Client_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>true</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommunityToolkit.Mvvm, Version=8.2.0.0, Culture=neutral, PublicKeyToken=4aff67a105548ee2, processorArchitecture=MSIL">
@@ -241,23 +255,30 @@
     </ApplicationDefinition>
     <Compile Include="Converters\ConfigurableBoolToVisibilityConverter.cs" />
     <Compile Include="Converters\InverseBoolConverter.cs" />
-    <Compile Include="Exceptions\SshConnectionException.cs" />
     <Compile Include="Messages\NavigationRequestMessage.cs" />
     <Compile Include="Messages\SshKeysFoundMessage.cs" />
     <Compile Include="Models\Enums\GenericStatus.cs" />
     <Compile Include="Models\Enums\SshAuthType.cs" />
     <Compile Include="Models\Enums\NavigableViewModel.cs" />
     <Compile Include="Models\Router.cs" />
-    <Compile Include="Models\SshConnectionResult.cs" />
+    <Compile Include="Models\SshConnectionInfo.cs" />
     <Compile Include="Models\SshKeyPair.cs" />
-    <Compile Include="Models\SshCredentialPair.cs" />
+    <Compile Include="Services\DataEncryptionService.cs" />
+    <Compile Include="Services\DataPersistenceService.cs" />
     <Compile Include="Services\DialogService.cs" />
     <Compile Include="Services\EnvironmentService.cs" />
+    <Compile Include="Services\Interfaces\IDataPersistenceService.cs" />
+    <Compile Include="Services\Interfaces\IDataEncryptionService.cs" />
     <Compile Include="Services\Interfaces\INetworkService.cs" />
     <Compile Include="Services\Interfaces\IDialogService.cs" />
     <Compile Include="Services\Interfaces\IEnvironmentService.cs" />
     <Compile Include="Services\Interfaces\ISshClientService.cs" />
     <Compile Include="Services\NetworkService.cs" />
+    <Compile Include="Services\Resources\SshCommands.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>SshCommands.resx</DependentUpon>
+    </Compile>
     <Compile Include="Services\SshClientService.cs" />
     <Compile Include="Validators\ValidIpv4AddressAttribute.cs" />
     <Compile Include="Validators\ValidNetworkPortAttribute.cs" />
@@ -333,10 +354,15 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Services\Resources\SshCommands.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>SshCommands.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="ViewModels\Resources\ViewModelFormErrors.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>ViewModelFormErrors.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="NVRAMTuner.Client_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

@@ -5,13 +5,9 @@ namespace NVRAMTuner.Client.Services
     using CommunityToolkit.Mvvm.Messaging;
     using Interfaces;
     using Models;
-    using Models.Enums;
     using System;
-    using System.Diagnostics;
     using System.IO.Abstractions;
     using System.Linq;
-    using System.Net;
-    using System.Net.NetworkInformation;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -143,40 +139,15 @@ namespace NVRAMTuner.Client.Services
             return pubKeyExists && privKeyExists;
         }
 
-        public async Task<SshConnectionResult> AttemptConnectionToRouterAsync(Router router)
+        /// <summary>
+        /// Attempts a connection with the user's router based on the information they have provided about it
+        /// </summary>
+        /// <param name="router">A <see cref="Router"/> instance containing the relevant information
+        /// required to initiate an SSH connection and verify the resulting connection's status</param>
+        /// <returns>A <see cref="SshConnectionInfo"/> instance</returns>
+        public async Task<SshConnectionInfo> AttemptConnectionToRouterAsync(Router router)
         {
-            bool routerPingable = false;
-
-            /*
-             * Router's firmware may be set to not answer pings.
-             * A fail here doesn't necessarily mean a connection will fail, but is something to note
-             * as a point of troubleshooting *in case* it does
-             */
-            using (Ping ping = new Ping())
-            {
-                PingReply reply = await ping.SendPingAsync(router.RouterIpv4Address);
-
-                if (reply.Status == IPStatus.Success)
-                {
-                    routerPingable = true;
-                }
-            }
-
-            Debug.WriteLine($"Router ping: {routerPingable}");
-
-            if (router.AuthType == SshAuthType.PasswordBasedAuth)
-            {
-                return await this.sshClientService.AttemptRouterSshAuthWithPassword(router);
-            }
-            else
-            {
-                return new SshConnectionResult
-                {
-                    ConnectionSuccessful = false,
-                    AuthType = SshAuthType.PasswordBasedAuth,
-                    router = router
-                };
-            }
+            return await this.sshClientService.AttemptConnectionToRouterAsync(router);
         }
     }
-}
+} 

@@ -32,6 +32,8 @@
             collection.AddScoped<ISshClientService, SshClientService>();
             collection.AddScoped<IDialogService, DialogService>();
             collection.AddScoped<INetworkService, NetworkService>();
+            collection.AddScoped<IDataPersistenceService, DataPersistenceService>();
+            collection.AddScoped<IDataEncryptionService, DataEncryptionService>();
 
             // ViewModels and navigation
             collection.AddScoped<MainWindowViewModel>();

@@ -25,11 +25,11 @@ namespace NVRAMTuner.Client.Services.Interfaces
         bool FolderContainsSshKeys(string folder);
 
         /// <summary>
-        /// Attempts to a connect to a router and returns, asynchronously, a <see cref="SshConnectionResult"/> instance
+        /// Attempts to a connect to a router and returns, asynchronously, a <see cref="SshConnectionInfo"/> instance
         /// </summary>
         /// <param name="router">A <see cref="Router"/> instance, containing the router details that are to be used for
         /// the connection test</param>
-        /// <returns>A <see cref="Task{TResult}"/> wrapping a <see cref="SshConnectionResult"/></returns>
-        Task<SshConnectionResult> AttemptConnectionToRouterAsync(Router router);
+        /// <returns>A <see cref="Task{TResult}"/> wrapping a <see cref="SshConnectionInfo"/></returns>
+        Task<SshConnectionInfo> AttemptConnectionToRouterAsync(Router router);
     }
 }
