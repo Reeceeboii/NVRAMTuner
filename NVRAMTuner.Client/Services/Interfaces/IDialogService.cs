@@ -10,9 +10,9 @@
     {
         /// <summary>
         /// Creates a message dialog inside the current window. Accepts a context parameter, which is typically
-        /// the NavigableViewModel belonging to the view to which the dialog should be attached
+        /// the ViewModel belonging to the view to which the dialog should be attached
         /// </summary>
-        /// <param name="ctx">The context (as mentioned, usually a NavigableViewModel class)</param>
+        /// <param name="ctx">The context (as mentioned, usually a ViewModel class)</param>
         /// <param name="title">The title of the dialog</param>
         /// <param name="message">The content of the dialog</param>
         /// <param name="style">The style of the dialog. Defaults to <see cref="MessageDialogStyle.Affirmative"/></param>
@@ -23,7 +23,7 @@
             string title,
             string message,
             MessageDialogStyle style = MessageDialogStyle.Affirmative,
-            MetroDialogSettings? settings = null);
+            MetroDialogSettings settings = null);
 
         /// <summary>
         /// Displays a folder selection dialog, and if a folder is selected, returns the path to that folder.
@@ -33,6 +33,6 @@
         /// <param name="description">A description of the dialog</param>
         /// <param name="multiSelect">Whether or not multiple folders should be allowed to be selected</param>
         /// <returns></returns>
-        string ShowFolderBrowserDialog(string description, bool multiSelect);
+        string ShowFolderBrowserDialog (string description, bool multiSelect);
     }
 }

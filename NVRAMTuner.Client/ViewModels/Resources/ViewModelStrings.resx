@@ -117,8 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="NoSavedRoutersFoundDialogMessage" xml:space="preserve">
+    <value>NVRAMTuner was unable to find any routers on your system that were previously saved. If this is your first time using NVRAMTuner, enter the setup process now to add a router. Otherwise, please place a previously saved router file in the expected location.</value>
+    <comment>(HomeViewModel) A message displayed in a dialog to the user when NVRAMTuner first starts if it is determined that there are no previously saved routers on their system that are able to be loaded.</comment>
+  </data>
   <data name="RouterSetupOverallFormErrorsMessage" xml:space="preserve">
     <value>There are errors in the form. Click into fields for specific errors</value>
-    <comment>An overall form error message displayed to the user when there are errors with specific data in the filled out form they have provided that need to be fixed before they can continue.</comment>
+    <comment>(RouterSetupViewModel) An overall form error message displayed to the user when there are errors with specific data in the filled out form they have provided that need to be fixed before they can continue.</comment>
   </data>
 </root>

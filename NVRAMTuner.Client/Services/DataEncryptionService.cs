@@ -1,7 +1,11 @@
 ﻿namespace NVRAMTuner.Client.Services
 {
     using Interfaces;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Security.Cryptography;
+    using System.Security.Principal;
+    using System.Text;
 
     /// <summary>
     /// Provides the ability to encrypt/decrypt data using the Windows Data Protection API (DPAPI)
@@ -11,17 +15,41 @@
     public class DataEncryptionService : IDataEncryptionService
     {
         /// <summary>
-        /// Random entropy to be used in the encryption process
+        /// A static GUID value used to help in the derivation of entropy data
+        /// </summary>
+        private readonly string entropyGuid;
+
+        /// <summary>
+        /// A byte array of entropy to use in encryption
         /// </summary>
         private readonly byte[] entropy;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="DataEncryptionService"/> class
         /// </summary>
-        public DataEncryptionService()
+        public DataEncryptionService(IWindowsSecurityService windowsSecurityService)
         {
-            this.entropy = new byte[256];
-            new RNGCryptoServiceProvider().GetBytes(this.entropy);
+            this.entropyGuid = "75207C65-2A79-4800-998E-BA7F57C7CC37";
+            this.entropy = this.DeriveEntropy(windowsSecurityService.RetrieveUserSid());
+        }
+
+        /// <summary>
+        /// Derive some entropy from the users <see cref="SecurityIdentifier"/> and a GUID
+        /// combined together
+        /// </summary>
+        /// <returns></returns>
+        private byte[] DeriveEntropy(SecurityIdentifier sid)
+        {
+            List<byte> entropyConstruction = Encoding.UTF8.GetBytes(sid.Value).ToList();
+            entropyConstruction.AddRange(Encoding.ASCII.GetBytes(this.entropyGuid));
+
+            // truncate the end of the list so its length is the highest possible multiple of 16
+            int highestMultiple = (entropyConstruction.Count / 16) * 16;
+            if (entropyConstruction.Count != highestMultiple)
+            {
+                entropyConstruction.RemoveRange(highestMultiple, entropyConstruction.Count - highestMultiple);
+            }
+            return entropyConstruction.ToArray();
         }
 
         /// <summary>

@@ -8,9 +8,9 @@
              xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels"
              xmlns:enums="clr-namespace:NVRAMTuner.Client.Models.Enums"
              d:DataContext="{d:DesignInstance Type=vm:RouterSetupViewModel, IsDesignTimeCreatable=False}"
+             dialog:DialogParticipation.Register="{Binding}"
              xmlns:dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-             dialog:DialogParticipation.Register="{Binding}"
              mc:Ignorable="d"
              d:DesignHeight="1000"
              d:DesignWidth="1500">
@@ -67,7 +67,7 @@
 
         <!-- Step 1 form: network and SSH configuration -->
         <AdornerDecorator Grid.Row="2" Grid.Column="0">
-            <UniformGrid Rows="3" Columns="1" Margin="15">
+            <UniformGrid Rows="5" Columns="1" Margin="15">
                 <TextBox Text="{Binding RouterIpv4Address, 
                     UpdateSourceTrigger=PropertyChanged,
                     ValidatesOnNotifyDataErrors=True,
@@ -128,7 +128,7 @@
 
         <!-- Step 2 form: SSH credentials -->
         <AdornerDecorator Grid.Row="2" Grid.Column="2">
-            <UniformGrid Rows="3" Columns="1" Margin="15">
+            <UniformGrid Rows="5" Columns="1" Margin="15">
                 <TextBox Text="{Binding SshUsername, 
                     UpdateSourceTrigger=PropertyChanged,
                     ValidatesOnNotifyDataErrors=True,
@@ -139,22 +139,22 @@
                          mah:TextBoxHelper.UseFloatingWatermark="True"
                          mah:TextBoxHelper.Watermark="SSH username*"/>
 
-                <TextBox Text="{Binding SshPassword, 
-                    UpdateSourceTrigger=PropertyChanged,
-                    ValidatesOnNotifyDataErrors=True,
-                    Delay=400}"
-                         IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"
-                         Visibility="{Binding ShowSshPasswordTextBox, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Normal}"
-                         Margin="5"
-                         mah:TextBoxHelper.ClearTextButton="True"
-                         mah:TextBoxHelper.UseFloatingWatermark="True"
-                         mah:TextBoxHelper.Watermark="SSH password*"/>
+                <Grid Margin="5"
+                      Visibility="{Binding UserIsUsingSshKeys, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Reverse}">
+                    <TextBox Template="{x:Null}" Text="{Binding SshPassword, Mode=TwoWay}" />
+                    <PasswordBox PasswordChanged="PasswordBoxOnPasswordChanged"
+                                 IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"
+                                 mah:TextBoxHelper.ClearTextButton="True"
+                                 mah:TextBoxHelper.UseFloatingWatermark="True"
+                                 mah:TextBoxHelper.Watermark="SSH password*"
+                                 Style="{StaticResource MahApps.Styles.PasswordBox.Button.Revealed}"/>
+                </Grid>
 
                 <TextBox Text="{Binding SshKeyFolder,
                     UpdateSourceTrigger=PropertyChanged,
                     ValidatesOnNotifyDataErrors=True,
                     Delay=400}"
-                         Visibility="{Binding UserIsUsingSshKeys, Converter={StaticResource BooleanToVisibilityConverter}}"
+                         Visibility="{Binding UserIsUsingSshKeys, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Normal}"
                          Margin="5"
                          IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"
                          mah:TextBoxHelper.ClearTextButton="True"
@@ -163,7 +163,7 @@
 
                 <UniformGrid Columns="2" 
                              Margin="5"
-                             Visibility="{Binding UserIsUsingSshKeys, Converter={StaticResource BooleanToVisibilityConverter}}">
+                             Visibility="{Binding UserIsUsingSshKeys, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Normal}">
 
                     <Button Command="{Binding ScanForSshKeysCommand}"
                             IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"
@@ -208,52 +208,70 @@
         </WrapPanel>
 
         <!-- Step 3 form: details confirmation and connection -->
-        <UniformGrid Grid.Row="2" Grid.Column="4" Margin="15" Columns="1" Rows="3">
-            <TextBlock d:Text="Please verify your details before being allowed to proceed"
-                       d:Foreground="Orange">
-                <TextBlock.Style>
-                    <Style TargetType="{x:Type TextBlock}">
-                        <Setter Property="HorizontalAlignment" Value="Center" />
-                        <Setter Property="VerticalAlignment" Value="Center" />
-                        <Setter Property="TextWrapping" Value="Wrap" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding FormValidationStatus}" Value="{x:Static enums:GenericStatus.Success}">
-                                <Setter Property="Foreground" Value="Green"/>
-                                <Setter Property="Text" Value="Your information has been verified"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding FormValidationStatus}" Value="{x:Static enums:GenericStatus.Warning}">
-                                <Setter Property="Foreground" Value="Orange"/>
-                                <Setter Property="Text" Value="Please verify your details before being allowed to proceed"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding FormValidationStatus}" Value="{x:Static enums:GenericStatus.Failure}">
-                                <Setter Property="Foreground" Value="Red"/>
-                                <Setter Property="Text" Value="{Binding SpecificRouterVerificationError}"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
+        <AdornerDecorator Grid.Row="2" Grid.Column="4">
+            <UniformGrid Margin="15" Columns="1" Rows="5">
 
-            <Button Command="{Binding VerifyRouterDetailsCommandAsync}"
+                <TextBox Text="{Binding RouterNickname, 
+                UpdateSourceTrigger=PropertyChanged,
+                ValidatesOnNotifyDataErrors=True,
+                Delay=400}"
+                     IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"
+                     Margin="5"
+                     mah:TextBoxHelper.ClearTextButton="True"
+                     mah:TextBoxHelper.UseFloatingWatermark="True"
+                     mah:TextBoxHelper.Watermark="Router nickname"/>
+
+                <TextBlock Margin="5" Foreground="LightGray">
+                    <Run Text="Default nickname:" />
+                    <Run Text="{Binding DefaultRouterNickname, Mode=OneWay}" />
+                </TextBlock>
+
+                    <TextBlock d:Text="Please verify your details before being allowed to proceed"
+                               d:Foreground="Orange">
+                    <TextBlock.Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="HorizontalAlignment" Value="Center" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding FormValidationStatus}" Value="{x:Static enums:GenericStatus.Success}">
+                                    <Setter Property="Foreground" Value="Green"/>
+                                    <Setter Property="Text" Value="Your information has been verified"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding FormValidationStatus}" Value="{x:Static enums:GenericStatus.Warning}">
+                                    <Setter Property="Foreground" Value="Orange"/>
+                                    <Setter Property="Text" Value="Please verify your details before being allowed to proceed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding FormValidationStatus}" Value="{x:Static enums:GenericStatus.Failure}">
+                                    <Setter Property="Foreground" Value="Red"/>
+                                    <Setter Property="Text" Value="{Binding SpecificRouterVerificationError}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <Button Command="{Binding VerifyRouterDetailsCommandAsync}"
                     MaxHeight="30"
                     MaxWidth="150"
                     Content="Verify router details..."
                     Height="Auto"
                     IsEnabled="{Binding Loading, Converter={StaticResource InverseBoolConverter}}"/>
 
-            <StackPanel Orientation="Vertical"
+                <StackPanel Orientation="Vertical"
                         HorizontalAlignment="Center"
                         Visibility="{Binding Loading, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Normal}">
-                <TextBlock Text="Contacting router. Please wait..." 
+                    <TextBlock Text="Contacting router. Please wait..." 
                            VerticalAlignment="Center" 
                            Foreground="Orange"/>
-                <mah:ProgressRing Width="25" 
+                    <mah:ProgressRing Width="25" 
                                   Height="25"
                                   Foreground="{DynamicResource MahApps.Brushes.Accent}"
                                   VerticalAlignment="Center"/>
-            </StackPanel>
+                </StackPanel>
 
-        </UniformGrid>
+            </UniformGrid>
+        </AdornerDecorator>
 
         <!-- exit and finish setup buttons -->
         <Button Command="{Binding ExitSetupCommandAsync}"

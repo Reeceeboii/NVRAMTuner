@@ -7,13 +7,14 @@
              xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance Type=vm:MenuViewModel, IsDesignTimeCreatable=False}"
+             d:DataContext="{d:DesignInstance Type=vm:HomeViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="30"
              d:DesignWidth="800">
 
     <Menu>
         <MenuItem Header="_File">
-            <MenuItem Header="Connect to router...">
+            <MenuItem Header="Connect to router..."
+                      Command="{Binding LoadRouterFromDiskCommand}">
                 <MenuItem.Icon>
                     <iconPacks:PackIconMaterial Kind="RouterWireless" />
                 </MenuItem.Icon>
@@ -21,6 +22,12 @@
             <MenuItem Header="Disconnect from router">
                 <MenuItem.Icon>
                     <iconPacks:PackIconMaterial Kind="RouterWirelessOff" />
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Setup new router"
+                      Command="{Binding EnterSetupCommand}">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial Kind="PlusNetwork" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
@@ -43,12 +50,12 @@
             </MenuItem>
         </MenuItem>
         <MenuItem Header="_Help">
-            <MenuItem Header="View source" Command="{Binding ViewSourceCommand}">
+            <MenuItem Header="View source" Command="{Binding ViewSourceMenuCommand}">
                 <MenuItem.Icon>
                     <iconPacks:PackIconFontAwesome Kind="GithubBrands" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="Submit bug report" Command="{Binding ReportBugCommand}">
+            <MenuItem Header="Submit bug report" Command="{Binding ReportBugMenuCommand}">
                 <MenuItem.Icon>
                     <iconPacks:PackIconBoxIcons Kind="RegularBug" />
                 </MenuItem.Icon>

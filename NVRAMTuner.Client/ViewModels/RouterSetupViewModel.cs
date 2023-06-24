@@ -74,6 +74,11 @@ namespace NVRAMTuner.Client.ViewModels
         private string sshPassword;
 
         /// <summary>
+        /// Backing field for <see cref="RouterNickname"/>
+        /// </summary>
+        private string routerNickname;
+
+        /// <summary>
         /// Backing field for <see cref="FormValidationStatus"/>
         /// </summary>
         private GenericStatus formValidationStatus;
@@ -112,6 +117,7 @@ namespace NVRAMTuner.Client.ViewModels
             this.userIsUsingSshKeys = false;
             this.sshUsername = string.Empty;
             this.sshPassword = string.Empty;
+            this.routerNickname = string.Empty;
 
             this.formValidationStatus = GenericStatus.Warning;
             this.specificRouterVerificationError = string.Empty;
@@ -120,6 +126,12 @@ namespace NVRAMTuner.Client.ViewModels
 
             this.SshPort = NetworkService.DefaultSshPort;
 
+            // set the default nickname
+            List<Router> routers = this.dataPersistenceService.DeserialiseAllPresentRouters().ToList();
+            this.DefaultRouterNickname = $"Router-{routers.Count + 1}";
+            this.OnPropertyChanged(nameof(this.DefaultRouterNickname));
+
+            // set up all commands
             this.BrowseForSshKeysCommand = new RelayCommand(this.BrowseForSshKeysCommandHandler);
             this.ScanForSshKeysCommand = new RelayCommand(this.ScanForSshKeysCommandHandler);
             this.VerifyRouterDetailsCommandAsync = new AsyncRelayCommand(this.VerifyRouterDetailsCommandHandlerAsync);
@@ -223,7 +235,6 @@ namespace NVRAMTuner.Client.ViewModels
             set
             {
                 this.SetProperty(ref this.userIsUsingSshKeys, value, true);
-                this.OnPropertyChanged(nameof(this.ShowSshPasswordTextBox));
                 this.FormValidationStatus = GenericStatus.Warning;
             }
         }
@@ -258,7 +269,7 @@ namespace NVRAMTuner.Client.ViewModels
         }
 
         /// <summary>
-        /// Gets or sets the password that will be used to authenticate with the router's SSH server.
+        /// Gets or sets the password that will be used to authenticate with the router's SSH server
         /// </summary>
         [Required(ErrorMessage = "You need to provide an SSH password")]
         public string SshPassword
@@ -267,16 +278,28 @@ namespace NVRAMTuner.Client.ViewModels
             set
             {
                 this.SetProperty(ref this.sshPassword, value, true);
+                Debug.WriteLine($"password: '{this.sshPassword}'");
                 this.FormValidationStatus = GenericStatus.Warning;
             }
         }
 
         /// <summary>
-        /// Gets a bool representing whether the SSH password text box should be shown.
-        /// This is false if the user has selected to use SSH keys for their authentication
-        /// method
+        /// Gets or sets the nickname that will be given to this router. The role of this nickname
+        /// is simply to be a more user-friendly name that can be used for quick recognition when more
+        /// than 1 router has been saved
         /// </summary>
-        public bool ShowSshPasswordTextBox => !this.UserIsUsingSshKeys;
+        [MaxLength(25, ErrorMessage = "Nickname has a max character limit of 25")]
+        public string RouterNickname
+        {
+            get => this.routerNickname;
+            set => this.SetProperty(ref this.routerNickname, value, true);
+        }
+
+        /// <summary>
+        /// Gets the default router nickname that will be given to this router. This value is set if and
+        /// when the user enters a valid Ipv4 address.
+        /// </summary>
+        public string DefaultRouterNickname { get; }
 
         /// <summary>
         /// Gets or sets a bool representing whether or not any loading is taking place in the background
@@ -306,9 +329,15 @@ namespace NVRAMTuner.Client.ViewModels
         {
             if (!this.HasErrorsFiltered())
             {
+                string nickname = string.IsNullOrWhiteSpace(this.RouterNickname) 
+                    ? this.DefaultRouterNickname 
+                    : this.RouterNickname;
+
                 return new Router
                 {
                     RouterIpv4Address = this.RouterIpv4Address,
+                    RouterNickname = nickname,
+                    RouterUid = Guid.NewGuid(),
                     SshPort = int.Parse(this.SshPort),
                     AuthType = this.UserIsUsingSshKeys ? SshAuthType.PubKeyBasedAuth : SshAuthType.PasswordBasedAuth,
                     SshUsername = this.SshUsername,
@@ -398,7 +427,7 @@ namespace NVRAMTuner.Client.ViewModels
             {
                 try
                 {
-                    SshConnectionInfo connectionInfo = await this.networkService.AttemptConnectionToRouterAsync(router);
+                    SshConnectionInfo connectionInfo = await this.networkService.ConnectToRouterAsync(router);
 
                     if (connectionInfo.ConnectionSuccessful)
                     {
@@ -408,8 +437,8 @@ namespace NVRAMTuner.Client.ViewModels
                             this,
                             "Connection success!",
                             $"NVRAMTuner is able to connect to {connectionInfo.HostName} ({connectionInfo.OperatingSystem}).\n" +
-                            $"Do you want to save this router and complete the setup process, or go back to alter any " +
-                            $"details?",
+                            "Do you want to save this router and complete the setup process, or go back to alter any " +
+                            "details?",
                             MessageDialogStyle.AffirmativeAndNegative,
                             new MetroDialogSettings()
                             {
@@ -435,7 +464,8 @@ namespace NVRAMTuner.Client.ViewModels
                     await this.dialogService.ShowMessageAsync(
                         this,
                         "Connection failure",
-                        $"An attempt was made to connect to your router at {router.RouterIpv4Address}, but an error occurred:\n\n{e.Message}");
+                        $"An attempt was made to connect to your router at {router.RouterIpv4Address}, " +
+                        $"but an error occurred:\n\n{e.Message}");
                     
                 }
             }
@@ -473,7 +503,7 @@ namespace NVRAMTuner.Client.ViewModels
         private void ApplySpecificErrorPointingToFormErrors()
         {
             this.FormValidationStatus = GenericStatus.Failure;
-            this.SpecificRouterVerificationError = ViewModelFormErrors.RouterSetupOverallFormErrorsMessage;
+            this.SpecificRouterVerificationError = ViewModelStrings.RouterSetupOverallFormErrorsMessage;
         }
 
         /// <summary>

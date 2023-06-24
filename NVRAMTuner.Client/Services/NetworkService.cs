@@ -5,7 +5,12 @@ namespace NVRAMTuner.Client.Services
     using CommunityToolkit.Mvvm.Messaging;
     using Interfaces;
     using Models;
+    using Models.Enums;
+    using Renci.SshNet;
+    using Renci.SshNet.Common;
+    using Resources;
     using System;
+    using System.IO;
     using System.IO.Abstractions;
     using System.Linq;
     using System.Threading.Tasks;
@@ -14,13 +19,8 @@ namespace NVRAMTuner.Client.Services
     /// An implementation of a service for handling various network related operations
     /// pertinent to the operation of the NVRAMTuner application
     /// </summary>
-    public class NetworkService : INetworkService
+    public class NetworkService : IDisposable, INetworkService
     {
-        /// <summary>
-        /// An instance of <see cref="ISshClientService"/>
-        /// </summary>
-        private readonly ISshClientService sshClientService;
-
         /// <summary>
         /// An instance of <see cref="IFileSystem"/>
         /// </summary>
@@ -37,6 +37,11 @@ namespace NVRAMTuner.Client.Services
         private readonly IMessenger messenger;
 
         /// <summary>
+        /// Instance of <see cref="SshClient"/>
+        /// </summary>
+        private SshClient? client;
+
+        /// <summary>
         /// The default SSH port to assume a router is using
         /// </summary>
         public static string DefaultSshPort = "22";
@@ -44,17 +49,14 @@ namespace NVRAMTuner.Client.Services
         /// <summary>
         /// Initialises a new instance of the <see cref="NetworkService"/> class
         /// </summary>
-        /// <param name="sshClientService">An instance of <see cref="ISshClientService"/></param>
         /// <param name="fileSystem">An instance of <see cref="IFileSystem"/></param>
         /// <param name="environmentService">An instance of <see cref="IEnvironmentService"/></param>
         /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
         public NetworkService(
-            ISshClientService sshClientService,
             IFileSystem fileSystem,
             IEnvironmentService environmentService,
             IMessenger messenger)
         {
-            this.sshClientService = sshClientService;
             this.fileSystem = fileSystem;
             this.environmentService = environmentService;
             this.messenger = messenger;
@@ -112,6 +114,149 @@ namespace NVRAMTuner.Client.Services
         }
 
         /// <summary>
+        /// Gets a bool representing whether or not the SSH client is currently connected to a router
+        /// </summary>
+        public bool IsConnected => this.client?.IsConnected ?? false;
+
+        /// <summary>
+        /// Attempts to open an SSH connection to the remote server using either password-based authentication, or public/private key
+        /// based authentication. This choice is up to the user and their local network configuration.
+        /// If <paramref name="useTempClient"/> is set to false (its non-default value), the service's field instance of
+        /// the <see cref="SshClient"/> is used to initiate a "real" connection as opposed to an ephemeral test connection.
+        /// </summary>
+        /// <param name="router">An instance of <see cref="Router"/> containing details required to initiate a connection</param>
+        /// <param name="useTempClient">Set to false if you want to initiate a more permanent session instead
+        /// of using a temporary client instance for testing</param>
+        /// <returns>
+        /// An instance of <see cref="SshConnectionInfo"/> that holds the result of the connection attempt,
+        /// along with any other relevant information, wrapped in an asynchronous <see cref="Task{TResult}"/>
+        /// </returns>
+        /// <exception cref="FileNotFoundException">
+        /// If the private key located in <see cref="Router.SskKeyDir"/> (in the case of pub key authentication)
+        /// does not exist on the user's system
+        /// </exception>
+        /// <exception cref="SshConnectionException">
+        /// If one opts to not use the temp client but the real client is already connected to a server
+        /// </exception>
+        public async Task<SshConnectionInfo> ConnectToRouterAsync(Router router, bool useTempClient = true)
+        {
+            if (!useTempClient && this.client is { IsConnected: true })
+            {
+                throw new SshConnectionException("Client instance is already connected!");
+            }
+
+            ConnectionInfo connectionInfo;
+
+            if (router.AuthType == SshAuthType.PasswordBasedAuth)
+            {
+                connectionInfo = new PasswordConnectionInfo(
+                    router.RouterIpv4Address,
+                    router.SshPort,
+                    router.SshUsername,
+                    router.SshPassword);
+            }
+            else
+            {
+                string privateKeyPath = this.fileSystem.Path.Combine(router.SskKeyDir ?? string.Empty, "id_rsa");
+
+                if (!this.fileSystem.File.Exists(privateKeyPath))
+                {
+                    throw new FileNotFoundException("Private SSH key not found", privateKeyPath);
+                }
+
+                using Stream privateKeyStream = this.fileSystem.File.Open(privateKeyPath, FileMode.Open);
+
+                connectionInfo = new PrivateKeyConnectionInfo(
+                    router.RouterIpv4Address,
+                    router.SshPort,
+                    router.SshUsername,
+                    new PrivateKeyFile(privateKeyStream));
+            }
+
+            if (useTempClient)
+            {
+                using (SshClient tempClient = new SshClient(connectionInfo))
+                {
+                    tempClient.Connect();
+
+                    if (tempClient.IsConnected)
+                    {
+                        Tuple<string, string> tempHnAndOs = await this.GetRouterHostnameAndOs(tempClient);
+
+                        tempClient.Disconnect();
+
+                        return new SshConnectionInfo
+                        {
+                            ConnectionSuccessful = true,
+                            HostName = tempHnAndOs.Item1,
+                            OperatingSystem = tempHnAndOs.Item2
+                        };
+                    }
+
+                    tempClient.Disconnect();
+                }
+
+                return new SshConnectionInfo
+                {
+                    ConnectionSuccessful = false
+                };
+            }
+
+            this.client = new SshClient(connectionInfo);
+            Tuple<string, string> hnAndOs = await this.GetRouterHostnameAndOs();
+
+            return new SshConnectionInfo
+            {
+                ConnectionSuccessful = true, 
+                HostName = hnAndOs.Item1, 
+                OperatingSystem = hnAndOs.Item2
+            };
+        }
+
+        /// <summary>
+        /// Runs a command against the router using the service's <see cref="SshClient"/> instance
+        /// </summary>
+        /// <param name="command">The command to run</param>
+        /// <param name="clientOverride">An optional <see cref="SshClient"/> parameter that can be used to override
+        /// the default behaviour of using the service's instance <see cref="SshClient"/></param>
+        /// <returns>A <see cref="SshCommand"/> wrapped in an asynchronous <see cref="Task{TResult}"/></returns>
+        /// <exception cref="SshConnectionException">If the client is not yet connected to a server</exception>
+        /// <exception cref="InvalidOperationException">If the client is not yet initialised</exception>
+        public async Task<SshCommand> RunCommandAgainstRouter(string command, SshClient? clientOverride = null)
+        {
+            if (this.client is { IsConnected: false } && clientOverride == null)
+            {
+                // user wants to use instance's client but it is not connected
+                throw new SshConnectionException("Client is not connected to a server, cannot run command");
+            }
+
+            if (clientOverride != null)
+            {
+                return await Task.Run(() => clientOverride?.RunCommand(command)) 
+                       ?? throw new InvalidOperationException("Client is uninitialised");
+            }
+
+            return await Task.Run(() => this.client?.RunCommand(command))
+                   ?? throw new InvalidOperationException("Overridden client is uninitialised");
+        }
+
+        /// <summary>
+        /// Gets the hostname and operating system of the router
+        /// </summary>
+        /// <param name="clientOverride">An optional <see cref="SshClient"/> parameter that can be used to override
+        /// the default behaviour of using the service's instance <see cref="SshClient"/></param>
+        /// <returns>A <see cref="Tuple{T1, T2}"/> that contains the hostname and operating system of the router</returns>
+        private async Task<Tuple<string, string>> GetRouterHostnameAndOs(SshClient? clientOverride = null)
+        {
+            SshCommand hostName = await this.RunCommandAgainstRouter(SshCommands.HostName_Command, clientOverride);
+            SshCommand os = await this.RunCommandAgainstRouter(SshCommands.Uname_Os_Command, clientOverride);
+
+            return new Tuple<string, string>(
+                hostName.Result.TrimEnd('\r', '\n'), 
+                os.Result.TrimEnd('\r', '\n'));
+        }
+
+        /// <summary>
         /// Scans the local system for a pair of SSH keys on behalf of the user
         /// </summary>
         /// <returns>An absolute path to a directory containing a pair of SSH keys,
@@ -132,22 +277,19 @@ namespace NVRAMTuner.Client.Services
         {
             // TODO: DSA/EDCSA etc...?
             string pubKeyPath = this.fileSystem.Path.Combine(folder, "id_rsa.pub");
-            string privKeyPath = this.fileSystem.Path.Combine(folder, "id_rsa");
+            string privateKeyPath = this.fileSystem.Path.Combine(folder, "id_rsa");
             bool pubKeyExists = this.fileSystem.File.Exists(pubKeyPath);
-            bool privKeyExists = this.fileSystem.File.Exists(privKeyPath);
+            bool privateKeyExists = this.fileSystem.File.Exists(privateKeyPath);
 
-            return pubKeyExists && privKeyExists;
+            return pubKeyExists && privateKeyExists;
         }
 
         /// <summary>
-        /// Attempts a connection with the user's router based on the information they have provided about it
+        /// Disposes of any relevant resources
         /// </summary>
-        /// <param name="router">A <see cref="Router"/> instance containing the relevant information
-        /// required to initiate an SSH connection and verify the resulting connection's status</param>
-        /// <returns>A <see cref="SshConnectionInfo"/> instance</returns>
-        public async Task<SshConnectionInfo> AttemptConnectionToRouterAsync(Router router)
+        public void Dispose()
         {
-            return await this.sshClientService.AttemptConnectionToRouterAsync(router);
+            this.client?.Dispose();
         }
     }
 } 

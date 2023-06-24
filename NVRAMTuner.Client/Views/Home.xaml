@@ -16,21 +16,91 @@
     <Grid Style="{StaticResource TopLevelGrid}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
+            <RowDefinition Height="5*"/>
+            <RowDefinition Height="5*"/>
+            <RowDefinition Height="3*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="4*"/>
+            <ColumnDefinition Width="12*"/>
+            <ColumnDefinition Width="5*"/>
         </Grid.ColumnDefinitions>
 
         <!-- Menu that spans the length of the top of the window -->
-        <local:Menu Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" />
+        <local:Menu Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" DataContext="{Binding}" />
 
-        <Button Grid.Row="3" Grid.Column="2" Content="Connect now" Command="{Binding InitiateRouterSetupCommand}"/>
+        <!-- VARIABLE LIST -->
+        <GroupBox Grid.Row="1"
+                  Grid.RowSpan="2"
+                  Grid.Column="0"
+                  Header="Variables"
+                  Margin="1">
+
+        </GroupBox>
+
+        <!-- VARIABLE EDITOR -->
+        <GroupBox Grid.Row="1" 
+                  Grid.RowSpan="2"
+                  Grid.Column="1"
+                  Header="Variable editor"
+                  Margin="1">
+
+        </GroupBox>
+
+        <!-- CHANGE SUMMARY -->
+        <GroupBox Grid.Row="1" 
+                  Grid.RowSpan="2"
+                  Grid.Column="2"
+                  Header="Change summary"
+                  Margin="1">
+
+        </GroupBox>
+
+        <!-- LOGS -->
+        <GroupBox Grid.Row="3" 
+                  Grid.Column="0"
+                  Grid.ColumnSpan="2"
+                  Header="Logs"
+                  Margin="1">
+
+        </GroupBox>
+
+
+        <!-- ROUTER CONNECTION DETAILS -->
+        <GroupBox Grid.Row="3" 
+                  Grid.Column="2"
+                  Header="Router connection details"
+                  Margin="1"
+                  Visibility="{Binding RoutersPresent, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Reverse}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Grid.ColumnSpan="3"
+                           Grid.Row="0"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Center"
+                           Text="You are currently disconnected. Please connect to a router to use NVRAMTuner." />
+
+                <Button Grid.Row="1" 
+                        Grid.Column="1" 
+                        Content="Connect now"
+                        Command="{Binding LoadRouterFromDiskCommand}"/>
+            </Grid>
+        </GroupBox>
+
 
         <!-- Status bar that spans the length of the bottom of the window -->
         <StatusBar Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3">

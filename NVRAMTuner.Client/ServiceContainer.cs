@@ -29,18 +29,17 @@
             // Services
             collection.AddScoped<IProcessService, ProcessService>();
             collection.AddScoped<IEnvironmentService, EnvironmentService>();
-            collection.AddScoped<ISshClientService, SshClientService>();
             collection.AddScoped<IDialogService, DialogService>();
             collection.AddScoped<INetworkService, NetworkService>();
             collection.AddScoped<IDataPersistenceService, DataPersistenceService>();
             collection.AddScoped<IDataEncryptionService, DataEncryptionService>();
+            collection.AddScoped<IWindowsSecurityService, WindowsSecurityService>();
 
             // ViewModels and navigation
             collection.AddScoped<MainWindowViewModel>();
             collection.AddScoped<AboutWindowViewModel>();
-            collection.AddScoped<MenuViewModel>();
             collection.AddScoped<HomeViewModel>();
-            collection.AddScoped<RouterSetupViewModel>();
+            collection.AddTransient<RouterSetupViewModel>();
 
             this.Services = collection.BuildServiceProvider();
         }

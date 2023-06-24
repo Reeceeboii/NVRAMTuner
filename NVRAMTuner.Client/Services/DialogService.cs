@@ -1,4 +1,6 @@
-﻿namespace NVRAMTuner.Client.Services
+﻿#nullable enable
+
+namespace NVRAMTuner.Client.Services
 {
     using Interfaces;
     using MahApps.Metro.Controls.Dialogs;
@@ -28,9 +30,9 @@
 
         /// <summary>
         /// Creates a message dialog inside the current window. Accepts a context parameter, which is typically
-        /// the NavigableViewModel belonging to the view to which the dialog should be attached
+        /// the ViewModel belonging to the view to which the dialog should be attached
         /// </summary>
-        /// <param name="ctx">The context (as mentioned, usually a NavigableViewModel class)</param>
+        /// <param name="ctx">The context (as mentioned, usually a ViewModel class)</param>
         /// <param name="title">The title of the dialog</param>
         /// <param name="message">The content of the dialog</param>
         /// <param name="style">The style of the dialog. Defaults to <see cref="MessageDialogStyle.Affirmative"/></param>
@@ -58,12 +60,16 @@
         /// <returns></returns>
         public string ShowFolderBrowserDialog (string description, bool multiSelect)
         {
-            VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog()
+            VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog
             {
-                Description = description, Multiselect = multiSelect, UseDescriptionForTitle = true
+                Description = description, 
+                Multiselect = multiSelect, 
+                UseDescriptionForTitle = true
             };
 
-            return dialog.ShowDialog() == true ? dialog.SelectedPath : string.Empty;
+            return dialog.ShowDialog() == true 
+                ? dialog.SelectedPath 
+                : string.Empty;
         }
     }
 }

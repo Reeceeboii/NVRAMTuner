@@ -3,6 +3,7 @@
 namespace NVRAMTuner.Client.Models
 {
     using Enums;
+    using System;
     using System.Xml.Serialization;
 
     /// <summary>
@@ -11,6 +12,16 @@ namespace NVRAMTuner.Client.Models
     [XmlRoot("Router", Namespace = "NVRAMTuner.Client")]
     public class Router
     {
+        /// <summary>
+        /// Gets or sets the nickname of the router that can be chosen by the user
+        /// </summary>
+        public string RouterNickname { get; set; }
+
+        /// <summary>
+        /// Gets or sets the globally unique identifier for this router
+        /// </summary>
+        public Guid RouterUid { get; set; }
+        
         /// <summary>
         /// Gets or sets the IPv4 address of the router
         /// </summary>

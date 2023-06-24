@@ -2,12 +2,15 @@
 
 namespace NVRAMTuner.Client.Services
 {
+    using CommunityToolkit.Mvvm.Messaging;
     using Interfaces;
     using Models;
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.IO.Abstractions;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Serialization;
@@ -33,10 +36,10 @@ namespace NVRAMTuner.Client.Services
         private readonly IFileSystem fileSystem;
 
         /// <summary>
-        /// A filename that is used to refer to a file within which serialised and encrypted <see cref="Router"/>
-        /// instances are stored
+        /// File extension to be used by NVRAMTuner for any binary <see cref="Router"/> files it creates.
+        /// Short for: (N)VRAM(T)uner(B)inary(R)outer
         /// </summary>
-        private const string RouterBinaryFileName = "Router.bin";
+        private const string BinaryRouterFileExtension = ".ntbr";
 
         /// <summary>
         /// An <see cref="XmlSerializer"/> instance used to carry out the serialisation
@@ -49,10 +52,12 @@ namespace NVRAMTuner.Client.Services
         /// <param name="dataEncryptionService">An instance of <see cref="IDataEncryptionService"/></param>
         /// <param name="environmentService">An instance of <see cref="IEnvironmentService"/></param>
         /// <param name="fileSystem">An instance of <see cref="IFileSystem"/></param>
+        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
         public DataPersistenceService(
             IDataEncryptionService dataEncryptionService,
             IEnvironmentService environmentService,
-            IFileSystem fileSystem)
+            IFileSystem fileSystem,
+            IMessenger messenger)
         {
             this.dataEncryptionService = dataEncryptionService;
             this.environmentService = environmentService;
@@ -70,7 +75,9 @@ namespace NVRAMTuner.Client.Services
         public async Task SerialiseRouterToEncryptedFileAsync(Router router)
         {
             string appPath = this.GetAppPath();
-            string serialiseTarget = this.fileSystem.Path.Combine(appPath, RouterBinaryFileName);
+            string serialiseTarget = this.fileSystem.Path.Combine(
+                appPath, 
+                $"{router.RouterUid}{BinaryRouterFileExtension}");
 
             if (!this.fileSystem.Directory.Exists(appPath))
             {
@@ -89,38 +96,49 @@ namespace NVRAMTuner.Client.Services
         }
 
         /// <summary>
-        /// Loads raw encrypted bytes from a file in the user's local application data folder, decrypts them and
-        /// and deserialises them into a <see cref="Router"/> instance
+        /// Returns all routers present in the NVRAMTuner local AppData folder that are
+        /// able to be successfully deserialised 
         /// </summary>
-        /// <returns>A <see cref="Router"/> instance that was previously encrypted and serialised</returns>
-        /// <exception cref="FileNotFoundException">If the router file does not exist on disk</exception>
-        public Router? DeserialiseRouterFromEncryptedFile()
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="Router"/> instances</returns>
+        public IEnumerable<Router> DeserialiseAllPresentRouters()
         {
             string appPath = this.GetAppPath();
-            string deserialiseTarget = this.fileSystem.Path.Combine(appPath, RouterBinaryFileName);
 
-            if (!this.fileSystem.File.Exists(deserialiseTarget))
+            if (!this.fileSystem.Directory.Exists(appPath))
             {
-                throw new FileNotFoundException("Router binary file not found", deserialiseTarget);
+                Debug.WriteLine("NVRAMTuner local AppData folder does not exist");
+                return new List<Router>();
             }
 
-            byte[] encryptedRouter = this.fileSystem.File.ReadAllBytes(deserialiseTarget);
-            byte[] decryptedRouter = this.dataEncryptionService.DecryptData(encryptedRouter);
+            string[] encryptedRouterFiles = this.fileSystem.Directory.GetFiles(appPath)
+                .Where(f => f.EndsWith(BinaryRouterFileExtension))
+                .ToArray();
 
-            string decryptedRouterString = Encoding.UTF8.GetString(decryptedRouter);
+            List<Router> routers = new List<Router>();
 
-            Router router;
-            try
+            foreach (string file in encryptedRouterFiles)
             {
-                router = (Router)this.routerSerialiser.Deserialize(new StringReader(decryptedRouterString));
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"{ex.GetType()}: {ex.Message}");
-                return null;
+                byte[] fileBytes = this.fileSystem.File.ReadAllBytes(file);
+                byte[] decryptedBytes = this.dataEncryptionService.DecryptData(fileBytes);
+                string routerString = Encoding.UTF8.GetString(decryptedBytes);
+
+                using StringReader sr = new StringReader(routerString);
+
+                Router router;
+                try
+                {
+                    router = (Router)this.routerSerialiser.Deserialize(sr);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"{ex.GetType()}: {ex.Message}");
+                    break;
+                }
+
+                routers.Add(router);
             }
 
-            return router;
+            return routers;
         }
 
         /// <summary>

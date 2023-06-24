@@ -1,14 +1,11 @@
 ﻿namespace NVRAMTuner.Test.Services
 {
-    using Client.Messages;
     using Client.Services;
     using Client.Services.Interfaces;
     using CommunityToolkit.Mvvm.Messaging;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
-    using System;
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.IO.Abstractions;
 
@@ -23,11 +20,6 @@
         /// System under test
         /// </summary>
         private INetworkService sut;
-
-        /// <summary>
-        /// Mock <see cref="ISshClientService"/> used by the tests
-        /// </summary>
-        private Mock<ISshClientService> mockSshClientService;
 
         /// <summary>
         /// Mock <see cref="IFileSystem"/> used by the tests
@@ -50,7 +42,6 @@
         [TestInitialize]
         public void TestInitialise()
         {
-            this.mockSshClientService = new Mock<ISshClientService>(MockBehavior.Strict);
             this.mockFileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
             this.mockEnvironmentService = new Mock<IEnvironmentService>(MockBehavior.Strict);
             this.mockMessenger = new Mock<IMessenger>(MockBehavior.Strict);
@@ -71,34 +62,57 @@
         }
 
         /// <summary>
-        /// Tests the <see cref="NetworkService.LocateLocalSshKeys"/> method correctly behaves when a
-        /// set of SSH keys are found on the local filesystem
+        /// Tests the <see cref="NetworkService.FolderContainsSshKeys"/> method behaves correctly when
+        /// a directory is provided and it does contain a public and private SSH key pair
         /// </summary>
         [TestMethod]
-        public void LocateLocalSshKeysWhenKeysAreFoundTest()
+        public void FolderContainsSshKeysKeysReturnsTrueWhenKeysPresentTest()
         {
             // Arrange
-            const string testHomeDir = @"C:\\users\\user\\";
-            this.mockEnvironmentService
-                .Setup(m 
-                    => m.GetFolderPath(It.IsAny<Environment.SpecialFolder>()))
-                .Returns(testHomeDir)
+            const string testFolder = @"Some\Path\To\.ssh\Keys";
+            this.mockFileSystem.Setup(m
+                    => m.Path.Combine(
+                        It.Is<string>(s => s.Equals(testFolder)),
+                        It.Is<string>(s => s.Equals("id_rsa.pub") || s.Equals("id_rsa"))))
+                .Returns("something")
                 .Verifiable();
-            this.mockFileSystem
-                .Setup(m => m.Path.Combine(It.Is<string>(s
-                    => s == testHomeDir), It.Is<string>(s2 
-                    => s2 == ".ssh")))
-                .Returns(@$"{testHomeDir}\\.ssh")
+            this.mockFileSystem.Setup(m => m.File.Exists(It.IsAny<string>()))
+                .Returns(true)
                 .Verifiable();
-
-            this.mockEnvironmentService.Setup(m => m.GetFolderPath(It.IsAny<Environment.SpecialFolder>()));
 
             // Act
             this.CreateSut();
-            this.sut.ScanLocalSystemForSshKeys();
+            bool existResult = this.sut.FolderContainsSshKeys(testFolder);
 
             // Assert
-            1.Should().Be(1);
+            existResult.Should().BeTrue();
+        }
+
+        /// <summary>
+        /// Tests the <see cref="NetworkService.FolderContainsSshKeys"/> method behaves correctly when
+        /// a directory is provided and it does NOT contain a public and private SSH key pair
+        /// </summary>
+        [TestMethod]
+        public void FolderContainsSshKeysKeysReturnsFalseWhenKeysNotPresentTest()
+        {
+            // Arrange
+            const string testFolder = @"Some\Path\To\.ssh\Keys";
+            this.mockFileSystem.Setup(m
+                    => m.Path.Combine(
+                        It.Is<string>(s => s.Equals(testFolder)),
+                        It.Is<string>(s => s.Equals("id_rsa.pub") || s.Equals("id_rsa"))))
+                .Returns("something")
+                .Verifiable();
+            this.mockFileSystem.Setup(m => m.File.Exists(It.IsAny<string>()))
+                .Returns(false)
+                .Verifiable();
+
+            // Act
+            this.CreateSut();
+            bool existResult = this.sut.FolderContainsSshKeys(testFolder);
+
+            // Assert
+            existResult.Should().BeFalse();
         }
 
         #region VerifyIpv4Address tests
@@ -217,7 +231,6 @@
         private void CreateSut()
         {
             this.sut = new NetworkService(
-                this.mockSshClientService.Object,
                 this.mockFileSystem.Object, 
                 this.mockEnvironmentService.Object,
                 this.mockMessenger.Object);

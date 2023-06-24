@@ -22,14 +22,14 @@ namespace NVRAMTuner.Client.ViewModels.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class ViewModelFormErrors {
+    public class ViewModelStrings {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal ViewModelFormErrors() {
+        internal ViewModelStrings() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace NVRAMTuner.Client.ViewModels.Resources {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NVRAMTuner.Client.ViewModels.Resources.ViewModelFormErrors", typeof(ViewModelFormErrors).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NVRAMTuner.Client.ViewModels.Resources.ViewModelStrings", typeof(ViewModelStrings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -57,6 +57,15 @@ namespace NVRAMTuner.Client.ViewModels.Resources {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to NVRAMTuner was unable to find any routers on your system that were previously saved. If this is your first time using NVRAMTuner, enter the setup process now to add a router. Otherwise, please place a previously saved router file in the expected location..
+        /// </summary>
+        public static string NoSavedRoutersFoundDialogMessage {
+            get {
+                return ResourceManager.GetString("NoSavedRoutersFoundDialogMessage", resourceCulture);
             }
         }
         

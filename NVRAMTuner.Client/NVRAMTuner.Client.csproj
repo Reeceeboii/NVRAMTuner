@@ -256,7 +256,7 @@
     <Compile Include="Converters\ConfigurableBoolToVisibilityConverter.cs" />
     <Compile Include="Converters\InverseBoolConverter.cs" />
     <Compile Include="Messages\NavigationRequestMessage.cs" />
-    <Compile Include="Messages\SshKeysFoundMessage.cs" />
+    <Compile Include="Messages\DeserialisedRouterRequestMessage.cs" />
     <Compile Include="Models\Enums\GenericStatus.cs" />
     <Compile Include="Models\Enums\SshAuthType.cs" />
     <Compile Include="Models\Enums\NavigableViewModel.cs" />
@@ -267,28 +267,27 @@
     <Compile Include="Services\DataPersistenceService.cs" />
     <Compile Include="Services\DialogService.cs" />
     <Compile Include="Services\EnvironmentService.cs" />
+    <Compile Include="Services\Interfaces\IDialogService.cs" />
+    <Compile Include="Services\Interfaces\INetworkService.cs" />
     <Compile Include="Services\Interfaces\IDataPersistenceService.cs" />
     <Compile Include="Services\Interfaces\IDataEncryptionService.cs" />
-    <Compile Include="Services\Interfaces\INetworkService.cs" />
-    <Compile Include="Services\Interfaces\IDialogService.cs" />
     <Compile Include="Services\Interfaces\IEnvironmentService.cs" />
-    <Compile Include="Services\Interfaces\ISshClientService.cs" />
+    <Compile Include="Services\Interfaces\IWindowsSecurityService.cs" />
     <Compile Include="Services\NetworkService.cs" />
     <Compile Include="Services\Resources\SshCommands.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>SshCommands.resx</DependentUpon>
     </Compile>
-    <Compile Include="Services\SshClientService.cs" />
+    <Compile Include="Services\WindowsSecurityService.cs" />
     <Compile Include="Validators\ValidIpv4AddressAttribute.cs" />
     <Compile Include="Validators\ValidNetworkPortAttribute.cs" />
     <Compile Include="ViewModels\AboutWindowViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
-    <Compile Include="ViewModels\MenuViewModel.cs" />
-    <Compile Include="ViewModels\Resources\ViewModelFormErrors.Designer.cs">
+    <Compile Include="ViewModels\Resources\ViewModelStrings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>ViewModelFormErrors.resx</DependentUpon>
+      <DependentUpon>ViewModelStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\RouterSetupViewModel.cs" />
     <Compile Include="Views\AboutWindow.xaml.cs">
@@ -358,9 +357,10 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>SshCommands.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="ViewModels\Resources\ViewModelFormErrors.resx">
+    <EmbeddedResource Include="ViewModels\Resources\ViewModelStrings.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>ViewModelFormErrors.Designer.cs</LastGenOutput>
+      <LastGenOutput>ViewModelStrings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="NVRAMTuner.Client_TemporaryKey.pfx" />
     <None Include="packages.config" />

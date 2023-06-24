@@ -3,7 +3,7 @@
 namespace NVRAMTuner.Client.Services.Interfaces
 {
     using Models;
-    using System.IO;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -20,11 +20,10 @@ namespace NVRAMTuner.Client.Services.Interfaces
         Task SerialiseRouterToEncryptedFileAsync(Router router);
 
         /// <summary>
-        /// Loads raw encrypted bytes from a file in the user's local application data folder, decrypts them and
-        /// and deserialises them into a <see cref="Router"/> instance
+        /// Returns all routers present in the NVRAMTuner local AppData folder that are
+        /// able to be successfully deserialised 
         /// </summary>
-        /// <returns>A <see cref="Router"/> instance that was previously encrypted and serialised</returns>
-        /// <exception cref="FileNotFoundException">If the router file does not exist on disk</exception>
-        Router? DeserialiseRouterFromEncryptedFile();
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="Router"/> instances</returns>
+        IEnumerable<Router> DeserialiseAllPresentRouters();
     }
 }

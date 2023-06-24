@@ -17,7 +17,6 @@
         public Menu()
         {
             this.InitializeComponent();
-            this.DataContext = ((App)Application.Current).ServiceContainer.Services.GetService<MenuViewModel>();
         }
 
         /// <summary>
