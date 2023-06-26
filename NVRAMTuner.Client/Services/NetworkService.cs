@@ -203,6 +203,8 @@ namespace NVRAMTuner.Client.Services
             }
 
             this.client = new SshClient(connectionInfo);
+            this.client.Connect();
+
             Tuple<string, string> hnAndOs = await this.GetRouterHostnameAndOs();
 
             return new SshConnectionInfo
@@ -222,9 +224,9 @@ namespace NVRAMTuner.Client.Services
         /// <returns>A <see cref="SshCommand"/> wrapped in an asynchronous <see cref="Task{TResult}"/></returns>
         /// <exception cref="SshConnectionException">If the client is not yet connected to a server</exception>
         /// <exception cref="InvalidOperationException">If the client is not yet initialised</exception>
-        public async Task<SshCommand> RunCommandAgainstRouter(string command, SshClient? clientOverride = null)
+        public async Task<SshCommand> RunCommandAgainstRouterAsync(string command, SshClient? clientOverride = null)
         {
-            if (this.client is { IsConnected: false } && clientOverride == null)
+            if (this.client is { IsConnected: false } && clientOverride != null)
             {
                 // user wants to use instance's client but it is not connected
                 throw new SshConnectionException("Client is not connected to a server, cannot run command");
@@ -248,8 +250,8 @@ namespace NVRAMTuner.Client.Services
         /// <returns>A <see cref="Tuple{T1, T2}"/> that contains the hostname and operating system of the router</returns>
         private async Task<Tuple<string, string>> GetRouterHostnameAndOs(SshClient? clientOverride = null)
         {
-            SshCommand hostName = await this.RunCommandAgainstRouter(SshCommands.HostName_Command, clientOverride);
-            SshCommand os = await this.RunCommandAgainstRouter(SshCommands.Uname_Os_Command, clientOverride);
+            SshCommand hostName = await this.RunCommandAgainstRouterAsync(SshCommands.HostName_Command, clientOverride);
+            SshCommand os = await this.RunCommandAgainstRouterAsync(SshCommands.Uname_Os_Command, clientOverride);
 
             return new Tuple<string, string>(
                 hostName.Result.TrimEnd('\r', '\n'), 

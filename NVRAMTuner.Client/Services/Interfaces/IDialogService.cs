@@ -32,7 +32,17 @@
         /// </summary>
         /// <param name="description">A description of the dialog</param>
         /// <param name="multiSelect">Whether or not multiple folders should be allowed to be selected</param>
-        /// <returns></returns>
-        string ShowFolderBrowserDialog (string description, bool multiSelect);
+        /// <returns>The selected folder path(s), or an empty string</returns>
+        string ShowFolderBrowserDialog(string description, bool multiSelect);
+
+        /// <summary>
+        /// Displays a "Save as" dialog, and if a path is selected, returns the path to that file.
+        /// If no path is selected, or the window is closed, then an empty string is returned. This
+        /// difference needs to be checked by callers.
+        /// </summary>
+        /// <param name="filter">The file filter to apply to the dialog</param>
+        /// <param name="fileName">The default filename to apply to the dialog</param>
+        /// <returns>The selected file path, or an empty string</returns>
+        string ShowShowAsDialog(string filter, string fileName);
     }
 }

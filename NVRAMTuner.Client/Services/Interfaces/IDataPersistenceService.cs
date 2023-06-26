@@ -25,5 +25,12 @@ namespace NVRAMTuner.Client.Services.Interfaces
         /// </summary>
         /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="Router"/> instances</returns>
         IEnumerable<Router> DeserialiseAllPresentRouters();
+
+        /// <summary>
+        /// Writes plain text to a file
+        /// </summary>
+        /// <param name="absoluteFilePath">The absolute path to the file that will be written to</param>
+        /// <param name="text">The text data to write to the file</param>
+        void WriteTextToFile(string absoluteFilePath, string text);
     }
 }

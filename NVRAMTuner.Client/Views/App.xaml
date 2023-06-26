@@ -26,6 +26,7 @@
             <!-- Converters -->
             <conv:InverseBoolConverter x:Key="InverseBoolConverter" />
             <conv:ConfigurableBoolToVisibilityConverter x:Key="ConfigurableBoolToVisibilityConverter" />
+            <conv:LogEntryCollectionToStringConverter x:Key="LogEntryCollectionToStringConverter" />
 
             <ResourceDictionary.MergedDictionaries>
                 <!-- MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive! -->

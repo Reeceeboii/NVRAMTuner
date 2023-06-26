@@ -4,6 +4,7 @@ namespace NVRAMTuner.Client.Services
 {
     using CommunityToolkit.Mvvm.Messaging;
     using Interfaces;
+    using Messages;
     using Models;
     using System;
     using System.Collections.Generic;
@@ -36,6 +37,11 @@ namespace NVRAMTuner.Client.Services
         private readonly IFileSystem fileSystem;
 
         /// <summary>
+        /// Instance of <see cref="IMessenger"/>
+        /// </summary>
+        private readonly IMessenger messenger;
+
+        /// <summary>
         /// File extension to be used by NVRAMTuner for any binary <see cref="Router"/> files it creates.
         /// Short for: (N)VRAM(T)uner(B)inary(R)outer
         /// </summary>
@@ -62,6 +68,7 @@ namespace NVRAMTuner.Client.Services
             this.dataEncryptionService = dataEncryptionService;
             this.environmentService = environmentService;
             this.fileSystem = fileSystem;
+            this.messenger = messenger;
 
             this.routerSerialiser = new XmlSerializer(typeof(Router));
         }
@@ -93,6 +100,11 @@ namespace NVRAMTuner.Client.Services
 
             byte[] encryptedRouter = this.dataEncryptionService.EncryptData(Encoding.UTF8.GetBytes(serialisedRouter));
             this.fileSystem.File.WriteAllBytes(serialiseTarget, encryptedRouter);
+
+            this.messenger.Send(new LogMessage(new LogEntry
+            {
+                LogMessage = $"Router \"{router.RouterNickname}\" has been saved"
+            }));
         }
 
         /// <summary>
@@ -138,7 +150,22 @@ namespace NVRAMTuner.Client.Services
                 routers.Add(router);
             }
 
+            this.messenger.Send(new LogMessage(new LogEntry
+            {
+                LogMessage = $"{routers.Count} previously saved routers are valid and have been loaded"
+            }));
+
             return routers;
+        }
+
+        /// <summary>
+        /// Writes plain text to a file
+        /// </summary>
+        /// <param name="absoluteFilePath">The absolute path to the file that will be written to</param>
+        /// <param name="text">The text data to write to the file</param>
+        public void WriteTextToFile(string absoluteFilePath, string text)
+        {
+            this.fileSystem.File.WriteAllText(absoluteFilePath, text);
         }
 
         /// <summary>

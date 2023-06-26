@@ -5,6 +5,7 @@ namespace NVRAMTuner.Client.Services
     using Interfaces;
     using MahApps.Metro.Controls.Dialogs;
     using Ookii.Dialogs.Wpf;
+    using System;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -18,15 +19,20 @@ namespace NVRAMTuner.Client.Services
         private readonly IDialogCoordinator dialogCoordinator;
 
         /// <summary>
+        /// Instance of <see cref="IEnvironmentService"/>
+        /// </summary>
+        private readonly IEnvironmentService environmentService;
+
+        /// <summary>
         /// Initialises a new instance of the <see cref="DialogService"/> class
         /// </summary>
         /// <param name="dialogCoordinator">Instance of <see cref="IDialogCoordinator"/></param>
-        public DialogService(IDialogCoordinator dialogCoordinator)
+        /// <param name="environmentService">Instance of <see cref="IEnvironmentService"/></param>
+        public DialogService(IDialogCoordinator dialogCoordinator, IEnvironmentService environmentService)
         {
             this.dialogCoordinator = dialogCoordinator;
+            this.environmentService = environmentService;
         }
-
-        #region MetroDialogs
 
         /// <summary>
         /// Creates a message dialog inside the current window. Accepts a context parameter, which is typically
@@ -48,8 +54,6 @@ namespace NVRAMTuner.Client.Services
             return await this.dialogCoordinator.ShowMessageAsync(ctx, title, message, style, settings);
         }
 
-        #endregion
-
         /// <summary>
         /// Displays a folder selection dialog, and if a folder is selected, returns the path to that folder.
         /// If no path is selected, or the window is closed, then an empty string is returned. This difference
@@ -57,8 +61,8 @@ namespace NVRAMTuner.Client.Services
         /// </summary>
         /// <param name="description">A description of the dialog</param>
         /// <param name="multiSelect">Whether or not multiple folders should be allowed to be selected</param>
-        /// <returns></returns>
-        public string ShowFolderBrowserDialog (string description, bool multiSelect)
+        /// <returns>The selected folder path(s), or an empty string</returns>
+        public string ShowFolderBrowserDialog(string description, bool multiSelect)
         {
             VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog
             {
@@ -69,6 +73,30 @@ namespace NVRAMTuner.Client.Services
 
             return dialog.ShowDialog() == true 
                 ? dialog.SelectedPath 
+                : string.Empty;
+        }
+
+        /// <summary>
+        /// Displays a "Save as" dialog, and if a path is selected, returns the path to that file.
+        /// If no path is selected, or the window is closed, then an empty string is returned. This
+        /// difference needs to be checked by callers.
+        /// </summary>
+        /// <param name="filter">The file filter to apply to the dialog</param>
+        /// <param name="fileName">The default filename to apply to the dialog</param>
+        /// <returns>The selected file path, or an empty string</returns>
+        public string ShowShowAsDialog(string filter, string fileName)
+        {
+            VistaSaveFileDialog dialog = new VistaSaveFileDialog
+            {
+                Filter = filter,
+                InitialDirectory = this.environmentService.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                FileName = fileName,
+                Title = @"Save as",
+                ValidateNames = true
+            };
+
+            return dialog.ShowDialog() == true
+                ? dialog.FileName
                 : string.Empty;
         }
     }

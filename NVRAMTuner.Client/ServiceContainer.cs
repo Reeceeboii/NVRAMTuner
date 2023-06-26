@@ -39,6 +39,7 @@
             collection.AddScoped<MainWindowViewModel>();
             collection.AddScoped<AboutWindowViewModel>();
             collection.AddScoped<HomeViewModel>();
+            collection.AddScoped<LogsViewModel>();
             collection.AddTransient<RouterSetupViewModel>();
 
             this.Services = collection.BuildServiceProvider();

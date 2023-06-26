@@ -136,6 +136,11 @@ namespace NVRAMTuner.Client.ViewModels
             this.ScanForSshKeysCommand = new RelayCommand(this.ScanForSshKeysCommandHandler);
             this.VerifyRouterDetailsCommandAsync = new AsyncRelayCommand(this.VerifyRouterDetailsCommandHandlerAsync);
             this.ExitSetupCommandAsync = new AsyncRelayCommand(this.ExitSetupCommandHandlerAsync);
+
+            this.messenger.Send(new LogMessage(new LogEntry
+            {
+                LogMessage = "Entered router setup process"
+            }));
         }
 
         /// <summary>
@@ -481,7 +486,7 @@ namespace NVRAMTuner.Client.ViewModels
             MessageDialogResult userExitChoice = await this.dialogService.ShowMessageAsync(
                 this,
                 "Exit?",
-                "Are you sure you wish to exit? This will return you to the home page.",
+                "Are you sure you wish to exit? This will return you to the home page and all current form progress will be lost",
                 MessageDialogStyle.AffirmativeAndNegative,
                 new MetroDialogSettings
                 {
@@ -492,6 +497,10 @@ namespace NVRAMTuner.Client.ViewModels
 
             if (userExitChoice == MessageDialogResult.Affirmative)
             {
+                this.messenger.Send(new LogMessage(new LogEntry
+                {
+                    LogMessage = "Exited router setup process"
+                }));
                 this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.HomeViewModel));
             }
         }

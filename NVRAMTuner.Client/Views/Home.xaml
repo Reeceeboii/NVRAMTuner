@@ -63,7 +63,7 @@
                   Grid.ColumnSpan="2"
                   Header="Logs"
                   Margin="1">
-
+            <local:Logs />
         </GroupBox>
 
 
@@ -72,7 +72,8 @@
                   Grid.Column="2"
                   Header="Router connection details"
                   Margin="1"
-                  Visibility="{Binding RoutersPresent, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Reverse}">
+                  Visibility="{Binding RoutersPresent, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Reverse}"
+                  d:Visibility="Hidden">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
@@ -99,6 +100,40 @@
                         Content="Connect now"
                         Command="{Binding LoadRouterFromDiskCommand}"/>
             </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="3" 
+                  Grid.Column="2"
+                  Header="Router connection details"
+                  Margin="1"
+                  Visibility="{Binding RoutersPresent, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Normal}">
+
+            <UniformGrid Rows="3" Margin="20" VerticalAlignment="Center">
+                <TextBlock TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           Text="Please select a router to connect to..." />
+
+                <ComboBox ItemsSource="{Binding AvailableRouters}" 
+                          SelectedItem="{Binding TargetRouterForConnection, UpdateSourceTrigger=PropertyChanged}"
+                          SelectedIndex="0">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}'{0}' ({1})">
+                                        <Binding Path="RouterNickname" />
+                                        <Binding Path="RouterIpv4Address" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <Button Content="Connect..."
+                        Command="{Binding ConnectToTargetRouterCommand}"/>
+
+            </UniformGrid>
         </GroupBox>
 
 

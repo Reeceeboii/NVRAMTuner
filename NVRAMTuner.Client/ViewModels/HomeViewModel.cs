@@ -9,12 +9,16 @@ namespace NVRAMTuner.Client.ViewModels
     using Messages;
     using Models;
     using Models.Enums;
+    using Renci.SshNet;
     using Resources;
     using Services.Interfaces;
+    using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Timers;
     using System.Windows.Input;
 
     /// <summary>
@@ -63,6 +67,11 @@ namespace NVRAMTuner.Client.ViewModels
         private ObservableCollection<Router> availableRouters;
 
         /// <summary>
+        /// Backing fiend for <see cref="TargetRouterForConnection"/>
+        /// </summary>
+        private Router targetRouterForConnection;
+
+        /// <summary>
         /// Initialises a new instance of the <see cref="HomeViewModel"/> class
         /// </summary>
         /// <param name="networkService">An instance of <see cref="INetworkService"/></param>
@@ -83,7 +92,10 @@ namespace NVRAMTuner.Client.ViewModels
             this.processService = processService;
             this.messenger = messenger;
 
+            this.availableRouters = new ObservableCollection<Router>();
+
             this.LoadRouterFromDiskCommand = new AsyncRelayCommand(this.LoadRouterFromDiskCommandHandlerAsync);
+            this.ConnectToTargetRouterCommand = new AsyncRelayCommand(this.ConnectToTargetRouterCommandHandler);
 
             // menu commands
             this.EnterSetupCommand = new RelayCommand(this.EnterSetupCommandHandler);
@@ -95,6 +107,11 @@ namespace NVRAMTuner.Client.ViewModels
         /// Gets the async command used to load a previously saved router config from disk
         /// </summary>
         public IAsyncRelayCommand LoadRouterFromDiskCommand { get; }
+
+        /// <summary>
+        /// Gets the async command used to connect to the <see cref="TargetRouterForConnection"/>
+        /// </summary>
+        public IAsyncRelayCommand ConnectToTargetRouterCommand { get; }
 
         /// <summary>
         /// Gets the command used to force entry to the router setup page
@@ -123,6 +140,15 @@ namespace NVRAMTuner.Client.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets a <see cref="Router"/> that is currently the user's selected target for a connection
+        /// </summary>
+        public Router TargetRouterForConnection
+        {
+            get => this.targetRouterForConnection;
+            set => this.SetProperty(ref this.targetRouterForConnection, value);
+        }
+
+        /// <summary>
         /// Gets or sets an <see cref="ObservableCollection{T}"/> of all the available
         /// <see cref="Router"/> instances that are available for the user to connect to
         /// </summary>
@@ -130,6 +156,33 @@ namespace NVRAMTuner.Client.ViewModels
         {
             get => this.availableRouters;
             set => this.SetProperty(ref this.availableRouters, value);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        private async Task ConnectToTargetRouterCommandHandler()
+        {
+            // this.loading = true;
+
+            try
+            {
+                await this.networkService.ConnectToRouterAsync(this.targetRouterForConnection, useTempClient:false);
+            }
+            catch(Exception ex)
+            {
+                await this.dialogService.ShowMessageAsync(
+                    this,
+                    $"Connection to {this.targetRouterForConnection.RouterNickname} failed",
+                    $"An attempt was made to connect to your router at {this.targetRouterForConnection.RouterIpv4Address}. " +
+                    $"However, an error occurred: \n\n {ex.Message}");
+            }
+
+            if (this.networkService.IsConnected)
+            {
+                Debug.WriteLine("connected!");
+            }
         }
 
         /// <summary>

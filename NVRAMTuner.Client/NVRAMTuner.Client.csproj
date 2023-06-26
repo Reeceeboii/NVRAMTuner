@@ -78,6 +78,9 @@
     <Reference Include="ControlzEx, Version=4.0.0.0, Culture=neutral, PublicKeyToken=69f1c32f803d307e, processorArchitecture=MSIL">
       <HintPath>..\packages\ControlzEx.4.4.0\lib\net462\ControlzEx.dll</HintPath>
     </Reference>
+    <Reference Include="FluentAssertions, Version=6.11.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentAssertions.6.11.0\lib\net47\FluentAssertions.dll</HintPath>
+    </Reference>
     <Reference Include="MahApps.Metro, Version=2.0.0.0, Culture=neutral, PublicKeyToken=51482d6f650b2b3f, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.2.4.9\lib\net47\MahApps.Metro.dll</HintPath>
     </Reference>
@@ -255,14 +258,16 @@
     </ApplicationDefinition>
     <Compile Include="Converters\ConfigurableBoolToVisibilityConverter.cs" />
     <Compile Include="Converters\InverseBoolConverter.cs" />
+    <Compile Include="Converters\LogEntryCollectionToStringConverter.cs" />
+    <Compile Include="Messages\LogMessage.cs" />
     <Compile Include="Messages\NavigationRequestMessage.cs" />
     <Compile Include="Messages\DeserialisedRouterRequestMessage.cs" />
     <Compile Include="Models\Enums\GenericStatus.cs" />
     <Compile Include="Models\Enums\SshAuthType.cs" />
     <Compile Include="Models\Enums\NavigableViewModel.cs" />
+    <Compile Include="Models\LogEntry.cs" />
     <Compile Include="Models\Router.cs" />
     <Compile Include="Models\SshConnectionInfo.cs" />
-    <Compile Include="Models\SshKeyPair.cs" />
     <Compile Include="Services\DataEncryptionService.cs" />
     <Compile Include="Services\DataPersistenceService.cs" />
     <Compile Include="Services\DialogService.cs" />
@@ -280,10 +285,12 @@
       <DependentUpon>SshCommands.resx</DependentUpon>
     </Compile>
     <Compile Include="Services\WindowsSecurityService.cs" />
+    <Compile Include="Utils\StringUtils.cs" />
     <Compile Include="Validators\ValidIpv4AddressAttribute.cs" />
     <Compile Include="Validators\ValidNetworkPortAttribute.cs" />
     <Compile Include="ViewModels\AboutWindowViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
+    <Compile Include="ViewModels\LogsViewModel.cs" />
     <Compile Include="ViewModels\Resources\ViewModelStrings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -296,6 +303,9 @@
     <Compile Include="Views\Home.xaml.cs">
       <DependentUpon>Home.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Logs.xaml.cs">
+      <DependentUpon>Logs.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Menu.xaml.cs">
       <DependentUpon>Menu.xaml</DependentUpon>
     </Compile>
@@ -307,6 +317,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Home.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Logs.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

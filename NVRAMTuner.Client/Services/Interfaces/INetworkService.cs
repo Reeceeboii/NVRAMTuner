@@ -48,7 +48,7 @@
         /// <returns>A <see cref="SshCommand"/> wrapped in an asynchronous <see cref="Task{TResult}"/></returns>
         /// <exception cref="SshConnectionException">If the client is not yet connected to a server</exception>
         /// <exception cref="InvalidOperationException">If the client is not yet initialised</exception>
-        Task<SshCommand> RunCommandAgainstRouter(string command, SshClient clientOverride = null);
+        Task<SshCommand> RunCommandAgainstRouterAsync(string command, SshClient clientOverride = null);
 
         /// <summary>
         /// Scans the local system for a pair of SSH keys on behalf of the user
