@@ -1,0 +1,4 @@
+[MAIN]
+
+# Minimum supported python version
+py-version = 3.7.2
