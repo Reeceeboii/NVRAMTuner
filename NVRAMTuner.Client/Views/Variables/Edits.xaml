@@ -1,0 +1,99 @@
+﻿<UserControl x:Class="NVRAMTuner.Client.Views.Variables.Edits"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NVRAMTuner.Client.Views.Variables"
+             xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels.Variables"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             d:DataContext="{d:DesignInstance Type=vm:EditsViewModel, IsDesignTimeCreatable=False}"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="500">
+
+    <Border Padding="5">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0"
+                       VerticalAlignment="Top"
+                       Padding="0 0 0 10"
+                       TextWrapping="Wrap"
+                       Text="{Binding SelectedVariable.Name}" 
+                       FontSize="{StaticResource MahApps.Font.Size.Header}"/>
+
+            <Separator Grid.Row="1" Margin="0 10 0 10"/>
+
+            <WrapPanel Grid.Row="2" Orientation="Vertical">
+                <TextBlock FontSize="{StaticResource MahApps.Font.Size.Dialog.Message}">
+                    <Run Text="Currently"/>
+                    <Run Text="{Binding SelectedVariable.SizeBytes}"/>
+                    <Run Text="byte(s) long"/>
+                </TextBlock>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock>
+                        <Run Text="Description:" />
+                        <Run Text="{Binding SelectedVariable.Description}" />
+                    </TextBlock>
+
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="  |  Default value:" />
+                        <Run Text="{Binding SelectedVariable.DefaultValue}" />
+                    </TextBlock>
+
+                    <iconPacks:PackIconMaterial 
+                        Kind="HelpCircle" 
+                        Height="15" 
+                        VerticalAlignment="Center"
+                        ToolTip="Descriptions and default values are sourced directly from the asuswrt-merlin source code and as such may contain errors, or simply be unavailable."
+                        Margin="10 0 0 0"/>
+                </StackPanel>
+
+            </WrapPanel>
+
+            <Separator Grid.Row="3" Margin="0 10 0 10"/>
+
+            <TextBox Grid.Row="4" 
+                     HorizontalAlignment="Stretch"
+                     Text="{Binding EditableValue, UpdateSourceTrigger=PropertyChanged}"
+                     TextWrapping="Wrap">
+
+            </TextBox>
+
+            <WrapPanel Grid.Row="5" 
+                       Orientation="Horizontal" 
+                       Margin="0 10 0 0"
+                       HorizontalAlignment="Right">
+                <Button Margin="0 0 10 0" Command="{Binding RollbackChangesCommand}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="RESTORE"
+                                   FontSize="{StaticResource MahApps.Font.Size.Button}" 
+                                   VerticalAlignment="Center"/>
+                            <iconPacks:PackIconMaterial Kind="UndoVariant" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+
+                <Button>
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="STAGE CHANGES" 
+                                   FontSize="{StaticResource MahApps.Font.Size.Button}" 
+                                   VerticalAlignment="Center"/>
+                            <iconPacks:PackIconMaterial Kind="LockOpenPlus" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </WrapPanel>
+        </Grid>
+    </Border>
+
+</UserControl>

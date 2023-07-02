@@ -8,6 +8,7 @@
     using System;
     using System.IO.Abstractions;
     using ViewModels;
+    using ViewModels.Variables;
 
     /// <summary>
     /// DI (IoC) container for services/ViewModels etc...
@@ -22,7 +23,7 @@
             ServiceCollection collection = new ServiceCollection();
 
             // Misc
-            collection.AddScoped<IFileSystem, FileSystem>();
+            collection.AddScoped<IFileSystem, FileSystem>(); // System.IO.Abstractions
             collection.AddScoped<IDialogCoordinator, DialogCoordinator>();
             collection.AddScoped<IMessenger, WeakReferenceMessenger>();
 
@@ -34,6 +35,7 @@
             collection.AddScoped<IDataPersistenceService, DataPersistenceService>();
             collection.AddScoped<IDataEncryptionService, DataEncryptionService>();
             collection.AddScoped<IWindowsSecurityService, WindowsSecurityService>();
+            collection.AddScoped<IVariableService, VariableService>();
 
             // ViewModels and navigation
             collection.AddScoped<MainWindowViewModel>();
@@ -41,6 +43,8 @@
             collection.AddScoped<HomeViewModel>();
             collection.AddScoped<LogsViewModel>();
             collection.AddTransient<RouterSetupViewModel>();
+            collection.AddScoped<VariablesViewModel>();
+            collection.AddScoped<EditsViewModel>();
 
             this.Services = collection.BuildServiceProvider();
         }

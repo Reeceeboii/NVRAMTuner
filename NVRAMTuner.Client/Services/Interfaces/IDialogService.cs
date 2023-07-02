@@ -43,6 +43,6 @@
         /// <param name="filter">The file filter to apply to the dialog</param>
         /// <param name="fileName">The default filename to apply to the dialog</param>
         /// <returns>The selected file path, or an empty string</returns>
-        string ShowShowAsDialog(string filter, string fileName);
+        string ShowSaveAsDialog(string filter, string fileName);
     }
 }

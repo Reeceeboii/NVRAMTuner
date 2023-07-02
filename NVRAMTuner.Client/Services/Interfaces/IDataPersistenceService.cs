@@ -7,7 +7,7 @@ namespace NVRAMTuner.Client.Services.Interfaces
     using System.Threading.Tasks;
 
     /// <summary>
-    /// Interface for a service that handles persisting data to a file
+    /// Interface for a service that handles persisting data to files
     /// </summary>
     public interface IDataPersistenceService
     {

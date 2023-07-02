@@ -34,16 +34,17 @@
         }
 
         /// <summary>
-        /// Derive some entropy from the users <see cref="SecurityIdentifier"/> and a GUID
+        /// Derive some entropy from the user's <see cref="SecurityIdentifier"/> and a static GUID
         /// combined together
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A byte array of entropy that should remain identical across executions</returns>
         private byte[] DeriveEntropy(SecurityIdentifier sid)
         {
             List<byte> entropyConstruction = Encoding.UTF8.GetBytes(sid.Value).ToList();
             entropyConstruction.AddRange(Encoding.ASCII.GetBytes(this.entropyGuid));
 
             // truncate the end of the list so its length is the highest possible multiple of 16
+            // https://learn.microsoft.com/en-us/dotnet/standard/security/how-to-use-data-protection#example
             int highestMultiple = (entropyConstruction.Count / 16) * 16;
             if (entropyConstruction.Count != highestMultiple)
             {

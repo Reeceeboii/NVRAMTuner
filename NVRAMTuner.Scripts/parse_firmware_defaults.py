@@ -1,10 +1,11 @@
 """
 This script downloads the NVRAM defaults for the asuswrt-merlin firmware from the master
 branch of the Merlin repository on GitHub. It then processes the file, ignoring any redundant data
-etc..., extracts the variable names and then links them to their descriptions (or nothing if no
-description comment was present in the original .C file).
+etc..., extracts the variable names and then links them to their descriptions and default values 
+(or nothing if no such data exists in the original .C file).
 
-It then uses this data to generate a dummy C# file with a hashtable keyed on the variable names.
+It then uses this data to generate a JSON file that can be linked to the main client executable as a
+resource via a .resx file.
 """
 
 from msilib.schema import File

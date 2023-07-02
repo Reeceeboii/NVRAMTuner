@@ -84,7 +84,7 @@ namespace NVRAMTuner.Client.Services
         /// <param name="filter">The file filter to apply to the dialog</param>
         /// <param name="fileName">The default filename to apply to the dialog</param>
         /// <returns>The selected file path, or an empty string</returns>
-        public string ShowShowAsDialog(string filter, string fileName)
+        public string ShowSaveAsDialog(string filter, string fileName)
         {
             VistaSaveFileDialog dialog = new VistaSaveFileDialog
             {

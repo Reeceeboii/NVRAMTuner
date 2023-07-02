@@ -7,6 +7,7 @@
              xmlns:dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
              dialog:DialogParticipation.Register="{Binding}"
              xmlns:local="clr-namespace:NVRAMTuner.Client.Views"
+             xmlns:varViews="clr-namespace:NVRAMTuner.Client.Views.Variables"
              xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels"
              d:DataContext="{d:DesignInstance Type=vm:HomeViewModel, IsDesignTimeCreatable=False}"
              mc:Ignorable="d"
@@ -18,11 +19,12 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="5*"/>
             <RowDefinition Height="5*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="3*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="4*"/>
+            <ColumnDefinition Width="7*"/>
             <ColumnDefinition Width="12*"/>
             <ColumnDefinition Width="5*"/>
         </Grid.ColumnDefinitions>
@@ -37,6 +39,7 @@
                   Header="Variables"
                   Margin="1">
 
+            <varViews:Variables />
         </GroupBox>
 
         <!-- VARIABLE EDITOR -->
@@ -45,20 +48,23 @@
                   Grid.Column="1"
                   Header="Variable editor"
                   Margin="1">
-
+            <varViews:Edits />
         </GroupBox>
 
         <!-- CHANGE SUMMARY -->
         <GroupBox Grid.Row="1" 
                   Grid.RowSpan="2"
                   Grid.Column="2"
-                  Header="Change summary"
+                  Header="Staged changes (uncommited)"
                   Margin="1">
 
         </GroupBox>
 
+        <GridSplitter ResizeDirection="Rows" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
+                      Height="2" HorizontalAlignment="Stretch" Background="Transparent"/>
+
         <!-- LOGS -->
-        <GroupBox Grid.Row="3" 
+        <GroupBox Grid.Row="4" 
                   Grid.Column="0"
                   Grid.ColumnSpan="2"
                   Header="Logs"
@@ -68,7 +74,7 @@
 
 
         <!-- ROUTER CONNECTION DETAILS -->
-        <GroupBox Grid.Row="3" 
+        <GroupBox Grid.Row="4" 
                   Grid.Column="2"
                   Header="Router connection details"
                   Margin="1"
@@ -102,7 +108,7 @@
             </Grid>
         </GroupBox>
 
-        <GroupBox Grid.Row="3" 
+        <GroupBox Grid.Row="4" 
                   Grid.Column="2"
                   Header="Router connection details"
                   Margin="1"
@@ -138,8 +144,11 @@
 
 
         <!-- Status bar that spans the length of the bottom of the window -->
-        <StatusBar Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3">
-            <TextBlock Text="Status test"/>
+        <StatusBar Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3">
+            <TextBlock>
+                <Run Text="Connection status:" />
+                <Run Text="Disconnected"/>
+            </TextBlock>
         </StatusBar>
     </Grid>
 </UserControl>

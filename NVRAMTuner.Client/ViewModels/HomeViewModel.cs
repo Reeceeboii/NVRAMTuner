@@ -9,16 +9,13 @@ namespace NVRAMTuner.Client.ViewModels
     using Messages;
     using Models;
     using Models.Enums;
-    using Renci.SshNet;
     using Resources;
     using Services.Interfaces;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Timers;
     using System.Windows.Input;
 
     /// <summary>
@@ -45,6 +42,11 @@ namespace NVRAMTuner.Client.ViewModels
         /// An instance of <see cref="IProcessService"/>
         /// </summary>
         private readonly IProcessService processService;
+
+        /// <summary>
+        /// An instance of <see cref="IVariableService"/>
+        /// </summary>
+        private readonly IVariableService variableService;
 
         /// <summary>
         /// Instance of <see cref="IMessenger"/>
@@ -78,18 +80,21 @@ namespace NVRAMTuner.Client.ViewModels
         /// <param name="dialogService">An instance of <see cref="IDialogService"/></param>
         /// <param name="dataPersistenceService">An instance of <see cref="IDataPersistenceService"/></param>
         /// <param name="processService">An instance of <see cref="IProcessService"/></param>
+        /// <param name="variableService">An instance of <see cref="IVariableService"/></param>
         /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
         public HomeViewModel(
             INetworkService networkService,
             IDialogService dialogService, 
             IDataPersistenceService dataPersistenceService,
             IProcessService processService,
+            IVariableService variableService,
             IMessenger messenger)
         {
             this.networkService = networkService;
             this.dialogService = dialogService;
             this.dataPersistenceService = dataPersistenceService;
             this.processService = processService;
+            this.variableService = variableService;
             this.messenger = messenger;
 
             this.availableRouters = new ObservableCollection<Router>();
@@ -159,9 +164,9 @@ namespace NVRAMTuner.Client.ViewModels
         }
 
         /// <summary>
-        /// 
+        /// Handles the <see cref="ConnectToTargetRouterCommand"/>
         /// </summary>
-        /// <returns></returns>
+        /// <returns>An asynchronous <see cref="Task"/></returns>
         private async Task ConnectToTargetRouterCommandHandler()
         {
             // this.loading = true;
@@ -181,7 +186,7 @@ namespace NVRAMTuner.Client.ViewModels
 
             if (this.networkService.IsConnected)
             {
-                Debug.WriteLine("connected!");
+                await this.variableService.GetNvramVariablesAsync();
             }
         }
 

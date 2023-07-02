@@ -22,24 +22,24 @@ namespace NVRAMTuner.Client.Services.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class SshCommands {
+    internal class VariableNames {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal SshCommands() {
+        internal VariableNames() {
         }
         
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Resources.ResourceManager ResourceManager {
+        internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NVRAMTuner.Client.Services.Resources.SshCommands", typeof(SshCommands).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NVRAMTuner.Client.Services.Resources.VariableNames", typeof(VariableNames).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -51,7 +51,7 @@ namespace NVRAMTuner.Client.Services.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        public static global::System.Globalization.CultureInfo Culture {
+        internal static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,20 +61,11 @@ namespace NVRAMTuner.Client.Services.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to hostname.
+        ///   Looks up a localized string similar to nc_setting_conf.
         /// </summary>
-        public static string HostName_Command {
+        internal static string NcSettingConf {
             get {
-                return ResourceManager.GetString("HostName Command", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to uname -o.
-        /// </summary>
-        public static string Uname_Os_Command {
-            get {
-                return ResourceManager.GetString("Uname Os Command", resourceCulture);
+                return ResourceManager.GetString("NcSettingConf", resourceCulture);
             }
         }
     }

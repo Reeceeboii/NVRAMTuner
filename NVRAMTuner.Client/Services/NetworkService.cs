@@ -250,8 +250,8 @@ namespace NVRAMTuner.Client.Services
         /// <returns>A <see cref="Tuple{T1, T2}"/> that contains the hostname and operating system of the router</returns>
         private async Task<Tuple<string, string>> GetRouterHostnameAndOs(SshClient? clientOverride = null)
         {
-            SshCommand hostName = await this.RunCommandAgainstRouterAsync(SshCommands.HostName_Command, clientOverride);
-            SshCommand os = await this.RunCommandAgainstRouterAsync(SshCommands.Uname_Os_Command, clientOverride);
+            SshCommand hostName = await this.RunCommandAgainstRouterAsync(ServiceResources.HostName_Command, clientOverride);
+            SshCommand os = await this.RunCommandAgainstRouterAsync(ServiceResources.Uname_Os_Command, clientOverride);
 
             return new Tuple<string, string>(
                 hostName.Result.TrimEnd('\r', '\n'), 

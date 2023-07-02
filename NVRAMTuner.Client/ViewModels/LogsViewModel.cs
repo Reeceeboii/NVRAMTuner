@@ -42,6 +42,7 @@
         /// </summary>
         /// <param name="messenger">Instance of <see cref="IMessenger"/></param>
         /// <param name="dialogService">Instance of <see cref="IDialogService"/></param>
+        /// <param name="dataPersistenceService">Instance of <see cref="IDataPersistenceService"/></param>
         public LogsViewModel(
             IMessenger messenger, 
             IDialogService dialogService,
@@ -140,7 +141,7 @@
         /// </summary>
         private void SaveLogsCommandHandler()
         {
-            string path = this.dialogService.ShowShowAsDialog(
+            string path = this.dialogService.ShowSaveAsDialog(
                 "Text file (*.txt)|*.txt",
                 $"NVRAMTuner logs {DateTime.Now.ToString(this.culture.DateTimeFormat.LongDatePattern)}.txt");
 

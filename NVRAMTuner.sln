@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVRAMTuner.Client", "NVRAMT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NVRAMTuner.Test", "NVRAMTuner.Test\NVRAMTuner.Test.csproj", "{4A37DD4E-7A40-4097-88DB-B949B49632D3}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "NVRAMTuner.Scripts", "NVRAMTuner.Scripts\NVRAMTuner.Scripts.pyproj", "{2609A1C1-8E21-4956-8F0F-2595BE361A61}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,8 @@ Global
 		{4A37DD4E-7A40-4097-88DB-B949B49632D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A37DD4E-7A40-4097-88DB-B949B49632D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A37DD4E-7A40-4097-88DB-B949B49632D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2609A1C1-8E21-4956-8F0F-2595BE361A61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2609A1C1-8E21-4956-8F0F-2595BE361A61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -195,6 +195,9 @@
     <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.19\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Ookii.Dialogs.Wpf, Version=5.0.0.0, Culture=neutral, PublicKeyToken=66aa232afad40158, processorArchitecture=MSIL">
       <HintPath>..\packages\Ookii.Dialogs.Wpf.5.0.1\lib\net462\Ookii.Dialogs.Wpf.dll</HintPath>
     </Reference>
@@ -261,13 +264,19 @@
     <Compile Include="Converters\LogEntryCollectionToStringConverter.cs" />
     <Compile Include="Messages\LogMessage.cs" />
     <Compile Include="Messages\NavigationRequestMessage.cs" />
-    <Compile Include="Messages\DeserialisedRouterRequestMessage.cs" />
+    <Compile Include="Messages\Variables\VariablesChangedMessage.cs" />
+    <Compile Include="Messages\Variables\VariableSelectedMessage.cs" />
+    <Compile Include="Models\Nvram\IVariable.cs" />
+    <Compile Include="Models\Nvram\NcSettingConf.cs" />
     <Compile Include="Models\Enums\GenericStatus.cs" />
     <Compile Include="Models\Enums\SshAuthType.cs" />
     <Compile Include="Models\Enums\NavigableViewModel.cs" />
     <Compile Include="Models\LogEntry.cs" />
+    <Compile Include="Models\Nvram\Variable.cs" />
     <Compile Include="Models\Router.cs" />
     <Compile Include="Models\SshConnectionInfo.cs" />
+    <Compile Include="Models\Nvram\NvramVariable.cs" />
+    <Compile Include="Models\Nvram\Nvram.cs" />
     <Compile Include="Services\DataEncryptionService.cs" />
     <Compile Include="Services\DataPersistenceService.cs" />
     <Compile Include="Services\DialogService.cs" />
@@ -278,12 +287,19 @@
     <Compile Include="Services\Interfaces\IDataEncryptionService.cs" />
     <Compile Include="Services\Interfaces\IEnvironmentService.cs" />
     <Compile Include="Services\Interfaces\IWindowsSecurityService.cs" />
+    <Compile Include="Services\Interfaces\IVariableService.cs" />
     <Compile Include="Services\NetworkService.cs" />
-    <Compile Include="Services\Resources\SshCommands.Designer.cs">
+    <Compile Include="Services\Resources\ServiceResources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>SshCommands.resx</DependentUpon>
+      <DependentUpon>ServiceResources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Services\Resources\VariableNames.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>VariableNames.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Services\VariableService.cs" />
     <Compile Include="Services\WindowsSecurityService.cs" />
     <Compile Include="Utils\StringUtils.cs" />
     <Compile Include="Validators\ValidIpv4AddressAttribute.cs" />
@@ -297,6 +313,8 @@
       <DependentUpon>ViewModelStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\RouterSetupViewModel.cs" />
+    <Compile Include="ViewModels\Variables\EditsViewModel.cs" />
+    <Compile Include="ViewModels\Variables\VariablesViewModel.cs" />
     <Compile Include="Views\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
@@ -311,6 +329,12 @@
     </Compile>
     <Compile Include="Views\RouterSetup.xaml.cs">
       <DependentUpon>RouterSetup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Variables\Edits.xaml.cs">
+      <DependentUpon>Edits.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Variables\Variables.xaml.cs">
+      <DependentUpon>Variables.xaml</DependentUpon>
     </Compile>
     <Page Include="Views\AboutWindow.xaml">
       <SubType>Designer</SubType>
@@ -348,6 +372,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Variables\Edits.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Variables\Variables.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -367,21 +399,25 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Services\Resources\SshCommands.resx">
+    <EmbeddedResource Include="Services\Resources\ServiceResources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>SshCommands.Designer.cs</LastGenOutput>
+      <LastGenOutput>ServiceResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Services\Resources\VariableNames.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>VariableNames.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="ViewModels\Resources\ViewModelStrings.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>ViewModelStrings.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <None Include="NVRAMTuner.Client_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Services\Resources\firmware_variable_defaults.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
