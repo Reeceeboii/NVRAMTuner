@@ -131,12 +131,13 @@
 
                     foreach (string component in parts[1].Split('<'))
                     {
-                        if (!string.IsNullOrWhiteSpace(component))
+                        if (string.IsNullOrWhiteSpace(component))
                         {
-                            string[] subComponents = component.Split('>');
-
-                            ncConf.Value.Add(Tuple.Create(subComponents[0], subComponents[1], subComponents[2]));
+                            continue;
                         }
+
+                        string[] subComponents = component.Split('>');
+                        ncConf.Value.Add(Tuple.Create(subComponents[0], subComponents[1], subComponents[2]));
                     }
                     
                     allVariables.Add(ncConf);
