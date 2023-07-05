@@ -102,7 +102,8 @@
 
                 // extract common pieces of information
                 string name = parts[0];
-                int sizeBytes = parts[1].Length;
+                string originalValue = parts[1];
+                int sizeBytes = originalValue.Length;
                 string description = this.GetDescriptionForVariable(name);
                 string defaultValue = this.GetDefaultValueForVariable(name);
 
@@ -123,6 +124,7 @@
                     {
                         Name = name,
                         Value = new List<Tuple<string, string, string>>(),
+                        OriginalValue = originalValue,
                         Description = description,
                         DefaultValue = defaultValue,
                         SizeBytes = sizeBytes,
@@ -148,6 +150,7 @@
                     {
                         Name = name,
                         Value = parts[1],
+                        OriginalValue = originalValue,
                         Description = description,
                         DefaultValue = defaultValue,
                         SizeBytes = sizeBytes,

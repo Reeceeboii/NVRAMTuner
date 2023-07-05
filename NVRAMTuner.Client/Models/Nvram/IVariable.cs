@@ -11,6 +11,11 @@
         string Name { get; set; }
 
         /// <summary>
+        /// Gets or sets the variable's original value
+        /// </summary>
+        string OriginalValue { get; set; }
+
+        /// <summary>
         /// Gets or sets the variable's size in bytes
         /// </summary>
         int SizeBytes { get; set; }

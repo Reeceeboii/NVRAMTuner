@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NVRAMTuner.Client.Views"
+             xmlns:enums="clr-namespace:NVRAMTuner.Client.Models.Enums"
              xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              mc:Ignorable="d"
@@ -33,7 +34,7 @@
             <Separator />
             <MenuItem Header="Exit">
                 <MenuItem.Icon>
-                    <iconPacks:PackIconRadixIcons Kind="Exit" />
+                    <iconPacks:PackIconMaterial Kind="ExitRun" />
                 </MenuItem.Icon>
             </MenuItem>
         </MenuItem>
@@ -47,6 +48,27 @@
                 <MenuItem.Icon>
                     <iconPacks:PackIconFontisto Kind="Save" />
                 </MenuItem.Icon>
+            </MenuItem>
+            <Separator />
+            <MenuItem Header="Options">
+                <MenuItem.Icon>
+                    <iconPacks:PackIconMaterial Kind="Cog" />
+                </MenuItem.Icon>
+                <MenuItem Header="Themes">
+                    <MenuItem.Icon>
+                        <iconPacks:PackIconMaterial Kind="ThemeLightDark" />
+                    </MenuItem.Icon>
+                    <MenuItem Header="Sync with OS" 
+                              Command="{Binding ChangeThemeCommand}"
+                              CommandParameter="{x:Static enums:ApplicationTheme.SyncWithOs}"/>
+                    <MenuItem Header="Dark blue"
+                              Command="{Binding ChangeThemeCommand}"
+                              CommandParameter="{x:Static enums:ApplicationTheme.DarkBlue}"/>
+                    <MenuItem Header="Dark orange"
+                              Command="{Binding ChangeThemeCommand}"
+                              CommandParameter="{x:Static enums:ApplicationTheme.DarkOrange}"/>
+                    <MenuItem Header="Match OS"/>
+                </MenuItem>
             </MenuItem>
         </MenuItem>
         <MenuItem Header="_Help">

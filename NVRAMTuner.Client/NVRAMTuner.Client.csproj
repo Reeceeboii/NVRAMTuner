@@ -47,8 +47,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>bin\Debug\NVRAMTuner.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -70,6 +69,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>true</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>modem.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommunityToolkit.Mvvm, Version=8.2.0.0, Culture=neutral, PublicKeyToken=4aff67a105548ee2, processorArchitecture=MSIL">
@@ -262,10 +264,14 @@
     <Compile Include="Converters\ConfigurableBoolToVisibilityConverter.cs" />
     <Compile Include="Converters\InverseBoolConverter.cs" />
     <Compile Include="Converters\LogEntryCollectionToStringConverter.cs" />
+    <Compile Include="Messages\DialogErrorMessage.cs" />
     <Compile Include="Messages\LogMessage.cs" />
     <Compile Include="Messages\NavigationRequestMessage.cs" />
+    <Compile Include="Messages\Theme\ThemeChangeMessage.cs" />
+    <Compile Include="Messages\Theme\ThemeRequestMessage.cs" />
     <Compile Include="Messages\Variables\VariablesChangedMessage.cs" />
     <Compile Include="Messages\Variables\VariableSelectedMessage.cs" />
+    <Compile Include="Models\Enums\ApplicationTheme.cs" />
     <Compile Include="Models\Nvram\IVariable.cs" />
     <Compile Include="Models\Nvram\NcSettingConf.cs" />
     <Compile Include="Models\Enums\GenericStatus.cs" />
@@ -301,6 +307,7 @@
     </Compile>
     <Compile Include="Services\VariableService.cs" />
     <Compile Include="Services\WindowsSecurityService.cs" />
+    <Compile Include="Utils\ApplicationThemes.cs" />
     <Compile Include="Utils\StringUtils.cs" />
     <Compile Include="Validators\ValidIpv4AddressAttribute.cs" />
     <Compile Include="Validators\ValidNetworkPortAttribute.cs" />
@@ -330,6 +337,7 @@
     <Compile Include="Views\RouterSetup.xaml.cs">
       <DependentUpon>RouterSetup.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Templates\VariableTemplateSelector.cs" />
     <Compile Include="Views\Variables\Edits.xaml.cs">
       <DependentUpon>Edits.xaml</DependentUpon>
     </Compile>
@@ -417,6 +425,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Resources\README.md" />
     <None Include="Services\Resources\firmware_variable_defaults.json" />
   </ItemGroup>
   <ItemGroup>
@@ -436,6 +445,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\GPLv3.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\modem.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="modem.ico" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

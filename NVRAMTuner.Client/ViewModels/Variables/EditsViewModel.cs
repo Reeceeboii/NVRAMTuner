@@ -6,6 +6,9 @@
     using Messages.Variables;
     using Models.Nvram;
 
+    /// <summary>
+    /// ViewModel for the Edits view
+    /// </summary>
     public class EditsViewModel : ObservableRecipient, IRecipient<VariableSelectedMessage>
     {
         /// <summary>
@@ -27,13 +30,11 @@
             this.IsActive = true;
 
             this.RollbackChangesCommand = new RelayCommand(this.RollbackChangesCommandHandler, () =>
-            {
-                return true;
-                /*
+            { 
                 if (this.SelectedVariable != null)
                 {
-                    return this.EditableValue != this.SelectedVariable.Value;
-                }*/
+                    return this.EditableValue != this.SelectedVariable.OriginalValue;
+                }
 
                 return false;
             });
@@ -82,7 +83,7 @@
         public void Receive(VariableSelectedMessage message)
         {
             this.SelectedVariable = message.Value;
-            //this.EditableValue = message.Value.Value;
+            this.EditableValue = message.Value.OriginalValue;
             this.RollbackChangesCommand.NotifyCanExecuteChanged();
         }
 
@@ -91,7 +92,7 @@
         /// </summary>
         private void RollbackChangesCommandHandler()
         {
-            //this.EditableValue = this.SelectedVariable.Value;
+            this.EditableValue = this.SelectedVariable.OriginalValue;
         }
     }
 }

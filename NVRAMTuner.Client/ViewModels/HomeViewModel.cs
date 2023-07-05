@@ -7,6 +7,7 @@ namespace NVRAMTuner.Client.ViewModels
     using CommunityToolkit.Mvvm.Messaging;
     using MahApps.Metro.Controls.Dialogs;
     using Messages;
+    using Messages.Theme;
     using Models;
     using Models.Enums;
     using Resources;
@@ -106,6 +107,7 @@ namespace NVRAMTuner.Client.ViewModels
             this.EnterSetupCommand = new RelayCommand(this.EnterSetupCommandHandler);
             this.ViewSourceMenuCommand = new RelayCommand(this.ViewSourceMenuCommandHandler);
             this.ReportBugMenuCommand = new RelayCommand(this.ReportBugMenuCommandHandler);
+            this.ChangeThemeCommand = new RelayCommand<ApplicationTheme>(this.ChangeThemeCommandHandler);
         }
 
         /// <summary>
@@ -121,19 +123,24 @@ namespace NVRAMTuner.Client.ViewModels
         /// <summary>
         /// Gets the command used to force entry to the router setup page
         /// </summary>
-        public RelayCommand EnterSetupCommand { get; }
+        public IRelayCommand EnterSetupCommand { get; }
 
         /// <summary>
         /// Gets the command used to access the program's remote source repository
         /// on GitHub via the Menu
         /// </summary>
-        public ICommand ViewSourceMenuCommand { get; }
+        public IRelayCommand ViewSourceMenuCommand { get; }
 
         /// <summary>
         /// Gets the command used to access the issue page for this repository
         /// on GitHub
         /// </summary>
-        public ICommand ReportBugMenuCommand { get; }
+        public IRelayCommand ReportBugMenuCommand { get; }
+
+        /// <summary>
+        /// Gets the command used to change the theme via the menu
+        /// </summary>
+        public IRelayCommand<ApplicationTheme> ChangeThemeCommand { get; }
 
         /// <summary>
         /// Gets or sets a bool representing whether or not any saved routers are present
@@ -229,7 +236,7 @@ namespace NVRAMTuner.Client.ViewModels
         #region MenuCommandHandlers
 
         /// <summary>
-        /// Method to handle <see cref="ViewSourceMenuCommand"/>.
+        /// Method to handle the <see cref="ViewSourceMenuCommand"/>.
         /// Opens the URL of the repository for this project in the user's default browser
         /// </summary>
         private void ViewSourceMenuCommandHandler()
@@ -238,7 +245,7 @@ namespace NVRAMTuner.Client.ViewModels
         }
 
         /// <summary>
-        /// Method to handle <see cref="ReportBugMenuCommand"/>.
+        /// Method to handle the <see cref="ReportBugMenuCommand"/>.
         /// Opens the URL of the GitGub issue page for this project in the user's default browser
         /// </summary>
         private void ReportBugMenuCommandHandler()
@@ -247,13 +254,22 @@ namespace NVRAMTuner.Client.ViewModels
         }
 
         /// <summary>
-        /// Method to handle <see cref="EnterSetupCommand"/>.
+        /// Method to handle the <see cref="EnterSetupCommand"/>.
         /// Sends a <see cref="NavigationRequestMessage"/> requesting navigation to the
         /// <see cref="RouterSetupViewModel"/>
         /// </summary>
         private void EnterSetupCommandHandler()
         {
             this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.RouterSetupViewModel));
+        }
+
+        /// <summary>
+        /// Method to handle the <see cref="ChangeThemeCommand"/>
+        /// </summary>
+        /// <param name="theme">Member of the <see cref="ApplicationTheme"/> enumeration</param>
+        private void ChangeThemeCommandHandler(ApplicationTheme theme)
+        {
+            this.messenger.Send(new ThemeChangeMessage(theme));
         }
 
         #endregion

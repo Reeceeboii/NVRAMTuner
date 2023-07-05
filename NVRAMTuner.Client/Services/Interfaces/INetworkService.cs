@@ -18,6 +18,11 @@
         bool IsConnected { get; }
 
         /// <summary>
+        /// Event to be raised when an error occurs in the connection to the router via the <see cref="SshClient"/>
+        /// </summary>
+        event EventHandler SshClientOnErrorOccurred;
+
+        /// <summary>
         /// Attempts to open an SSH connection to the remote server using either password-based authentication, or public/private key
         /// based authentication. This choice is up to the user and their local network configuration.
         /// If <paramref name="useTempClient"/> is set to false (its non-default value), the service's field instance of
@@ -38,6 +43,12 @@
         /// If one opts to not use the temp client but the real client is already connected to a server
         /// </exception>
         Task<SshConnectionInfo> ConnectToRouterAsync(Router router, bool useTempClient = true);
+
+        /// <summary>
+        /// Disconnects from the currently connected router, if a connection is currently established
+        /// </summary>
+        /// <returns>An asynchronous <see cref="Task"/></returns>
+        void DisconnectFromRouter();
 
         /// <summary>
         /// Runs a command against the router using the service's <see cref="SshClient"/> instance

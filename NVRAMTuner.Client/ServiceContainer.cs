@@ -38,8 +38,8 @@
             collection.AddScoped<IVariableService, VariableService>();
 
             // ViewModels and navigation
-            collection.AddScoped<MainWindowViewModel>();
-            collection.AddScoped<AboutWindowViewModel>();
+            collection.AddSingleton<MainWindowViewModel>();
+            collection.AddSingleton<AboutWindowViewModel>();
             collection.AddScoped<HomeViewModel>();
             collection.AddScoped<LogsViewModel>();
             collection.AddTransient<RouterSetupViewModel>();

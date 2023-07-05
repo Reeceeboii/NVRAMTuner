@@ -11,6 +11,11 @@
         public string Name { get; set; }
 
         /// <summary>
+        /// Gets or sets the variable's original value
+        /// </summary>
+        public string OriginalValue { get; set; }
+
+        /// <summary>
         /// Gets or sets the variable's value
         /// </summary>
         public T Value { get; set; }

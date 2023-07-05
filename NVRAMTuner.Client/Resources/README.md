@@ -1,0 +1,1 @@
+﻿Icon license: https://media.flaticon.com/license/license.pdf

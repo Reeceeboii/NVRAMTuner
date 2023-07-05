@@ -4,6 +4,7 @@ namespace NVRAMTuner.Client.Services
 {
     using CommunityToolkit.Mvvm.Messaging;
     using Interfaces;
+    using Messages;
     using Models;
     using Models.Enums;
     using Renci.SshNet;
@@ -119,6 +120,11 @@ namespace NVRAMTuner.Client.Services
         public bool IsConnected => this.client?.IsConnected ?? false;
 
         /// <summary>
+        /// Event to be raised when an error occurs in the connection to the router via the <see cref="SshClient"/>
+        /// </summary>
+        public event EventHandler? SshClientOnErrorOccurred;
+
+        /// <summary>
         /// Attempts to open an SSH connection to the remote server using either password-based authentication, or public/private key
         /// based authentication. This choice is up to the user and their local network configuration.
         /// If <paramref name="useTempClient"/> is set to false (its non-default value), the service's field instance of
@@ -161,6 +167,7 @@ namespace NVRAMTuner.Client.Services
 
                 if (!this.fileSystem.File.Exists(privateKeyPath))
                 {
+                    this.messenger.Send(new LogMessage(new LogEntry { LogMessage = "Private SSH key not found" }));
                     throw new FileNotFoundException("Private SSH key not found", privateKeyPath);
                 }
 
@@ -183,6 +190,11 @@ namespace NVRAMTuner.Client.Services
                     {
                         Tuple<string, string> tempHnAndOs = await this.GetRouterHostnameAndOs(tempClient);
 
+                        this.messenger.Send(new LogMessage(new LogEntry
+                        {
+                            LogMessage = $"Connected successfully to {tempHnAndOs.Item1} using temporary client. Disconnecting..."
+                        }));
+
                         tempClient.Disconnect();
 
                         return new SshConnectionInfo
@@ -196,6 +208,8 @@ namespace NVRAMTuner.Client.Services
                     tempClient.Disconnect();
                 }
 
+                this.messenger.Send(new LogMessage(new LogEntry { LogMessage = "Failed to connect using temporary client" }));
+
                 return new SshConnectionInfo
                 {
                     ConnectionSuccessful = false
@@ -203,9 +217,27 @@ namespace NVRAMTuner.Client.Services
             }
 
             this.client = new SshClient(connectionInfo);
-            this.client.Connect();
+
+            try
+            {
+                this.client.Connect();
+            }
+            catch(Exception ex)
+            {
+                this.messenger.Send(new LogMessage(new LogEntry
+                {
+                    LogMessage = $"Error during connection to '{router.RouterNickname}': \"{ex.Message}\""
+                }));
+
+                return new SshConnectionInfo
+                {
+                    ConnectionSuccessful = false
+                };
+            }
 
             Tuple<string, string> hnAndOs = await this.GetRouterHostnameAndOs();
+
+            this.client.ErrorOccurred += this.ClientOnErrorOccurred;
 
             return new SshConnectionInfo
             {
@@ -213,6 +245,30 @@ namespace NVRAMTuner.Client.Services
                 HostName = hnAndOs.Item1, 
                 OperatingSystem = hnAndOs.Item2
             };
+        }
+
+        /// <summary>
+        /// Handler for the <see cref="BaseClient.ErrorOccurred"/> event
+        /// </summary>
+        /// <param name="sender">The event sender</param>
+        /// <param name="e">The <see cref="ExceptionEventArgs"/> instance</param>
+        private void ClientOnErrorOccurred(object sender, ExceptionEventArgs e)
+        {
+            this.SshClientOnErrorOccurred?.Invoke(this, e);
+        }
+
+        /// <summary>
+        /// Disconnects from the currently connected router, if a connection is currently established
+        /// </summary>
+        public void DisconnectFromRouter()
+        {
+            if (!(this.client is { IsConnected: true }))
+            {
+                return;
+            }
+
+            this.client.ErrorOccurred -= this.ClientOnErrorOccurred;
+            this.client.Disconnect();
         }
 
         /// <summary>
@@ -291,6 +347,11 @@ namespace NVRAMTuner.Client.Services
         /// </summary>
         public void Dispose()
         {
+            if (this.client is { IsConnected: true })
+            {
+                this.client.Disconnect();
+            }
+
             this.client?.Dispose();
         }
     }

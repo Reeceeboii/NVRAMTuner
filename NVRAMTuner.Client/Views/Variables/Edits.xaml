@@ -4,6 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NVRAMTuner.Client.Views.Variables"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:variables="clr-namespace:NVRAMTuner.Client.Models.Nvram"
+             xmlns:templates="clr-namespace:NVRAMTuner.Client.Views.Templates"
              xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels.Variables"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              d:DataContext="{d:DesignInstance Type=vm:EditsViewModel, IsDesignTimeCreatable=False}"
@@ -60,12 +63,42 @@
 
             <Separator Grid.Row="3" Margin="0 10 0 10"/>
 
-            <TextBox Grid.Row="4" 
-                     HorizontalAlignment="Stretch"
-                     Text="{Binding EditableValue, UpdateSourceTrigger=PropertyChanged}"
-                     TextWrapping="Wrap">
-
-            </TextBox>
+            <ContentControl Grid.Row="4" Content="{Binding SelectedVariable}" x:Name="VariableContentControl">
+                <ContentControl.ContentTemplateSelector>
+                    <templates:VariableTemplateSelector>
+                        <templates:VariableTemplateSelector.NvramVariableTemplate>
+                            <DataTemplate DataType="{x:Type variables:NvramVariable}">
+                                <Label Content="{Binding Value}"/>
+                            </DataTemplate>
+                        </templates:VariableTemplateSelector.NvramVariableTemplate>
+                        <templates:VariableTemplateSelector.NcSettingConfTemplate>
+                            <DataTemplate DataType="{x:Type variables:NcSettingConf}">
+                                <Grid>
+                                    <TabControl Style="{DynamicResource MahApps.Styles.TabControl.AnimatedSingleRow}"
+                                                mah:TabControlHelper.Underlined="TabPanel">
+                                        <TabItem Header="Raw">
+                                            <TextBox TextWrapping="Wrap" Text="{Binding DataContext.EditableValue, 
+                                                ElementName=VariableContentControl,
+                                                UpdateSourceTrigger=PropertyChanged}"/>
+                                        </TabItem>
+                                        <TabItem Header="Formatted (read only)">
+                                            <DataGrid IsReadOnly="True" 
+                                                      ItemsSource="{Binding Value}"
+                                                      AutoGenerateColumns="False">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Key" Binding="{Binding Item1}"/>
+                                                    <DataGridTextColumn Header="Value 1" Binding="{Binding Item2}"/>
+                                                    <DataGridTextColumn Header="Value 2" Binding="{Binding Item3}"/>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </TabItem>
+                                    </TabControl>
+                                </Grid>
+                            </DataTemplate>
+                        </templates:VariableTemplateSelector.NcSettingConfTemplate>
+                    </templates:VariableTemplateSelector>
+                </ContentControl.ContentTemplateSelector>
+            </ContentControl>
 
             <WrapPanel Grid.Row="5" 
                        Orientation="Horizontal" 
