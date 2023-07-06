@@ -107,7 +107,7 @@
                 new AsyncRelayCommand(this.DisconnectFromTargetRouterCommandHandler, () => this.IsConnected);
 
             // menu commands
-            this.EnterSetupCommand = new RelayCommand(this.EnterSetupCommandHandler);
+            this.EnterSetupCommand = new AsyncRelayCommand(this.EnterSetupCommandHandler);
             this.ViewSourceMenuCommand = new RelayCommand(this.ViewSourceMenuCommandHandler);
             this.ReportBugMenuCommand = new RelayCommand(this.ReportBugMenuCommandHandler);
             this.ChangeThemeCommand = new RelayCommand<ApplicationTheme>(this.ChangeThemeCommandHandler);
@@ -128,7 +128,7 @@
         /// <summary>
         /// Gets the command used to force entry to the router setup page
         /// </summary>
-        public IRelayCommand EnterSetupCommand { get; }
+        public IAsyncRelayCommand EnterSetupCommand { get; }
 
         /// <summary>
         /// Gets the command used to access the program's remote source repository
@@ -329,31 +329,29 @@
         /// Sends a <see cref="NavigationRequestMessage"/> requesting navigation to the
         /// <see cref="RouterSetupViewModel"/>
         /// </summary>
-        private void EnterSetupCommandHandler()
+        /// <returns>The asynchronous <see cref="Task"/></returns>
+        private async Task EnterSetupCommandHandler()
         {
-            Task.Run(async () =>
-            {
-                string message = this.networkService.IsConnected
-                    ? "To setup a router, any currently established connections will be dropped and you will then be " +
-                      "redirected to the router setup page"
-                    : "You will be redirected to the router setup page";
+            string message = this.networkService.IsConnected
+                ? "To setup a router, any currently established connections will be dropped and you will then be " +
+                  "redirected to the router setup page"
+                : "You will be redirected to the router setup page";
 
-                MessageDialogResult res = await this.dialogService.ShowMessageAsync(
-                    this,
-                    "Setup a new router",
-                    message,
-                    MessageDialogStyle.AffirmativeAndNegative,
-                    new MetroDialogSettings()
-                    {
-                        AffirmativeButtonText = "Enter setup",
-                        NegativeButtonText = "Close"
-                    });
-
-                if (res == MessageDialogResult.Affirmative)
+            MessageDialogResult res = await this.dialogService.ShowMessageAsync(
+                this,
+                "Setup a new router",
+                message,
+                MessageDialogStyle.AffirmativeAndNegative,
+                new MetroDialogSettings()
                 {
-                    this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.RouterSetupViewModel));
-                }
-            });
+                    AffirmativeButtonText = "Enter setup",
+                    NegativeButtonText = "Close"
+                });
+
+            if (res == MessageDialogResult.Affirmative)
+            {
+                this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.RouterSetupViewModel));
+            }
         }
 
         /// <summary>
