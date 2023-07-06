@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿
+#nullable enable
 
 namespace NVRAMTuner.Client.Services
 {

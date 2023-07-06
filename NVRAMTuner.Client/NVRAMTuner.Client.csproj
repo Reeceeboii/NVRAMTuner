@@ -261,6 +261,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\RelayCommandCanExecuteToBoolConverter.cs" />
     <Compile Include="Converters\ConfigurableBoolToVisibilityConverter.cs" />
     <Compile Include="Converters\InverseBoolConverter.cs" />
     <Compile Include="Converters\LogEntryCollectionToStringConverter.cs" />
@@ -294,6 +295,7 @@
     <Compile Include="Services\Interfaces\IEnvironmentService.cs" />
     <Compile Include="Services\Interfaces\IWindowsSecurityService.cs" />
     <Compile Include="Services\Interfaces\IVariableService.cs" />
+    <Compile Include="Services\Interfaces\ISettingsService.cs" />
     <Compile Include="Services\NetworkService.cs" />
     <Compile Include="Services\Resources\ServiceResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -305,6 +307,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>VariableNames.resx</DependentUpon>
     </Compile>
+    <Compile Include="Services\SettingsService.cs" />
     <Compile Include="Services\VariableService.cs" />
     <Compile Include="Services\WindowsSecurityService.cs" />
     <Compile Include="Utils\ApplicationThemes.cs" />
@@ -398,9 +401,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
+    <Compile Include="Properties\ApplicationSettings.Designer.cs">
       <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
+      <DependentUpon>ApplicationSettings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -421,9 +424,9 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    <None Include="Properties\ApplicationSettings.settings">
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
+      <LastGenOutput>ApplicationSettings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Resources\README.md" />
     <None Include="Services\Resources\firmware_variable_defaults.json" />

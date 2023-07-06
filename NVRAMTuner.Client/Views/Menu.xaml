@@ -12,17 +12,15 @@
              d:DesignHeight="30"
              d:DesignWidth="800">
 
-    <Menu>
+    <Menu IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
         <MenuItem Header="_File">
-            <MenuItem Header="Connect to router..."
-                      Command="{Binding LoadRouterFromDiskCommand}">
+            <MenuItem 
+                Header="Disconnect from router" 
+                Command="{Binding DisconnectFromTargetRouterCommand}"
+                IsEnabled="{Binding DisconnectFromTargetRouterCommand, Converter={StaticResource RelayCommandCanExecuteToBoolConverter}}">
                 <MenuItem.Icon>
-                    <iconPacks:PackIconMaterial Kind="RouterWireless" />
-                </MenuItem.Icon>
-            </MenuItem>
-            <MenuItem Header="Disconnect from router">
-                <MenuItem.Icon>
-                    <iconPacks:PackIconMaterial Kind="RouterWirelessOff" />
+                    <iconPacks:PackIconMaterial 
+                        Kind="RouterWirelessOff"/>
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="Setup new router"
@@ -58,16 +56,25 @@
                     <MenuItem.Icon>
                         <iconPacks:PackIconMaterial Kind="ThemeLightDark" />
                     </MenuItem.Icon>
-                    <MenuItem Header="Sync with OS" 
-                              Command="{Binding ChangeThemeCommand}"
-                              CommandParameter="{x:Static enums:ApplicationTheme.SyncWithOs}"/>
                     <MenuItem Header="Dark blue"
                               Command="{Binding ChangeThemeCommand}"
                               CommandParameter="{x:Static enums:ApplicationTheme.DarkBlue}"/>
                     <MenuItem Header="Dark orange"
                               Command="{Binding ChangeThemeCommand}"
                               CommandParameter="{x:Static enums:ApplicationTheme.DarkOrange}"/>
-                    <MenuItem Header="Match OS"/>
+                    <MenuItem Header="Dark Red"
+                              Command="{Binding ChangeThemeCommand}"
+                              CommandParameter="{x:Static enums:ApplicationTheme.DarkRed}"/>
+                    <Separator />
+                    <MenuItem Header="Light blue"
+                              Command="{Binding ChangeThemeCommand}"
+                              CommandParameter="{x:Static enums:ApplicationTheme.LightBlue}"/>
+                    <MenuItem Header="Light orange"
+                              Command="{Binding ChangeThemeCommand}"
+                              CommandParameter="{x:Static enums:ApplicationTheme.LightOrange}"/>
+                    <MenuItem Header="Light Red"
+                              Command="{Binding ChangeThemeCommand}"
+                              CommandParameter="{x:Static enums:ApplicationTheme.LightRed}"/>
                 </MenuItem>
             </MenuItem>
         </MenuItem>

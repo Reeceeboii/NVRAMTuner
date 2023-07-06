@@ -15,7 +15,7 @@ namespace NVRAMTuner.Client.Services.Interfaces
         /// Serialises a <see cref="Router"/> object to XML, encrypts the raw bytes via DPAPI
         /// and dumps the contents to a file in the user's local application data folder
         /// </summary>
-        /// <param name="router">The <see cref="Router"/> instance that is to be encrypted & persisted</param>
+        /// <param name="router">The <see cref="Router"/> instance that is to be encrypted and persisted</param>
         /// <returns>An asynchronous <see cref="Task"/></returns>
         Task SerialiseRouterToEncryptedFileAsync(Router router);
 

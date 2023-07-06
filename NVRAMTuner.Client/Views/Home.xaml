@@ -73,44 +73,10 @@
         </GroupBox>
 
 
-        <!-- ROUTER CONNECTION DETAILS -->
+        <!-- ROUTER SELECTION AND CONNECTION DETAILS -->
         <GroupBox Grid.Row="4" 
                   Grid.Column="2"
-                  Header="Router connection details"
-                  Margin="1"
-                  Visibility="{Binding RoutersPresent, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Reverse}"
-                  d:Visibility="Hidden">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition />
-                </Grid.RowDefinitions>
-
-                <TextBlock Grid.Column="0"
-                           Grid.ColumnSpan="3"
-                           Grid.Row="0"
-                           TextAlignment="Center"
-                           TextWrapping="Wrap"
-                           VerticalAlignment="Center"
-                           Text="You are currently disconnected. Please connect to a router to use NVRAMTuner." />
-
-                <Button Grid.Row="1" 
-                        Grid.Column="1" 
-                        Content="Connect now"
-                        Command="{Binding LoadRouterFromDiskCommand}"/>
-            </Grid>
-        </GroupBox>
-
-        <GroupBox Grid.Row="4" 
-                  Grid.Column="2"
-                  Header="Router connection details"
+                  Header="Router selection"
                   Margin="1"
                   Visibility="{Binding RoutersPresent, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Normal}">
 
@@ -121,7 +87,8 @@
 
                 <ComboBox ItemsSource="{Binding AvailableRouters}" 
                           SelectedItem="{Binding TargetRouterForConnection, UpdateSourceTrigger=PropertyChanged}"
-                          SelectedIndex="0">
+                          SelectedIndex="0"
+                          IsSynchronizedWithCurrentItem="True">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock>
@@ -142,12 +109,47 @@
             </UniformGrid>
         </GroupBox>
 
+        <GroupBox Grid.Row="4" 
+                  Grid.Column="2"
+                  Header="Router connection details"
+                  Margin="1"
+                  Visibility="{Binding IsConnected, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Normal}"
+                  d:Visibility="Hidden">
+
+            <UniformGrid Rows="3" Margin="20" VerticalAlignment="Center">
+                <TextBlock TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           Text="Please select a router to connect to..." />
+
+                <ComboBox ItemsSource="{Binding AvailableRouters}" 
+                          SelectedItem="{Binding TargetRouterForConnection, UpdateSourceTrigger=PropertyChanged}"
+                          SelectedIndex="0"
+                          IsSynchronizedWithCurrentItem="True">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}'{0}' ({1})">
+                                        <Binding Path="RouterNickname" />
+                                        <Binding Path="RouterIpv4Address" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <Button Content="Connect..."
+                        Command="{Binding ConnectToTargetRouterCommand}"/>
+
+            </UniformGrid>
+        </GroupBox>
 
         <!-- Status bar that spans the length of the bottom of the window -->
         <StatusBar Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3">
             <TextBlock>
                 <Run Text="Connection status:" />
-                <Run Text="Disconnected"/>
+                <Run Text="{Binding NvramTunerStatus, Mode=OneWay}"/>
             </TextBlock>
         </StatusBar>
     </Grid>

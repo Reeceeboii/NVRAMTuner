@@ -21,6 +21,9 @@ namespace NVRAMTuner.Client.ViewModels
     using System.Windows.Input;
     using Validators;
 
+    /// <summary>
+    /// ViewModel for the RouterSetup view
+    /// </summary>
     public class RouterSetupViewModel : ObservableValidator
     {
         /// <summary>

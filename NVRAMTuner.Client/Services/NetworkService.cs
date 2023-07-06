@@ -236,8 +236,9 @@ namespace NVRAMTuner.Client.Services
             }
 
             Tuple<string, string> hnAndOs = await this.GetRouterHostnameAndOs();
-
             this.client.ErrorOccurred += this.ClientOnErrorOccurred;
+
+            this.messenger.Send(new LogMessage(new LogEntry { LogMessage = $"Connected to {hnAndOs.Item1}" }));
 
             return new SshConnectionInfo
             {
@@ -260,15 +261,20 @@ namespace NVRAMTuner.Client.Services
         /// <summary>
         /// Disconnects from the currently connected router, if a connection is currently established
         /// </summary>
-        public void DisconnectFromRouter()
+        /// <returns>An asynchronous <see cref="Task"/></returns>
+        public async Task DisconnectFromRouter()
         {
             if (!(this.client is { IsConnected: true }))
             {
                 return;
             }
 
-            this.client.ErrorOccurred -= this.ClientOnErrorOccurred;
-            this.client.Disconnect();
+            await Task.Run(() =>
+            {
+                this.client.ErrorOccurred -= this.ClientOnErrorOccurred;
+                this.client.Disconnect();
+                this.messenger.Send(new LogMessage(new LogEntry { LogMessage = "Disconnected" }));
+            });
         }
 
         /// <summary>

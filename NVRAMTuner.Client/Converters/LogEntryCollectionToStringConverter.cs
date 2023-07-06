@@ -8,6 +8,10 @@
     using System.Windows.Data;
     using Utils;
 
+    /// <summary>
+    /// A multi value converter that takes an <see cref="ObservableCollection{T}"/> of <see cref="LogEntry"/> instances
+    /// and uses the <see cref="StringUtils.LogEntryCollectionToString"/> method to convert all of them to a string
+    /// </summary>
     public class LogEntryCollectionToStringConverter : IMultiValueConverter
     {
         /// <summary>Converts source values to a value for the binding target. The data binding engine

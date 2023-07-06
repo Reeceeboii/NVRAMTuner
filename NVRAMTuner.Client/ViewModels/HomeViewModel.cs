@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace NVRAMTuner.Client.ViewModels
+﻿namespace NVRAMTuner.Client.ViewModels
 {
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
@@ -17,7 +15,6 @@ namespace NVRAMTuner.Client.ViewModels
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Windows.Input;
 
     /// <summary>
     /// ViewModel for <see cref="Views.Home"/>
@@ -60,10 +57,15 @@ namespace NVRAMTuner.Client.ViewModels
         private bool routersPresent;
 
         /// <summary>
-        /// Instance of <see cref="Router"/>
+        /// Backing field for <see cref="IsLoading"/>
         /// </summary>
-        private Router? activeRouter;
+        private bool isLoading;
 
+        /// <summary>
+        /// Backing field for <see cref="IsConnected"/>
+        /// </summary>
+        private bool isConnected;
+        
         /// <summary>
         /// Backing field for <see cref="AvailableRouters"/>
         /// </summary>
@@ -100,25 +102,28 @@ namespace NVRAMTuner.Client.ViewModels
 
             this.availableRouters = new ObservableCollection<Router>();
 
-            this.LoadRouterFromDiskCommand = new AsyncRelayCommand(this.LoadRouterFromDiskCommandHandlerAsync);
             this.ConnectToTargetRouterCommand = new AsyncRelayCommand(this.ConnectToTargetRouterCommandHandler);
+            this.DisconnectFromTargetRouterCommand =
+                new AsyncRelayCommand(this.DisconnectFromTargetRouterCommandHandler, () => this.IsConnected);
 
             // menu commands
             this.EnterSetupCommand = new RelayCommand(this.EnterSetupCommandHandler);
             this.ViewSourceMenuCommand = new RelayCommand(this.ViewSourceMenuCommandHandler);
             this.ReportBugMenuCommand = new RelayCommand(this.ReportBugMenuCommandHandler);
             this.ChangeThemeCommand = new RelayCommand<ApplicationTheme>(this.ChangeThemeCommandHandler);
-        }
 
-        /// <summary>
-        /// Gets the async command used to load a previously saved router config from disk
-        /// </summary>
-        public IAsyncRelayCommand LoadRouterFromDiskCommand { get; }
+            this.LoadRouterFromDisk();
+        }
 
         /// <summary>
         /// Gets the async command used to connect to the <see cref="TargetRouterForConnection"/>
         /// </summary>
         public IAsyncRelayCommand ConnectToTargetRouterCommand { get; }
+
+        /// <summary>
+        /// Gets the async command used to disconnect from the <see cref="TargetRouterForConnection"/>
+        /// </summary>
+        public IAsyncRelayCommand DisconnectFromTargetRouterCommand { get; }
 
         /// <summary>
         /// Gets the command used to force entry to the router setup page
@@ -152,6 +157,24 @@ namespace NVRAMTuner.Client.ViewModels
         }
 
         /// <summary>
+        /// Gets or sets a bool representing whether NVRAMTuner is loading (e.g. waiting on network etc...)
+        /// </summary>
+        public bool IsLoading
+        {
+            get => this.isLoading;
+            set => this.SetProperty(ref this.isLoading, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a bool representing whether NVRAMTuner is currently connected to a router
+        /// </summary>
+        public bool IsConnected
+        {
+            get => this.isConnected;
+            set => this.SetProperty(ref this.isConnected, value);
+        }
+
+        /// <summary>
         /// Gets or sets a <see cref="Router"/> that is currently the user's selected target for a connection
         /// </summary>
         public Router TargetRouterForConnection
@@ -171,18 +194,26 @@ namespace NVRAMTuner.Client.ViewModels
         }
 
         /// <summary>
+        /// Gets a string denoting the current status of NVRAMTuner - to be displayed in the status bar
+        /// </summary>
+        public string NvramTunerStatus =>
+            this.networkService.IsConnected
+                ? "Connected"
+                : "Disconnected";
+
+        /// <summary>
         /// Handles the <see cref="ConnectToTargetRouterCommand"/>
         /// </summary>
         /// <returns>An asynchronous <see cref="Task"/></returns>
         private async Task ConnectToTargetRouterCommandHandler()
         {
-            // this.loading = true;
+            this.IsLoading = true;
 
             try
             {
-                await this.networkService.ConnectToRouterAsync(this.targetRouterForConnection, useTempClient:false);
+                await this.networkService.ConnectToRouterAsync(this.targetRouterForConnection, useTempClient: false);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await this.dialogService.ShowMessageAsync(
                     this,
@@ -190,47 +221,87 @@ namespace NVRAMTuner.Client.ViewModels
                     $"An attempt was made to connect to your router at {this.targetRouterForConnection.RouterIpv4Address}. " +
                     $"However, an error occurred: \n\n {ex.Message}");
             }
+            finally
+            {
+                this.IsLoading = false;
+            }
 
             if (this.networkService.IsConnected)
             {
+                this.IsLoading = true;
+                this.IsConnected = true;
+
+                this.OnPropertyChanged(nameof(this.NvramTunerStatus));
+                this.DisconnectFromTargetRouterCommand.NotifyCanExecuteChanged();
+                this.OnPropertyChanged(nameof(this.DisconnectFromTargetRouterCommand));
+
                 await this.variableService.GetNvramVariablesAsync();
+                this.IsLoading = false;
             }
         }
 
         /// <summary>
-        /// Method to handle the <see cref="LoadRouterFromDiskCommand"/> command
+        /// Method to load all routers from disk
         /// </summary>
-        /// <returns>An asynchronous <see cref="Task"/></returns>
-        private async Task LoadRouterFromDiskCommandHandlerAsync()
+        private void LoadRouterFromDisk()
         {
+            this.IsLoading = true;
+
             List<Router> routers = this.dataPersistenceService.DeserialiseAllPresentRouters().ToList();
 
             if (!routers.Any())
             {
                 this.RoutersPresent = false;
 
-                MessageDialogResult setupRes = await this.dialogService.ShowMessageAsync(
-                    this,
-                    "No saved routers present",
-                    ViewModelStrings.NoSavedRoutersFoundDialogMessage,
-                    MessageDialogStyle.AffirmativeAndNegative,
-                    new MetroDialogSettings
-                    {
-                        AffirmativeButtonText = "Yes, enter setup now",
-                        NegativeButtonText = "No, complete setup later",
-                        DefaultButtonFocus = MessageDialogResult.Affirmative,
-                    });
-
-                if (setupRes == MessageDialogResult.Affirmative)
+                Task.Run(async () =>
                 {
-                    this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.RouterSetupViewModel));
-                }
+                    MessageDialogResult setupRes = await this.dialogService.ShowMessageAsync(
+                        this,
+                        "No saved routers present",
+                        ViewModelStrings.NoSavedRoutersFoundDialogMessage,
+                        MessageDialogStyle.AffirmativeAndNegative,
+                        new MetroDialogSettings
+                        {
+                            AffirmativeButtonText = "Yes, enter setup now",
+                            NegativeButtonText = "No, complete setup later",
+                            DefaultButtonFocus = MessageDialogResult.Affirmative,
+                        });
 
+                    if (setupRes == MessageDialogResult.Affirmative)
+                    {
+                        this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.RouterSetupViewModel));
+                    }
+                });
+
+                this.IsLoading = false;
                 return;
             }
-
+   
             this.AvailableRouters = new ObservableCollection<Router>(routers);
             this.RoutersPresent = true;
+            this.TargetRouterForConnection = routers[0];
+
+            this.IsLoading = false;
+        }
+
+        /// <summary>
+        /// Method to handle the <see cref="DisconnectFromTargetRouterCommand"/>.
+        /// Disconnects from the <see cref="TargetRouterForConnection"/> if a connection is established via
+        /// the <see cref="INetworkService"/>
+        /// </summary>
+        /// <returns>An asynchronous <see cref="Task"/></returns>
+        private async Task DisconnectFromTargetRouterCommandHandler()
+        {
+            this.IsLoading = true;
+
+            if (this.networkService.IsConnected)
+            {
+                await this.networkService.DisconnectFromRouter();
+                this.IsConnected = false;
+                this.DisconnectFromTargetRouterCommand.NotifyCanExecuteChanged();
+            }
+
+            this.IsLoading = false;
         }
 
         #region MenuCommandHandlers
@@ -260,7 +331,29 @@ namespace NVRAMTuner.Client.ViewModels
         /// </summary>
         private void EnterSetupCommandHandler()
         {
-            this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.RouterSetupViewModel));
+            Task.Run(async () =>
+            {
+                string message = this.networkService.IsConnected
+                    ? "To setup a router, any currently established connections will be dropped and you will then be " +
+                      "redirected to the router setup page"
+                    : "You will be redirected to the router setup page";
+
+                MessageDialogResult res = await this.dialogService.ShowMessageAsync(
+                    this,
+                    "Setup a new router",
+                    message,
+                    MessageDialogStyle.AffirmativeAndNegative,
+                    new MetroDialogSettings()
+                    {
+                        AffirmativeButtonText = "Enter setup",
+                        NegativeButtonText = "Close"
+                    });
+
+                if (res == MessageDialogResult.Affirmative)
+                {
+                    this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.RouterSetupViewModel));
+                }
+            });
         }
 
         /// <summary>

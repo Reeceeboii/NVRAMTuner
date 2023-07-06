@@ -33,6 +33,11 @@
         private readonly IDialogService dialogService;
 
         /// <summary>
+        /// Instance of <see cref="ISettingsService"/>
+        /// </summary>
+        private readonly ISettingsService settingsService;
+
+        /// <summary>
         /// Instance of <see cref="HomeViewModel"/>
         /// </summary>
         private readonly HomeViewModel homeViewModel;
@@ -53,15 +58,18 @@
         /// </summary>
         /// <param name="messenger">Instance of <see cref="IMessenger"/></param>
         /// <param name="dialogService">Instance of <see cref="IDialogService"/></param>
+        /// <param name="settingsService">Instance of <see cref="ISettingsService"/></param>
         /// <param name="homeViewModel">Instance of <see cref="HomeViewModel"/></param>
         /// <param name="routerSetupViewModel">Instance of <see cref="RouterSetupViewModel"/></param>
         public MainWindowViewModel(
             IMessenger messenger,
             IDialogService dialogService,
+            ISettingsService settingsService,
             HomeViewModel homeViewModel,
             RouterSetupViewModel routerSetupViewModel) : base(messenger)
         {
             this.dialogService = dialogService;
+            this.settingsService = settingsService;
 
             this.homeViewModel = homeViewModel;
             this.routerSetupViewModel = routerSetupViewModel;
@@ -70,7 +78,7 @@
             this.IsActive = true;
 
             // sync the application's theme to the host OS by default
-            this.currentApplicationTheme = ApplicationTheme.SyncWithOs;
+            this.currentApplicationTheme = this.settingsService.ApplicationTheme;
             this.SetAndSyncAppTheme();
         }
 
@@ -168,18 +176,11 @@
         /// </summary>
         private void SetAndSyncAppTheme()
         {
-            if (this.currentApplicationTheme == ApplicationTheme.SyncWithOs)
-            {
-                ThemeManager.Current.ThemeSyncMode = ThemeSyncMode.SyncWithAppMode;
-            }
-            else
-            {
-                ThemeManager.Current.ChangeTheme(
-                    Application.Current, 
-                    ApplicationThemes.ThemeToString(this.currentApplicationTheme));
-            }
-
+            ThemeManager.Current.ChangeTheme(
+                Application.Current, 
+                ApplicationThemes.ThemeToString(this.currentApplicationTheme));
             ThemeManager.Current.SyncTheme();
+            this.settingsService.ApplicationTheme = this.currentApplicationTheme;
         }
     }
 }

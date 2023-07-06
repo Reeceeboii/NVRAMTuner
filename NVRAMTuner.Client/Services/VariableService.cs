@@ -32,7 +32,7 @@
         private readonly IMessenger messenger;
 
         /// <summary>
-        /// Dictionary holding the descriptions & default values of the
+        /// Dictionary holding the descriptions and default values of the
         /// firmware's NVRAM variables; keyed on the variable name.
         /// (see the NVRAMTuner.Scripts project to see where this data comes from)
         /// </summary>

@@ -10,6 +10,7 @@
     using System.Collections.ObjectModel;
     using System.Globalization;
     using System.Linq;
+    using System.Windows;
     using Utils;
 
     /// <summary>
@@ -166,8 +167,12 @@
         /// </summary>
         private void UpdateApplicableCommandsBasedOnLogChanges()
         {
-            this.ClearLogsCommand.NotifyCanExecuteChanged();
-            this.SaveLogsCommand.NotifyCanExecuteChanged();
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                this.ClearLogsCommand.NotifyCanExecuteChanged();
+                this.SaveLogsCommand.NotifyCanExecuteChanged();
+            });
+
             this.OnPropertyChanged(nameof(this.CanClearLogs));
             this.OnPropertyChanged(nameof(this.CanSaveLogs));
         }

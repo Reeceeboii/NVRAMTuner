@@ -1,15 +1,13 @@
 ﻿namespace NVRAMTuner.Client.Models.Enums
 {
+    using System;
+
     /// <summary>
     /// An enumeration representing the different available application themes
     /// </summary>
+    [Serializable]
     public enum ApplicationTheme
     {
-        /// <summary>
-        /// Default theme, syncs with the host operating system
-        /// </summary>
-        SyncWithOs,
-
         #region DarkThemes
 
         /// <summary>

@@ -32,7 +32,7 @@
         /// that can be used to set the application theme
         /// </summary>
         /// <param name="theme">An <see cref="ApplicationTheme"/> member</param>
-        /// <returns>A string representation of <param name="theme"></param></returns>
+        /// <returns>A string representation of <paramref name="theme"></paramref></returns>
         /// <exception cref="InvalidEnumArgumentException">If <paramref name="theme"/> is not a
         /// member of <see cref="ApplicationTheme"/></exception>
         public static string ThemeToString(ApplicationTheme theme)

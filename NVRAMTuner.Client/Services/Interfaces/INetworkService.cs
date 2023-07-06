@@ -48,7 +48,7 @@
         /// Disconnects from the currently connected router, if a connection is currently established
         /// </summary>
         /// <returns>An asynchronous <see cref="Task"/></returns>
-        void DisconnectFromRouter();
+        Task DisconnectFromRouter();
 
         /// <summary>
         /// Runs a command against the router using the service's <see cref="SshClient"/> instance

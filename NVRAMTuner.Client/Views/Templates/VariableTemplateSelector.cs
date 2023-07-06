@@ -21,7 +21,7 @@
         public DataTemplate NcSettingConfTemplate { get; set; }
 
         /// <summary>
-        /// Returns a different <see cref="DataTemplate"/> based on the type of <param name="item"></param>
+        /// Returns a different <see cref="DataTemplate"/> based on the type of <paramref name="item"></paramref>
         /// </summary>
         /// <param name="item">The item used to determine which data template is to be returned</param>
         /// <param name="container">Instance of <see cref="DependencyObject"/></param>

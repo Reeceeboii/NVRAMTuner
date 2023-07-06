@@ -1,4 +1,5 @@
-﻿#nullable enable
+﻿#pragma warning disable CS8618
+#nullable enable
 
 namespace NVRAMTuner.Client.Models
 {

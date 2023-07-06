@@ -36,6 +36,7 @@
             collection.AddScoped<IDataEncryptionService, DataEncryptionService>();
             collection.AddScoped<IWindowsSecurityService, WindowsSecurityService>();
             collection.AddScoped<IVariableService, VariableService>();
+            collection.AddSingleton<ISettingsService, SettingsService>();
 
             // ViewModels and navigation
             collection.AddSingleton<MainWindowViewModel>();
