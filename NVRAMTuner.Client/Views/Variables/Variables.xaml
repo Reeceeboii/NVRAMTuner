@@ -4,8 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-             xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels"
-             xmlns:local="clr-namespace:NVRAMTuner.Client.Views.Variables"
              xmlns:variables="clr-namespace:NVRAMTuner.Client.ViewModels.Variables"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              d:DataContext="{d:DesignInstance Type=variables:VariablesViewModel, IsDesignTimeCreatable=False}"
@@ -13,16 +11,15 @@
              d:DesignHeight="600" d:DesignWidth="200">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <!-- https://stackoverflow.com/questions/6680879/wpf-datagrid-is-very-slow-to-render/8651839#8651839 -->
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+
         </Grid.RowDefinitions>
 
-        <TextBox Grid.Row="0" mah:TextBoxHelper.Watermark="Search by name" Margin="0 0 0 5"></TextBox>
-
-        <DataGrid Grid.Row="1"
+        <DataGrid Grid.Row="0"
                   ItemsSource="{Binding Variables}"
                   SelectedItem="{Binding SelectedVariable}"
                   AutoGenerateColumns="False"
@@ -60,20 +57,35 @@
         </DataGrid>
 
         <Separator Grid.Row="2" />
-        <WrapPanel Grid.Row="3" Orientation="Horizontal">
-            <TextBlock Margin="0 0 15 0">
-                <Run Text="Variables: " />
-                <Run Text="{Binding Variables.Count, Mode=OneWay, StringFormat={}{0:#,0}}"/>
-            </TextBlock>
+        <Grid Grid.Row="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="0" Orientation="Vertical">
+                <TextBlock Margin="0 0 15 0">
+                    <Run Text="Total number of variables:" />
+                    <Run Text="{Binding Variables.Count, Mode=OneWay, StringFormat={}{0:#,0}}"/>
+                </TextBlock>
 
-            <TextBlock>
-                <Run Text="Bytes: " />
-                <Run Text="{Binding TotalSizeBytes, Mode=OneWay, StringFormat={}{0:#,0}}"/>
-                <Run Text="|" />
-                <Run Text="{Binding RemainingSizeBytes, Mode=OneWay, StringFormat={}{0:#,0}}"/>
-                <Run Text="remaining" />
-            </TextBlock>
-        </WrapPanel>
+                <TextBlock>
+                    <Run Text="NVRAM total size: " />
+                    <Run Text="{Binding TotalSizeBytes, Mode=OneWay, StringFormat={}{0:#,0}}"/>
+                    <Run Text="bytes |" />
+                    <Run Text="{Binding RemainingSizeBytes, Mode=OneWay, StringFormat={}{0:#,0}}"/>
+                    <Run Text="remaining" />
+                </TextBlock>
+            </StackPanel>
+            <Separator Grid.Row="1"/>
+            <WrapPanel Grid.Row="2" Orientation="Horizontal">
+                <TextBlock>
+                    <Run Text="Variables only: " />
+                    <Run Text="{Binding VariableSizeBytes, Mode=OneWay, StringFormat={}{0:#,0}}"/>
+                    <Run Text="bytes" />
+                </TextBlock>
+            </WrapPanel>
+        </Grid>
 
     </Grid>
 </UserControl>

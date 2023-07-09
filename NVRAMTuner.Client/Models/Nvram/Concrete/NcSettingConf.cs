@@ -1,4 +1,4 @@
-﻿namespace NVRAMTuner.Client.Models.Nvram
+﻿namespace NVRAMTuner.Client.Models.Nvram.Concrete
 {
     using System;
     using System.Collections.Generic;
@@ -12,7 +12,7 @@
     ///
     /// This is represented in this variable as a <see cref="List{T}"/> of triple tuples: <see cref="Tuple{T1, T2, T3}"/>
     /// </summary>
-    public class NcSettingConf : Variable<List<Tuple<string, string, string>>>
+    public class NcSettingConf : VariableBase<List<Tuple<string, string, string>>>
     {
     }
 }

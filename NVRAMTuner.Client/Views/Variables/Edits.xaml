@@ -3,9 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:NVRAMTuner.Client.Views.Variables"
-             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-             xmlns:variables="clr-namespace:NVRAMTuner.Client.Models.Nvram"
+             xmlns:concreteVariableViews="clr-namespace:NVRAMTuner.Client.Views.Variables.VariableViews"
              xmlns:templates="clr-namespace:NVRAMTuner.Client.Views.Templates"
              xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels.Variables"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
@@ -66,36 +64,28 @@
             <ContentControl Grid.Row="4" Content="{Binding SelectedVariable}" x:Name="VariableContentControl">
                 <ContentControl.ContentTemplateSelector>
                     <templates:VariableTemplateSelector>
+
+                        <!-- NvramVariable -->
                         <templates:VariableTemplateSelector.NvramVariableTemplate>
-                            <DataTemplate DataType="{x:Type variables:NvramVariable}">
-                                <Label Content="{Binding Value}"/>
+                            <DataTemplate>
+                                <concreteVariableViews:NvramVariable />
                             </DataTemplate>
                         </templates:VariableTemplateSelector.NvramVariableTemplate>
+
+                        <!-- NcSettingConf -->
                         <templates:VariableTemplateSelector.NcSettingConfTemplate>
-                            <DataTemplate DataType="{x:Type variables:NcSettingConf}">
-                                <Grid>
-                                    <TabControl Style="{DynamicResource MahApps.Styles.TabControl.AnimatedSingleRow}"
-                                                mah:TabControlHelper.Underlined="TabPanel">
-                                        <TabItem Header="Raw">
-                                            <TextBox TextWrapping="Wrap" Text="{Binding DataContext.EditableValue, 
-                                                ElementName=VariableContentControl,
-                                                UpdateSourceTrigger=PropertyChanged}"/>
-                                        </TabItem>
-                                        <TabItem Header="Formatted (read only)">
-                                            <DataGrid IsReadOnly="True" 
-                                                      ItemsSource="{Binding Value}"
-                                                      AutoGenerateColumns="False">
-                                                <DataGrid.Columns>
-                                                    <DataGridTextColumn Header="Key" Binding="{Binding Item1}"/>
-                                                    <DataGridTextColumn Header="Value 1" Binding="{Binding Item2}"/>
-                                                    <DataGridTextColumn Header="Value 2" Binding="{Binding Item3}"/>
-                                                </DataGrid.Columns>
-                                            </DataGrid>
-                                        </TabItem>
-                                    </TabControl>
-                                </Grid>
+                            <DataTemplate>
+                                <concreteVariableViews:NcSettingConf />
                             </DataTemplate>
                         </templates:VariableTemplateSelector.NcSettingConfTemplate>
+
+                        <!-- NcSettingConf -->
+                        <templates:VariableTemplateSelector.CustomClientListTemplate>
+                            <DataTemplate>
+                                <concreteVariableViews:CustomClientList />
+                            </DataTemplate>
+                        </templates:VariableTemplateSelector.CustomClientListTemplate>
+
                     </templates:VariableTemplateSelector>
                 </ContentControl.ContentTemplateSelector>
             </ContentControl>
@@ -115,7 +105,7 @@
                     </Button.Content>
                 </Button>
 
-                <Button>
+                <Button Command="{Binding StageChangesCommand}">
                     <Button.Content>
                         <StackPanel Orientation="Horizontal">
                             <Label Content="STAGE CHANGES" 

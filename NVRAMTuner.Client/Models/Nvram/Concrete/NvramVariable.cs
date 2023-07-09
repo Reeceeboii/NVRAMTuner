@@ -1,9 +1,9 @@
-﻿namespace NVRAMTuner.Client.Models.Nvram
+﻿namespace NVRAMTuner.Client.Models.Nvram.Concrete
 {
     /// <summary>
     /// Model representing a single, typical NVRAM variable whose value can simply be represented as a string
     /// </summary>
-    public class NvramVariable : Variable<string>
+    public class NvramVariable : VariableBase<string>
     {
     }
 }

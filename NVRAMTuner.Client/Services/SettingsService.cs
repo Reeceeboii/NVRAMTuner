@@ -3,6 +3,7 @@
     using CommunityToolkit.Mvvm.Messaging;
     using Interfaces;
     using Messages;
+    using Messages.Theme;
     using Models;
     using Models.Enums;
     using Properties;
@@ -15,9 +16,9 @@
     public class SettingsService : ISettingsService
     {
         /// <summary>
-        /// Instance of <see cref="ApplicationSettings"/>
+        /// Instance of <see cref="Settings"/>
         /// </summary>
-        private readonly ApplicationSettings settings;
+        private readonly Settings settings;
 
         /// <summary>
         /// Instance of <see cref="IMessenger"/>
@@ -31,7 +32,7 @@
         {
             this.messenger = messenger;
 
-            this.settings = ApplicationSettings.Default;
+            this.settings = Settings.Default;
             this.settings.PropertyChanged += this.SettingsOnPropertyChanged;
         }
 
@@ -41,7 +42,31 @@
         public ApplicationTheme ApplicationTheme
         {
             get => this.settings.AppTheme;
-            set => this.settings.AppTheme = value;
+            set
+            {
+                if (value == this.ApplicationTheme)
+                {
+                    return;
+                }
+
+                this.settings.AppTheme = value;
+                this.messenger.Send(new ThemeChangeMessage(value));
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the interval in minutes used to send keep alive messages to the remote SSH server
+        /// </summary>
+        public int SshKeepAliveIntervalMinutes
+        {
+            get => this.settings.SshKeepAliveIntervalMinutes;
+            set
+            {
+                if (value != this.settings.SshKeepAliveIntervalMinutes && value >= 1)
+                {
+                    this.settings.SshKeepAliveIntervalMinutes = value;
+                }
+            }
         }
 
         /// <summary>

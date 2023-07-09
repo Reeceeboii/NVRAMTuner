@@ -37,6 +37,11 @@
         private Mock<IMessenger> mockMessenger;
 
         /// <summary>
+        /// Mock <see cref="ISettingsService"/> used by the tests
+        /// </summary>
+        private Mock<ISettingsService> mockSettingsService;
+
+        /// <summary>
         /// Test initialisation method
         /// </summary>
         [TestInitialize]
@@ -45,6 +50,7 @@
             this.mockFileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
             this.mockEnvironmentService = new Mock<IEnvironmentService>(MockBehavior.Strict);
             this.mockMessenger = new Mock<IMessenger>(MockBehavior.Strict);
+            this.mockSettingsService = new Mock<ISettingsService>(MockBehavior.Strict);
         }
 
         /// <summary>
@@ -233,7 +239,8 @@
             this.sut = new NetworkService(
                 this.mockFileSystem.Object, 
                 this.mockEnvironmentService.Object,
-                this.mockMessenger.Object);
+                this.mockMessenger.Object,
+                this.mockSettingsService.Object);
         }
     }
 }

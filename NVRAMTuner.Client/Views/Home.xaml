@@ -32,12 +32,30 @@
         <!-- Menu that spans the length of the top of the window -->
         <local:Menu Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" DataContext="{Binding}" />
 
+        <!-- Message only visible when the client is disconnected -->
+        <StackPanel Grid.Row="1" 
+                    Grid.Column="0"
+                    Grid.ColumnSpan="3"
+                    Orientation="Vertical"
+                    VerticalAlignment="Bottom" 
+                    HorizontalAlignment="Center">
+
+            <TextBlock Text="You are not currently connected to a router"
+                       HorizontalAlignment="Center"
+                       FontSize="{StaticResource MahApps.Font.Size.Dialog.Title}" />
+
+            <TextBlock Text="Please connect to an existing one, or enter the setup"
+                       HorizontalAlignment="Center"
+                       FontSize="{StaticResource MahApps.Font.Size.Dialog.Message}" />
+        </StackPanel>
+
         <!-- VARIABLE LIST -->
         <GroupBox Grid.Row="1"
                   Grid.RowSpan="2"
                   Grid.Column="0"
                   Header="Variables"
-                  Margin="1">
+                  Margin="1"
+                  Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
 
             <varViews:Variables />
         </GroupBox>
@@ -47,17 +65,19 @@
                   Grid.RowSpan="2"
                   Grid.Column="1"
                   Header="Variable editor"
-                  Margin="1">
+                  Margin="1"
+                  Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
             <varViews:Edits />
         </GroupBox>
 
-        <!-- CHANGE SUMMARY -->
+        <!-- STAGED CHANGES -->
         <GroupBox Grid.Row="1" 
                   Grid.RowSpan="2"
                   Grid.Column="2"
                   Header="Staged changes (uncommited)"
-                  Margin="1">
-
+                  Margin="1"
+                  Visibility="{Binding IsConnected, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <varViews:StagedChanges />
         </GroupBox>
 
         <GridSplitter ResizeDirection="Rows" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"

@@ -1,0 +1,76 @@
+﻿<mah:Flyout x:Class="NVRAMTuner.Client.Views.Flyouts.SettingsFlyout"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:viewModels="clr-namespace:NVRAMTuner.Client.ViewModels"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=viewModels:SettingsFlyoutViewModel, IsDesignTimeCreatable=False}"
+             d:DesignHeight="800" d:DesignWidth="750"
+             Header="Settings (auto-saving)"
+             Position="Right"
+             Width="750"
+             IsOpen="{Binding IsOpen}"
+             d:IsOpen="True"
+             Theme="Dark"
+             AnimateOpacity="True">
+    <!-- XAML designer is blank without 'd:IsOpen="True"' -->
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Vertical">
+            <Button Content="Open NVRAMTuner folder" 
+                    HorizontalAlignment="Right"
+                    Command="{Binding OpenSettingsFolderCommand}"/>
+            <TextBlock Text="Appearance" FontSize="{StaticResource MahApps.Font.Size.Dialog.Title}" />
+            <Separator Margin="0 5 0 10"/>
+        </StackPanel>
+
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0"
+                   Content="Application theme"
+                   FontSize="{StaticResource MahApps.Font.Size.Dialog.Message}"/>
+            <ComboBox Grid.Column="1" ItemsSource="{Binding AvailableApplicationThemes}" SelectedItem="{Binding ApplicationTheme}" />
+        </Grid>
+
+        <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0 20 0 0">
+            <TextBlock Text="Network" FontSize="{StaticResource MahApps.Font.Size.Dialog.Title}" />
+            <Separator Margin="0 5 0 10" />
+        </StackPanel>
+
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0"
+                   Content="SSH connection 'keep alive' interval (minutes) "
+                   FontSize="{StaticResource MahApps.Font.Size.Dialog.Message}"/>
+            <mah:NumericUpDown Grid.Column="1"
+                               Value="{Binding SshKeepAliveIntervalMinutes, UpdateSourceTrigger=PropertyChanged, Delay=250}"
+                               Minimum="1"
+                               Maximum="60"/>
+        </Grid>
+
+        <StackPanel Grid.Row="4" Orientation="Vertical" Margin="0 20 0 0">
+            <TextBlock Text="Data management" FontSize="{StaticResource MahApps.Font.Size.Dialog.Title}" />
+            <Separator Margin="0 5 0 10" />
+        </StackPanel>
+    </Grid>
+
+
+</mah:Flyout>

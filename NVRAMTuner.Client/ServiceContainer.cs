@@ -46,6 +46,8 @@
             collection.AddTransient<RouterSetupViewModel>();
             collection.AddScoped<VariablesViewModel>();
             collection.AddScoped<EditsViewModel>();
+            collection.AddScoped<SettingsFlyoutViewModel>();
+            collection.AddScoped<StagedChangesViewModel>();
 
             this.Services = collection.BuildServiceProvider();
         }

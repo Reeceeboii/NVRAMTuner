@@ -15,14 +15,19 @@
         public IEnumerable<IVariable> Variables { get; set; }
 
         /// <summary>
-        /// Gets or sets the total size in bytes of all of the variables
+        /// Gets or sets the total size in bytes of the router's NVRAM
         /// </summary>
         public int TotalSizeBytes { get; set; }
 
         /// <summary>
-        /// Gets or sets the remaining size in bytes of all of the variables
+        /// Gets or sets the remaining size in bytes of the router's NVRAM
         /// </summary>
         public int RemainingSizeBytes { get; set; }
+
+        /// <summary>
+        /// Gets or sets the size of the variables in bytes
+        /// </summary>
+        public int VariableSizeBytes { get; set; }
 
         /// <summary>
         /// Gets or sets the time at which this set of variables was retrieved

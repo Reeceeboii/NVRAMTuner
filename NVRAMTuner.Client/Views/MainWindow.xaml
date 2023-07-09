@@ -1,20 +1,28 @@
 ﻿<mah:MetroWindow x:Class="NVRAMTuner.Client.Views.MainWindow"
-                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                     xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-                     xmlns:dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
-                     dialog:DialogParticipation.Register="{Binding}"
-                     xmlns:views="clr-namespace:NVRAMTuner.Client.Views"
-                     xmlns:vms="clr-namespace:NVRAMTuner.Client.ViewModels"
-                     mc:Ignorable="d"
-                     ResizeMode="CanResizeWithGrip"
-                     Title="NVRAMTuner"
-                     Height="1000"
-                     Width="1500"
-                     MinWidth="1200"
-                     MinHeight="800">
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                 xmlns:dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+                 dialog:DialogParticipation.Register="{Binding}"
+                 xmlns:views="clr-namespace:NVRAMTuner.Client.Views"
+                 xmlns:flyouts="clr-namespace:NVRAMTuner.Client.Views.Flyouts"
+                 xmlns:vms="clr-namespace:NVRAMTuner.Client.ViewModels"
+                 d:DataContext="{d:DesignInstance Type=vms:MainWindowViewModel, IsDesignTimeCreatable=False}"
+                 mc:Ignorable="d"
+                 ResizeMode="CanResizeWithGrip"
+                 Title="NVRAMTuner"
+                 Height="1000"
+                 Width="1500"
+                 MinWidth="1200"
+                 MinHeight="800">
+
+    <mah:MetroWindow.Flyouts>
+        <mah:FlyoutsControl>
+            <flyouts:SettingsFlyout />
+        </mah:FlyoutsControl>
+    </mah:MetroWindow.Flyouts>
 
     <ContentControl Content="{Binding CurrentViewModel}">
         <ContentControl.Resources>

@@ -6,6 +6,7 @@
     using Messages.Variables;
     using Models;
     using Models.Nvram;
+    using Models.Nvram.Concrete;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using Renci.SshNet;
@@ -13,6 +14,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
@@ -87,7 +89,7 @@
                 remainingSizeBytes = int.Parse(m.Groups[2].Value);
             }
 
-            #endregion https://github.com/sshnet/SSH.NET/issues/1149
+            #endregion
 
             List<IVariable> allVariables = new List<IVariable>();
 
@@ -117,13 +119,15 @@
                     defaultValue = "Unknown";
                 }
 
-                // special cases
                 if (parts[0] == VariableNames.NcSettingConf)
                 {
+                    List<Tuple<string, string, string>> parsed 
+                        = (List<Tuple<string, string, string>>)ParseAngleBracketVariable(parts[1], typeof(NcSettingConf));
+
                     NcSettingConf ncConf = new NcSettingConf
                     {
                         Name = name,
-                        Value = new List<Tuple<string, string, string>>(),
+                        Value = parsed,
                         OriginalValue = originalValue,
                         Description = description,
                         DefaultValue = defaultValue,
@@ -131,18 +135,26 @@
                         SpecialVariable = true
                     };
 
-                    foreach (string component in parts[1].Split('<'))
-                    {
-                        if (string.IsNullOrWhiteSpace(component))
-                        {
-                            continue;
-                        }
-
-                        string[] subComponents = component.Split('>');
-                        ncConf.Value.Add(Tuple.Create(subComponents[0], subComponents[1], subComponents[2]));
-                    }
-                    
                     allVariables.Add(ncConf);
+                }
+                else if (parts[0] == VariableNames.CustomClientList)
+                {
+                    List<Tuple<string, string, string, string, string, string>> parsed
+                        = (List<Tuple<string, string, string, string, string, string>>)ParseAngleBracketVariable(
+                            parts[1], typeof(CustomClientList));
+
+                    CustomClientList ccl = new CustomClientList
+                    {
+                        Name = name,
+                        Value = parsed,
+                        OriginalValue = originalValue,
+                        Description = description,
+                        DefaultValue = defaultValue,
+                        SizeBytes = sizeBytes,
+                        SpecialVariable = true
+                    };
+
+                    allVariables.Add(ccl);
                 }
                 else
                 {
@@ -165,12 +177,15 @@
                 LogMessage = $"{allVariables.Count} variables loaded from router"
             }));
 
+            int totalVariableSizeBytes = allVariables.Sum(variable => variable.Name.Length + variable.OriginalValue.Length);
+
             Nvram nvram = new Nvram
             {
                 Variables = allVariables,
                 RetrievedAt = DateTime.Now,
                 TotalSizeBytes = totalSizeBytes,
-                RemainingSizeBytes = remainingSizeBytes
+                RemainingSizeBytes = remainingSizeBytes,
+                VariableSizeBytes = totalVariableSizeBytes
             };
 
             this.messenger.Send(new VariablesChangedMessage(nvram));
@@ -204,6 +219,60 @@
             return this.nvramDefaults.TryGetValue(variableName, out Tuple<string, string> t)
                 ? t.Item2
                 : "Unknown";
+        }
+
+        /// <summary>
+        /// Parses variables that follow the angle bracket format
+        /// </summary>
+        /// <param name="rawValue">The raw string representation of the variable</param>
+        /// <param name="variableType">The type of <see cref="IVariable"/> to which the
+        /// raw value should be converted to</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of <see cref="ITuple"/> values</returns>
+        private static IEnumerable<ITuple> ParseAngleBracketVariable(string rawValue, Type variableType)
+        {
+            if (!typeof(IVariable).IsAssignableFrom(variableType))
+            {
+                throw new ArgumentException($@"Does not implement {nameof(IVariable)}", nameof(variableType));
+            }
+
+            if (variableType.IsAssignableFrom(typeof(NcSettingConf)))
+            {
+                return ParseComponents(rawValue, subComponents
+                    => Tuple.Create(subComponents[0], subComponents[1], subComponents[2]));
+            }
+
+            if (variableType.IsAssignableFrom(typeof(CustomClientList)))
+            {
+                return ParseComponents(rawValue, subComponents
+                    => Tuple.Create(
+                        subComponents[0],
+                        subComponents[1],
+                        subComponents[2],
+                        subComponents[3],
+                        subComponents[4],
+                        subComponents[5]));
+            }
+
+            return new List<ITuple>();
+        }
+
+        /// <summary>
+        /// Given a raw string value, this method accepts a delegate function that defines how to convert
+        /// the value into type <typeparam name="T"></typeparam> after splitting the value, first on
+        /// the less than character, and then on the greater than character.
+        /// </summary>
+        /// <typeparam name="T">The required resultant type of the parsing operation on the components</typeparam>
+        /// <param name="rawValue">The raw string value, that is to be broken into sub-components</param>
+        /// <param name="func">A delegate defining how to convert the sub-components into <typeparam name="T"></typeparam></param>
+        /// <returns>A <see cref="List{T}"/></returns>
+        private static List<T> ParseComponents<T>(string rawValue, Func<string[], T> func)
+        {
+            return (
+                from component in rawValue.Split('<') 
+                where !string.IsNullOrWhiteSpace(component) 
+                select component.Split('>') 
+                into subComponents 
+                select func(subComponents)).ToList();
         }
     }
 }

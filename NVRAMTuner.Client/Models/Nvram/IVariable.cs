@@ -16,6 +16,11 @@
         string OriginalValue { get; set; }
 
         /// <summary>
+        /// Gets or sets a delta (change) applied to the original value
+        /// </summary>
+        string ValueDelta { get; set; }
+
+        /// <summary>
         /// Gets or sets the variable's size in bytes
         /// </summary>
         int SizeBytes { get; set; }

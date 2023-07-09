@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="NVRAMTuner.Client.Views.Variables.VariableViews.CustomClientList"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NVRAMTuner.Client.Views.Variables.VariableViews"
+             xmlns:concrete="clr-namespace:NVRAMTuner.Client.Models.Nvram.Concrete"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=concrete:CustomClientList, IsDesignTimeCreatable=True}"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <TabControl Style="{DynamicResource MahApps.Styles.TabControl.AnimatedSingleRow}"
+                    mah:TabControlHelper.Underlined="TabPanel">
+            <TabItem Header="Raw">
+                <TextBox TextWrapping="Wrap" Text="{Binding DataContext.EditableValue, 
+                                                ElementName=VariableContentControl,
+                                                UpdateSourceTrigger=PropertyChanged}"/>
+            </TabItem>
+            <TabItem Header="Formatted (read only)">
+                <DataGrid IsReadOnly="True" 
+                          ItemsSource="{Binding Value}"
+                          AutoGenerateColumns="False">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Device" Binding="{Binding Item1}"/>
+                        <DataGridTextColumn Header="MAC" Binding="{Binding Item2}"/>
+                        <DataGridTextColumn Header="Value 3" Binding="{Binding Item3}"/>
+                        <DataGridTextColumn Header="Value 4" Binding="{Binding Item4}"/>
+                        <DataGridTextColumn Header="Value 5" Binding="{Binding Item5}"/>
+                        <DataGridTextColumn Header="Value 6" Binding="{Binding Item6}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

@@ -14,7 +14,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <AutorunEnabled>true</AutorunEnabled>
-    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationRevision>2</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -51,12 +51,13 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>8BEE01F751FB28AB2E81532179F0AD3E0AB5F7AA</ManifestCertificateThumbprint>
@@ -75,16 +76,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommunityToolkit.Mvvm, Version=8.2.0.0, Culture=neutral, PublicKeyToken=4aff67a105548ee2, processorArchitecture=MSIL">
-      <HintPath>..\packages\CommunityToolkit.Mvvm.8.2.0\lib\netstandard2.0\CommunityToolkit.Mvvm.dll</HintPath>
+      <HintPath>..\packages\CommunityToolkit.Mvvm.8.2.1\lib\netstandard2.0\CommunityToolkit.Mvvm.dll</HintPath>
     </Reference>
-    <Reference Include="ControlzEx, Version=4.0.0.0, Culture=neutral, PublicKeyToken=69f1c32f803d307e, processorArchitecture=MSIL">
-      <HintPath>..\packages\ControlzEx.4.4.0\lib\net462\ControlzEx.dll</HintPath>
+    <Reference Include="ControlzEx, Version=5.0.0.0, Culture=neutral, PublicKeyToken=69f1c32f803d307e, processorArchitecture=MSIL">
+      <HintPath>..\packages\ControlzEx.5.0.2\lib\net462\ControlzEx.dll</HintPath>
     </Reference>
     <Reference Include="FluentAssertions, Version=6.11.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentAssertions.6.11.0\lib\net47\FluentAssertions.dll</HintPath>
     </Reference>
     <Reference Include="MahApps.Metro, Version=2.0.0.0, Culture=neutral, PublicKeyToken=51482d6f650b2b3f, processorArchitecture=MSIL">
-      <HintPath>..\packages\MahApps.Metro.2.4.9\lib\net47\MahApps.Metro.dll</HintPath>
+      <HintPath>..\packages\MahApps.Metro.2.4.10\lib\net47\MahApps.Metro.dll</HintPath>
     </Reference>
     <Reference Include="MahApps.Metro.IconPacks, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0c0d510f9915137a, processorArchitecture=MSIL">
       <HintPath>..\packages\MahApps.Metro.IconPacks.4.11.0\lib\net47\MahApps.Metro.IconPacks.dll</HintPath>
@@ -195,7 +196,7 @@
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.7.0.0\lib\net462\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.19\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.39\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -268,22 +269,32 @@
     <Compile Include="Messages\DialogErrorMessage.cs" />
     <Compile Include="Messages\LogMessage.cs" />
     <Compile Include="Messages\NavigationRequestMessage.cs" />
+    <Compile Include="Messages\OpenSettingsFlyoutMessage.cs" />
+    <Compile Include="Messages\RouterDisconnectMessage.cs" />
     <Compile Include="Messages\Theme\ThemeChangeMessage.cs" />
     <Compile Include="Messages\Theme\ThemeRequestMessage.cs" />
     <Compile Include="Messages\Variables\VariablesChangedMessage.cs" />
     <Compile Include="Messages\Variables\VariableSelectedMessage.cs" />
+    <Compile Include="Messages\Variables\VariableStagedMessage.cs" />
     <Compile Include="Models\Enums\ApplicationTheme.cs" />
+    <Compile Include="Models\Nvram\Concrete\CustomClientList.cs" />
     <Compile Include="Models\Nvram\IVariable.cs" />
-    <Compile Include="Models\Nvram\NcSettingConf.cs" />
+    <Compile Include="Models\Nvram\Concrete\NcSettingConf.cs" />
     <Compile Include="Models\Enums\GenericStatus.cs" />
     <Compile Include="Models\Enums\SshAuthType.cs" />
     <Compile Include="Models\Enums\NavigableViewModel.cs" />
     <Compile Include="Models\LogEntry.cs" />
-    <Compile Include="Models\Nvram\Variable.cs" />
+    <Compile Include="Models\Nvram\VariableBase.cs" />
     <Compile Include="Models\Router.cs" />
     <Compile Include="Models\SshConnectionInfo.cs" />
-    <Compile Include="Models\Nvram\NvramVariable.cs" />
+    <Compile Include="Models\Nvram\Concrete\NvramVariable.cs" />
     <Compile Include="Models\Nvram\Nvram.cs" />
+    <Compile Include="Models\VariableDelta.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="Services\DataEncryptionService.cs" />
     <Compile Include="Services\DataPersistenceService.cs" />
     <Compile Include="Services\DialogService.cs" />
@@ -323,10 +334,15 @@
       <DependentUpon>ViewModelStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\RouterSetupViewModel.cs" />
+    <Compile Include="ViewModels\SettingsFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Variables\EditsViewModel.cs" />
+    <Compile Include="ViewModels\Variables\StagedChangesViewModel.cs" />
     <Compile Include="ViewModels\Variables\VariablesViewModel.cs" />
     <Compile Include="Views\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Flyouts\SettingsFlyout.xaml.cs">
+      <DependentUpon>SettingsFlyout.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Home.xaml.cs">
       <DependentUpon>Home.xaml</DependentUpon>
@@ -344,10 +360,26 @@
     <Compile Include="Views\Variables\Edits.xaml.cs">
       <DependentUpon>Edits.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Variables\StagedChanges.xaml.cs">
+      <DependentUpon>StagedChanges.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Variables\Variables.xaml.cs">
       <DependentUpon>Variables.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Variables\VariableViews\CustomClientList.xaml.cs">
+      <DependentUpon>CustomClientList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Variables\VariableViews\NcSettingConf.xaml.cs">
+      <DependentUpon>NcSettingConf.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Variables\VariableViews\NvramVariable.xaml.cs">
+      <DependentUpon>NvramVariable.xaml</DependentUpon>
+    </Compile>
     <Page Include="Views\AboutWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Flyouts\SettingsFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -387,7 +419,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Variables\StagedChanges.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Variables\Variables.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Variables\VariableViews\CustomClientList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Variables\VariableViews\NcSettingConf.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Variables\VariableViews\NvramVariable.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -401,11 +449,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Properties\ApplicationSettings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>ApplicationSettings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -415,7 +458,7 @@
       <LastGenOutput>ServiceResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Services\Resources\VariableNames.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>VariableNames.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="ViewModels\Resources\ViewModelStrings.resx">
@@ -424,9 +467,9 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="packages.config" />
-    <None Include="Properties\ApplicationSettings.settings">
+    <None Include="Properties\Settings.settings">
       <Generator>PublicSettingsSingleFileGenerator</Generator>
-      <LastGenOutput>ApplicationSettings.Designer.cs</LastGenOutput>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Resources\README.md" />
     <None Include="Services\Resources\firmware_variable_defaults.json" />
@@ -457,11 +500,11 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\CommunityToolkit.Mvvm.8.2.0\build\netstandard2.0\CommunityToolkit.Mvvm.targets" Condition="Exists('..\packages\CommunityToolkit.Mvvm.8.2.0\build\netstandard2.0\CommunityToolkit.Mvvm.targets')" />
+  <Import Project="..\packages\CommunityToolkit.Mvvm.8.2.1\build\netstandard2.0\CommunityToolkit.Mvvm.targets" Condition="Exists('..\packages\CommunityToolkit.Mvvm.8.2.1\build\netstandard2.0\CommunityToolkit.Mvvm.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\CommunityToolkit.Mvvm.8.2.0\build\netstandard2.0\CommunityToolkit.Mvvm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CommunityToolkit.Mvvm.8.2.0\build\netstandard2.0\CommunityToolkit.Mvvm.targets'))" />
+    <Error Condition="!Exists('..\packages\CommunityToolkit.Mvvm.8.2.1\build\netstandard2.0\CommunityToolkit.Mvvm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CommunityToolkit.Mvvm.8.2.1\build\netstandard2.0\CommunityToolkit.Mvvm.targets'))" />
   </Target>
 </Project>

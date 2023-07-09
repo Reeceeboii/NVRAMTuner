@@ -38,6 +38,11 @@ namespace NVRAMTuner.Client.Services
         private readonly IMessenger messenger;
 
         /// <summary>
+        /// An instance of <see cref="ISettingsService"/>
+        /// </summary>
+        private readonly ISettingsService settingsService;
+
+        /// <summary>
         /// Instance of <see cref="SshClient"/>
         /// </summary>
         private SshClient? client;
@@ -53,14 +58,17 @@ namespace NVRAMTuner.Client.Services
         /// <param name="fileSystem">An instance of <see cref="IFileSystem"/></param>
         /// <param name="environmentService">An instance of <see cref="IEnvironmentService"/></param>
         /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
+        /// <param name="settingsService">An instance of <see cref="ISettingsService"/></param>
         public NetworkService(
             IFileSystem fileSystem,
             IEnvironmentService environmentService,
-            IMessenger messenger)
+            IMessenger messenger,
+            ISettingsService settingsService)
         {
             this.fileSystem = fileSystem;
             this.environmentService = environmentService;
             this.messenger = messenger;
+            this.settingsService = settingsService;
         }
 
         /// <summary>
@@ -216,7 +224,10 @@ namespace NVRAMTuner.Client.Services
                 };
             }
 
-            this.client = new SshClient(connectionInfo);
+            this.client = new SshClient(connectionInfo)
+            {
+                KeepAliveInterval = TimeSpan.FromMinutes(this.settingsService.SshKeepAliveIntervalMinutes)
+            };
 
             try
             {

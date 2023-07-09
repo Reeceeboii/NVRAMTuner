@@ -111,6 +111,7 @@
             this.ViewSourceMenuCommand = new RelayCommand(this.ViewSourceMenuCommandHandler);
             this.ReportBugMenuCommand = new RelayCommand(this.ReportBugMenuCommandHandler);
             this.ChangeThemeCommand = new RelayCommand<ApplicationTheme>(this.ChangeThemeCommandHandler);
+            this.OpenSettingsFlyoutCommand = new RelayCommand(this.OpenSettingsFlyoutCommandHandler);
 
             this.LoadRouterFromDisk();
         }
@@ -146,6 +147,11 @@
         /// Gets the command used to change the theme via the menu
         /// </summary>
         public IRelayCommand<ApplicationTheme> ChangeThemeCommand { get; }
+
+        /// <summary>
+        /// Gets the command used to indicate the user wishes to open the settings flyout
+        /// </summary>
+        public IRelayCommand OpenSettingsFlyoutCommand { get; }
 
         /// <summary>
         /// Gets or sets a bool representing whether or not any saved routers are present
@@ -197,7 +203,7 @@
         /// Gets a string denoting the current status of NVRAMTuner - to be displayed in the status bar
         /// </summary>
         public string NvramTunerStatus =>
-            this.networkService.IsConnected
+            this.IsConnected
                 ? "Connected"
                 : "Disconnected";
 
@@ -298,13 +304,14 @@
             {
                 await this.networkService.DisconnectFromRouter();
                 this.IsConnected = false;
+
                 this.DisconnectFromTargetRouterCommand.NotifyCanExecuteChanged();
+                this.OnPropertyChanged(nameof(this.NvramTunerStatus));
+                this.messenger.Send(new RouterDisconnectMessage(this.TargetRouterForConnection));
             }
 
             this.IsLoading = false;
         }
-
-        #region MenuCommandHandlers
 
         /// <summary>
         /// Method to handle the <see cref="ViewSourceMenuCommand"/>.
@@ -350,6 +357,15 @@
 
             if (res == MessageDialogResult.Affirmative)
             {
+                this.IsLoading = true;
+
+                if (this.IsConnected)
+                {
+                    await this.DisconnectFromTargetRouterCommand.ExecuteAsync(null);
+                }
+
+                this.IsLoading = false;
+
                 this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.RouterSetupViewModel));
             }
         }
@@ -363,6 +379,12 @@
             this.messenger.Send(new ThemeChangeMessage(theme));
         }
 
-        #endregion
+        /// <summary>
+        /// Method to handle the <see cref="OpenSettingsFlyoutCommand"/>
+        /// </summary>
+        private void OpenSettingsFlyoutCommandHandler()
+        {
+            this.messenger.Send(new OpenSettingsFlyoutMessage());
+        }
     }
 }

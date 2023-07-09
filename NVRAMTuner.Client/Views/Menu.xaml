@@ -48,10 +48,11 @@
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
-            <MenuItem Header="Options">
+            <MenuItem Header="Settings" Command="{Binding OpenSettingsFlyoutCommand}">
                 <MenuItem.Icon>
                     <iconPacks:PackIconMaterial Kind="Cog" />
                 </MenuItem.Icon>
+                <!-- 
                 <MenuItem Header="Themes">
                     <MenuItem.Icon>
                         <iconPacks:PackIconMaterial Kind="ThemeLightDark" />
@@ -76,6 +77,7 @@
                               Command="{Binding ChangeThemeCommand}"
                               CommandParameter="{x:Static enums:ApplicationTheme.LightRed}"/>
                 </MenuItem>
+                -->
             </MenuItem>
         </MenuItem>
         <MenuItem Header="_Help">

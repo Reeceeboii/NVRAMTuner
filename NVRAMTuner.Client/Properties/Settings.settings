@@ -5,5 +5,8 @@
     <Setting Name="AppTheme" Type="NVRAMTuner.Client.Models.Enums.ApplicationTheme" Scope="User">
       <Value Profile="(Default)">DarkBlue</Value>
     </Setting>
+    <Setting Name="SshKeepAliveIntervalMinutes" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

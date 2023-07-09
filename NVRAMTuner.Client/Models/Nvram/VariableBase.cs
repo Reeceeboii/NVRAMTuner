@@ -1,9 +1,11 @@
 ﻿namespace NVRAMTuner.Client.Models.Nvram
 {
+    using System;
+
     /// <summary>
     /// Abstract model class representing all items that NVRAM variables share
     /// </summary>
-    public abstract class Variable<T> : IVariable
+    public abstract class VariableBase<T> : IVariable
     {
         /// <summary>
         /// Gets or sets the variable's name
@@ -14,6 +16,11 @@
         /// Gets or sets the variable's original value
         /// </summary>
         public string OriginalValue { get; set; }
+
+        /// <summary>
+        /// Gets or sets a delta (change) applied to the original value
+        /// </summary>
+        public string ValueDelta { get; set; }
 
         /// <summary>
         /// Gets or sets the variable's value

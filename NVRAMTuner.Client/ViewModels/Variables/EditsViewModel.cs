@@ -3,7 +3,9 @@
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
     using CommunityToolkit.Mvvm.Messaging;
+    using Messages;
     using Messages.Variables;
+    using Models;
     using Models.Nvram;
 
     /// <summary>
@@ -29,21 +31,20 @@
         {
             this.IsActive = true;
 
-            this.RollbackChangesCommand = new RelayCommand(this.RollbackChangesCommandHandler, () =>
-            { 
-                if (this.SelectedVariable != null)
-                {
-                    return this.EditableValue != this.SelectedVariable.OriginalValue;
-                }
-
-                return false;
-            });
+            this.RollbackChangesCommand = new RelayCommand(this.RollbackChangesCommandHandler, this.CanRollbackOrStageCommandCanExecute);
+            this.StageChangesCommand = new RelayCommand(this.StageChangesCommandHandler, this.CanRollbackOrStageCommandCanExecute);
         }
 
         /// <summary>
         /// Gets or sets a command used to roll back changes applied to a specific variable
         /// </summary>
         public IRelayCommand RollbackChangesCommand { get; set; }
+
+        /// <summary>
+        /// Gets or sets a command used to stage any changes made to the current variable
+        /// represented by <see cref="SelectedVariable"/>
+        /// </summary>
+        public IRelayCommand StageChangesCommand { get; set; }
         
         /// <summary>
         /// Gets or sets the currently selected variable that the use is able to view details about and edit
@@ -72,7 +73,9 @@
             set
             {
                 this.SetProperty(ref this.editableValue, value);
+
                 this.RollbackChangesCommand.NotifyCanExecuteChanged();
+                this.StageChangesCommand.NotifyCanExecuteChanged();
             }
         }
 
@@ -82,9 +85,15 @@
         /// <param name="message">Instance of <see cref="VariableSelectedMessage"/></param>
         public void Receive(VariableSelectedMessage message)
         {
+            if (message.Value == null)
+            {
+                return;
+            }
+
             this.SelectedVariable = message.Value;
             this.EditableValue = message.Value.OriginalValue;
             this.RollbackChangesCommand.NotifyCanExecuteChanged();
+            this.StageChangesCommand.NotifyCanExecuteChanged();
         }
 
         /// <summary>
@@ -93,6 +102,39 @@
         private void RollbackChangesCommandHandler()
         {
             this.EditableValue = this.SelectedVariable.OriginalValue;
+        }
+
+        /// <summary>
+        /// Method to handle the <see cref="StageChangesCommand"/>
+        /// </summary>
+        private void StageChangesCommandHandler()
+        {
+            IVariable appliedDelta = this.selectedVariable;
+            appliedDelta.ValueDelta = this.EditableValue;
+            VariableDelta delta = new VariableDelta(this.selectedVariable, appliedDelta);
+
+            this.Messenger.Send(new VariableStagedMessage(delta));
+            this.Messenger.Send(new LogMessage(new LogEntry
+            {
+                LogMessage = $"Staged changes to {this.SelectedVariable.Name}"
+            }));
+        }
+
+        /// <summary>
+        /// Method used to determine if the <see cref="RollbackChangesCommand"/> or
+        /// the <see cref="StageChangesCommand"/> can execute. As these commands can both
+        /// only be executed if there has been a change to the value of the selected variable,
+        /// they can share a CanExecute method.
+        /// </summary>
+        /// <returns>A bool representing whether the commands can execute</returns>
+        private bool CanRollbackOrStageCommandCanExecute()
+        {
+            if (this.SelectedVariable != null)
+            {
+                return this.EditableValue != this.SelectedVariable.OriginalValue;
+            }
+
+            return false;
         }
     }
 }
