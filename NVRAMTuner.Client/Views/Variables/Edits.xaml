@@ -12,7 +12,7 @@
              d:DesignHeight="450" d:DesignWidth="500">
 
     <Border Padding="5">
-        <Grid>
+        <Grid Visibility="{Binding VariableSelected, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Normal}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>

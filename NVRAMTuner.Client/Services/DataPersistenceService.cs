@@ -101,10 +101,7 @@ namespace NVRAMTuner.Client.Services
             byte[] encryptedRouter = this.dataEncryptionService.EncryptData(Encoding.UTF8.GetBytes(serialisedRouter));
             this.fileSystem.File.WriteAllBytes(serialiseTarget, encryptedRouter);
 
-            this.messenger.Send(new LogMessage(new LogEntry
-            {
-                LogMessage = $"Router \"{router.RouterNickname}\" has been saved"
-            }));
+            this.messenger.Send(new LogMessage($"Router \"{router.RouterNickname}\" has been saved"));
         }
 
         /// <summary>
@@ -150,10 +147,7 @@ namespace NVRAMTuner.Client.Services
                 routers.Add(router);
             }
 
-            this.messenger.Send(new LogMessage(new LogEntry
-            {
-                LogMessage = $"{routers.Count} previously saved routers are valid and have been loaded"
-            }));
+            this.messenger.Send(new LogMessage($"{routers.Count} previously saved routers are valid and have been loaded"));
 
             return routers;
         }

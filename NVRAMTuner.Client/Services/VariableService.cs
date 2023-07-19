@@ -4,7 +4,6 @@
     using Interfaces;
     using Messages;
     using Messages.Variables;
-    using Models;
     using Models.Nvram;
     using Models.Nvram.Concrete;
     using Newtonsoft.Json;
@@ -172,10 +171,7 @@
                 }
             }
 
-            this.messenger.Send(new LogMessage(new LogEntry
-            {
-                LogMessage = $"{allVariables.Count} variables loaded from router"
-            }));
+            this.messenger.Send(new LogMessage($"{allVariables.Count} variables loaded from router"));
 
             int totalVariableSizeBytes = allVariables.Sum(variable => variable.Name.Length + variable.OriginalValue.Length);
 
@@ -258,12 +254,12 @@
 
         /// <summary>
         /// Given a raw string value, this method accepts a delegate function that defines how to convert
-        /// the value into type <typeparam name="T"></typeparam> after splitting the value, first on
+        /// the value into type T after splitting the value, first on
         /// the less than character, and then on the greater than character.
         /// </summary>
         /// <typeparam name="T">The required resultant type of the parsing operation on the components</typeparam>
         /// <param name="rawValue">The raw string value, that is to be broken into sub-components</param>
-        /// <param name="func">A delegate defining how to convert the sub-components into <typeparam name="T"></typeparam></param>
+        /// <param name="func">A delegate defining how to convert the sub-components into TS</param>
         /// <returns>A <see cref="List{T}"/></returns>
         private static List<T> ParseComponents<T>(string rawValue, Func<string[], T> func)
         {

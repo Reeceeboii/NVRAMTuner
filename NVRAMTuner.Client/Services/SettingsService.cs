@@ -4,7 +4,6 @@
     using Interfaces;
     using Messages;
     using Messages.Theme;
-    using Models;
     using Models.Enums;
     using Properties;
     using System.ComponentModel;
@@ -79,11 +78,7 @@
         private void SettingsOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             this.settings.Save();
-
-            this.messenger.Send(new LogMessage(new LogEntry
-            {
-                LogMessage = "Settings have been saved"
-            }));
+            this.messenger.Send(new LogMessage("Settings have been saved"));
         }
     }
 }

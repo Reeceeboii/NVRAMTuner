@@ -114,10 +114,11 @@
             VariableDelta delta = new VariableDelta(this.selectedVariable, appliedDelta);
 
             this.Messenger.Send(new VariableStagedMessage(delta));
-            this.Messenger.Send(new LogMessage(new LogEntry
-            {
-                LogMessage = $"Staged changes to {this.SelectedVariable.Name}"
-            }));
+            this.Messenger.Send(new LogMessage($"Staged changes to {this.SelectedVariable.Name}"));
+
+            this.SelectedVariable = null;
+            this.RollbackChangesCommand.NotifyCanExecuteChanged();
+            this.StageChangesCommand.NotifyCanExecuteChanged();
         }
 
         /// <summary>

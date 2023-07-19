@@ -100,7 +100,7 @@
         /// Adds a new log to the collection of logs
         /// </summary>
         /// <param name="entry">An instance of <see cref="LogEntry"/> to log</param>
-        public void NewLog(LogEntry entry)
+        private void NewLog(LogEntry entry)
         {
             if (entry.LogTime == default)
             {

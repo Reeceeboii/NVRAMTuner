@@ -7,7 +7,6 @@
     using Models.Nvram;
     using Models.Nvram.Concrete;
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
 

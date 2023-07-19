@@ -140,10 +140,7 @@ namespace NVRAMTuner.Client.ViewModels
             this.VerifyRouterDetailsCommandAsync = new AsyncRelayCommand(this.VerifyRouterDetailsCommandHandlerAsync);
             this.ExitSetupCommandAsync = new AsyncRelayCommand(this.ExitSetupCommandHandlerAsync);
 
-            this.messenger.Send(new LogMessage(new LogEntry
-            {
-                LogMessage = "Entered router setup process"
-            }));
+            this.messenger.Send(new LogMessage("Entered router setup process"));
         }
 
         /// <summary>
@@ -254,11 +251,7 @@ namespace NVRAMTuner.Client.ViewModels
         public GenericStatus FormValidationStatus
         {
             get => this.formValidationStatus;
-            set
-            {
-                this.formValidationStatus = value;
-                this.OnPropertyChanged(nameof(this.FormValidationStatus));
-            }
+            set => this.SetProperty(ref this.formValidationStatus, value);
         }
 
         /// <summary>
@@ -398,7 +391,7 @@ namespace NVRAMTuner.Client.ViewModels
                 {
                     await this.dialogService.ShowMessageAsync(
                         this,
-                        "No keys were found",
+                        "No keys found",
                         "The scan didn't turn up any directories. Please enter the path manually");
                 });
 
@@ -500,10 +493,7 @@ namespace NVRAMTuner.Client.ViewModels
 
             if (userExitChoice == MessageDialogResult.Affirmative)
             {
-                this.messenger.Send(new LogMessage(new LogEntry
-                {
-                    LogMessage = "Exited router setup process"
-                }));
+                this.messenger.Send(new LogMessage("Exited router setup process"));
                 this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.HomeViewModel));
             }
         }

@@ -175,7 +175,7 @@ namespace NVRAMTuner.Client.Services
 
                 if (!this.fileSystem.File.Exists(privateKeyPath))
                 {
-                    this.messenger.Send(new LogMessage(new LogEntry { LogMessage = "Private SSH key not found" }));
+                    this.messenger.Send(new LogMessage("Private SSH key not found"));
                     throw new FileNotFoundException("Private SSH key not found", privateKeyPath);
                 }
 
@@ -198,10 +198,7 @@ namespace NVRAMTuner.Client.Services
                     {
                         Tuple<string, string> tempHnAndOs = await this.GetRouterHostnameAndOs(tempClient);
 
-                        this.messenger.Send(new LogMessage(new LogEntry
-                        {
-                            LogMessage = $"Connected successfully to {tempHnAndOs.Item1} using temporary client. Disconnecting..."
-                        }));
+                        this.messenger.Send(new LogMessage($"Connected successfully to {tempHnAndOs.Item1} using temporary client. Disconnecting..."));
 
                         tempClient.Disconnect();
 
@@ -216,7 +213,7 @@ namespace NVRAMTuner.Client.Services
                     tempClient.Disconnect();
                 }
 
-                this.messenger.Send(new LogMessage(new LogEntry { LogMessage = "Failed to connect using temporary client" }));
+                this.messenger.Send(new LogMessage("Failed to connect using temporary client"));
 
                 return new SshConnectionInfo
                 {
@@ -235,10 +232,7 @@ namespace NVRAMTuner.Client.Services
             }
             catch(Exception ex)
             {
-                this.messenger.Send(new LogMessage(new LogEntry
-                {
-                    LogMessage = $"Error during connection to '{router.RouterNickname}': \"{ex.Message}\""
-                }));
+                this.messenger.Send(new LogMessage($"Error during connection to '{router.RouterNickname}': \"{ex.Message}\""));
 
                 return new SshConnectionInfo
                 {
@@ -249,7 +243,7 @@ namespace NVRAMTuner.Client.Services
             Tuple<string, string> hnAndOs = await this.GetRouterHostnameAndOs();
             this.client.ErrorOccurred += this.ClientOnErrorOccurred;
 
-            this.messenger.Send(new LogMessage(new LogEntry { LogMessage = $"Connected to {hnAndOs.Item1}" }));
+            this.messenger.Send(new LogMessage($"Connected to {hnAndOs.Item1}"));
 
             return new SshConnectionInfo
             {
@@ -284,7 +278,7 @@ namespace NVRAMTuner.Client.Services
             {
                 this.client.ErrorOccurred -= this.ClientOnErrorOccurred;
                 this.client.Disconnect();
-                this.messenger.Send(new LogMessage(new LogEntry { LogMessage = "Disconnected" }));
+                this.messenger.Send(new LogMessage("Disconnected"));
             });
         }
 

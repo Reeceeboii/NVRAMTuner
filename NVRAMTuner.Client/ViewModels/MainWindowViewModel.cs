@@ -5,7 +5,6 @@
     using ControlzEx.Theming;
     using Messages;
     using Messages.Theme;
-    using Models;
     using Models.Enums;
     using Services.Interfaces;
     using System.ComponentModel;
@@ -155,7 +154,7 @@
                 return;
             }
 
-            this.Messenger.Send(new LogMessage(new LogEntry { LogMessage = $"Theme changed to: {message.Value}" }));
+            this.Messenger.Send(new LogMessage($"Theme changed to: {message.Value}"));
          
             this.currentApplicationTheme = message.Value;
             this.SetAndSyncAppTheme();
