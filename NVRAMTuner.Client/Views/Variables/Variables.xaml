@@ -11,15 +11,26 @@
              d:DesignHeight="600" d:DesignWidth="200">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <!-- https://stackoverflow.com/questions/6680879/wpf-datagrid-is-very-slow-to-render/8651839#8651839 -->
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-
         </Grid.RowDefinitions>
 
-        <DataGrid Grid.Row="0"
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5" HorizontalAlignment="Right">
+            <Button Command="{Binding RefreshVariablesCommand}"
+                    HorizontalAlignment="Left">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconMaterial Kind="Refresh" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1"
                   ItemsSource="{Binding Variables}"
                   SelectedItem="{Binding SelectedVariable}"
                   AutoGenerateColumns="False"

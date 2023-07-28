@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
              dialog:DialogParticipation.Register="{Binding}"
              xmlns:local="clr-namespace:NVRAMTuner.Client.Views"
@@ -38,7 +37,8 @@
                     Grid.ColumnSpan="3"
                     Orientation="Vertical"
                     VerticalAlignment="Bottom" 
-                    HorizontalAlignment="Center">
+                    HorizontalAlignment="Center"
+                    Visibility="{Binding IsConnected, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Reverse}">
 
             <TextBlock Text="You are not currently connected to a router"
                        HorizontalAlignment="Center"
@@ -93,14 +93,17 @@
         </GroupBox>
 
 
-        <!-- ROUTER SELECTION AND CONNECTION DETAILS -->
+        <!-- ROUTER SELECTION (while disconnected) AND CONNECTION DETAILS (while connected) -->
         <GroupBox Grid.Row="4" 
                   Grid.Column="2"
                   Header="Router selection"
                   Margin="1"
-                  Visibility="{Binding RoutersPresent, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Normal}">
+                  Visibility="{Binding IsConnected, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Reverse}">
 
-            <UniformGrid Rows="3" Margin="20" VerticalAlignment="Center">
+            <UniformGrid Rows="3" 
+                         Margin="20" 
+                         VerticalAlignment="Center">
+
                 <TextBlock TextAlignment="Center"
                            TextWrapping="Wrap"
                            Text="Please select a router to connect to..." />
@@ -136,40 +139,30 @@
                   Visibility="{Binding IsConnected, Converter={StaticResource ConfigurableBoolToVisibilityConverter}, ConverterParameter=Normal}"
                   d:Visibility="Hidden">
 
-            <UniformGrid Rows="3" Margin="20" VerticalAlignment="Center">
-                <TextBlock TextAlignment="Center"
-                           TextWrapping="Wrap"
-                           Text="Please select a router to connect to..." />
-
-                <ComboBox ItemsSource="{Binding AvailableRouters}" 
-                          SelectedItem="{Binding TargetRouterForConnection, UpdateSourceTrigger=PropertyChanged}"
-                          SelectedIndex="0"
-                          IsSynchronizedWithCurrentItem="True">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock>
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="{}'{0}' ({1})">
-                                        <Binding Path="RouterNickname" />
-                                        <Binding Path="RouterIpv4Address" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-
-                <Button Content="Connect..."
-                        Command="{Binding ConnectToTargetRouterCommand}"/>
-
+            <UniformGrid Rows="1" Margin="5" VerticalAlignment="Center">
+                <TextBlock>
+                    <Run Text="Router nickname:" />
+                    <Run Text="{Binding TargetRouterForConnection.RouterNickname}" />
+                    <LineBreak />
+                    <Run Text="No. SSH Commands executed:" />
+                    <Run Text="{Binding CommandsRanAgainstTargetRouter, Mode=OneWay}"/>
+                    <LineBreak />
+                    <!-- this timer is slightly laggy in debug, idk why -->
+                    <Run Text="Connection established for:" />
+                    <Run Text="{Binding ActiveConnectionElapsedTime, Mode=OneWay}"/>
+                </TextBlock>
             </UniformGrid>
         </GroupBox>
 
         <!-- Status bar that spans the length of the bottom of the window -->
         <StatusBar Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3">
             <TextBlock>
-                <Run Text="Connection status:" />
+                <Run Text="Status:" />
                 <Run Text="{Binding NvramTunerStatus, Mode=OneWay}"/>
+            </TextBlock>
+
+            <TextBlock>
+
             </TextBlock>
         </StatusBar>
     </Grid>

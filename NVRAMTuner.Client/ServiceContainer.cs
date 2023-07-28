@@ -5,6 +5,8 @@
     using Microsoft.Extensions.DependencyInjection;
     using Services;
     using Services.Interfaces;
+    using Services.Network;
+    using Services.Network.Interfaces;
     using System;
     using System.IO.Abstractions;
     using ViewModels;

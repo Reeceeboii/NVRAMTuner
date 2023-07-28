@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-             xmlns:local="clr-namespace:NVRAMTuner.Client.Views"
              xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels"
              xmlns:enums="clr-namespace:NVRAMTuner.Client.Models.Enums"
              d:DataContext="{d:DesignInstance Type=vm:RouterSetupViewModel, IsDesignTimeCreatable=False}"
@@ -273,7 +272,7 @@
             </UniformGrid>
         </AdornerDecorator>
 
-        <!-- exit and finish setup buttons -->
+        <!-- exit setup button -->
         <Button Command="{Binding ExitSetupCommandAsync}"
                 Grid.Row="5" 
                 Grid.Column="0" 
@@ -282,7 +281,7 @@
                 HorizontalAlignment="Left">
             <Button.Content>
                 <StackPanel Orientation="Horizontal">
-                    <iconPacks:PackIconFontisto Kind="AngleLeft" Margin="0 0 5 0"/>
+                    <iconPacks:PackIconMaterial Kind="ArrowLeft" Margin="0 0 5 0" />
                     <TextBlock Text="EXIT SETUP" 
                                FontSize="{StaticResource MahApps.Font.Size.Button}"
                                VerticalAlignment="Center"/>

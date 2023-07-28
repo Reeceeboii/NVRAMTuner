@@ -10,8 +10,9 @@ namespace NVRAMTuner.Client.ViewModels
     using Models;
     using Models.Enums;
     using Resources;
-    using Services;
     using Services.Interfaces;
+    using Services.Network;
+    using Services.Network.Interfaces;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;

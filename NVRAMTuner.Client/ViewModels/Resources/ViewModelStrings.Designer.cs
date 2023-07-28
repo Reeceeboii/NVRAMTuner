@@ -61,6 +61,15 @@ namespace NVRAMTuner.Client.ViewModels.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You can choose to either clear the staging area and retain your edits or clear the staging area AND have variable values returned to their original states..
+        /// </summary>
+        public static string ClearStagedChangesDialogMessage {
+            get {
+                return ResourceManager.GetString("ClearStagedChangesDialogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to NVRAMTuner was unable to find any routers on your system that were previously saved. If this is your first time using NVRAMTuner, enter the setup process now to add a router. Otherwise, please place a previously saved router file in the expected location..
         /// </summary>
         public static string NoSavedRoutersFoundDialogMessage {

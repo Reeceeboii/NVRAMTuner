@@ -1,11 +1,13 @@
 ﻿namespace NVRAMTuner.Client.Services
 {
+    using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Messaging;
     using Interfaces;
     using Messages;
     using Messages.Variables;
     using Models.Nvram;
     using Models.Nvram.Concrete;
+    using Network.Interfaces;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using Renci.SshNet;
@@ -20,17 +22,12 @@
     /// <summary>
     /// Service to handle NVRAM variable operations
     /// </summary>
-    public class VariableService : IVariableService
+    public class VariableService : ObservableRecipient, IVariableService
     {
         /// <summary>
         /// Instance of <see cref="INetworkService"/>
         /// </summary>
         private readonly INetworkService networkService;
-
-        /// <summary>
-        /// Instance of <see cref="IMessenger"/>
-        /// </summary>
-        private readonly IMessenger messenger;
 
         /// <summary>
         /// Dictionary holding the descriptions and default values of the
@@ -44,10 +41,9 @@
         /// </summary>
         /// <param name="networkService">An instance of <see cref="INetworkService"/></param>
         /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
-        public VariableService(INetworkService networkService, IMessenger messenger)
+        public VariableService(INetworkService networkService, IMessenger messenger) : base(messenger)
         {
             this.networkService = networkService;
-            this.messenger = messenger;
 
             string rawFirmwareDefaults = ServiceResources.firmware_variable_defaults;
             JObject defaultJsonObject = JsonConvert.DeserializeObject<JObject>(rawFirmwareDefaults);
@@ -66,8 +62,7 @@
         /// Loads all NVRAM variables by contacting the router and running the 'nvram show' command.
         /// Returns this data in an <see cref="Nvram"/> variable
         /// </summary>
-        /// <returns>An <see cref="Nvram"/> instance wrapped in an asynchronous
-        /// <see cref="Task{TResult}"/></returns>
+        /// <returns>An asynchronous<see cref="Task{TResult}"/></returns>
         public async Task<Nvram> GetNvramVariablesAsync()
         {
             SshCommand command =
@@ -171,7 +166,7 @@
                 }
             }
 
-            this.messenger.Send(new LogMessage($"{allVariables.Count} variables loaded from router"));
+            this.Messenger.Send(new LogMessage($"{allVariables.Count} variables loaded from router"));
 
             int totalVariableSizeBytes = allVariables.Sum(variable => variable.Name.Length + variable.OriginalValue.Length);
 
@@ -184,8 +179,7 @@
                 VariableSizeBytes = totalVariableSizeBytes
             };
 
-            this.messenger.Send(new VariablesChangedMessage(nvram));
-
+            this.Messenger.Send(new VariablesChangedMessage(nvram));
             return nvram;
         }
 

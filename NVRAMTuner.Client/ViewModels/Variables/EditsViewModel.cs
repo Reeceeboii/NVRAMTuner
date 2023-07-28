@@ -31,8 +31,8 @@
         {
             this.IsActive = true;
 
-            this.RollbackChangesCommand = new RelayCommand(this.RollbackChangesCommandHandler, this.CanRollbackOrStageCommandCanExecute);
-            this.StageChangesCommand = new RelayCommand(this.StageChangesCommandHandler, this.CanRollbackOrStageCommandCanExecute);
+            this.RollbackChangesCommand = new RelayCommand(this.RollbackChangesCommandHandler, this.RollbackOrStageCommandCanExecute);
+            this.StageChangesCommand = new RelayCommand(this.StageChangesCommandHandler, this.RollbackOrStageCommandCanExecute);
         }
 
         /// <summary>
@@ -45,7 +45,7 @@
         /// represented by <see cref="SelectedVariable"/>
         /// </summary>
         public IRelayCommand StageChangesCommand { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the currently selected variable that the use is able to view details about and edit
         /// </summary>
@@ -128,7 +128,7 @@
         /// they can share a CanExecute method.
         /// </summary>
         /// <returns>A bool representing whether the commands can execute</returns>
-        private bool CanRollbackOrStageCommandCanExecute()
+        private bool RollbackOrStageCommandCanExecute()
         {
             if (this.SelectedVariable != null)
             {

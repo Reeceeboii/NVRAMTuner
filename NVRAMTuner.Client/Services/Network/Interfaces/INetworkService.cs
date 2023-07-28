@@ -1,5 +1,6 @@
-﻿namespace NVRAMTuner.Client.Services.Interfaces
+﻿namespace NVRAMTuner.Client.Services.Network.Interfaces
 {
+    using Events;
     using Models;
     using Renci.SshNet;
     using Renci.SshNet.Common;
@@ -21,6 +22,16 @@
         /// Event to be raised when an error occurs in the connection to the router via the <see cref="SshClient"/>
         /// </summary>
         event EventHandler SshClientOnErrorOccurred;
+
+        /// <summary>
+        /// Event to be raised whenever a new command is executed against a remote server
+        /// </summary>
+        event EventHandler CommandRan;
+
+        /// <summary>
+        /// Event raised by the timer tracking the length of the current connection. Fired every second.
+        /// </summary>
+        event EventHandler<ActiveConnectionTimerTickArgs> ConnectionTimerSecondTick;
 
         /// <summary>
         /// Attempts to open an SSH connection to the remote server using either password-based authentication, or public/private key

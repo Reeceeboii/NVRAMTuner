@@ -1,20 +1,29 @@
 ﻿namespace NVRAMTuner.Client.ViewModels.Variables
 {
     using CommunityToolkit.Mvvm.ComponentModel;
+    using CommunityToolkit.Mvvm.Input;
     using CommunityToolkit.Mvvm.Messaging;
     using Messages;
     using Messages.Variables;
+    using Models;
     using Models.Nvram;
     using Models.Nvram.Concrete;
+    using Services.Interfaces;
     using System;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// ViewModel for the variables view
     /// </summary>
     public class VariablesViewModel : ObservableRecipient
     {
+        /// <summary>
+        /// Instance of <see cref="IVariableService"/>
+        /// </summary>
+        private readonly IVariableService variableService;
+
         /// <summary>
         /// Backing field for <see cref="Variables"/>
         /// </summary>
@@ -44,11 +53,21 @@
         /// Initialises a new instance of the <see cref="VariablesViewModel"/> class
         /// </summary>
         /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
-        public VariablesViewModel(IMessenger messenger) : base(messenger)
+        /// <param name="variableService">An instance of <see cref="IVariableService"/></param>
+        public VariablesViewModel(IVariableService variableService, IMessenger messenger) : base(messenger)
         {
+            this.variableService = variableService;
+
             this.Variables = new ObservableCollection<IVariable>();
             this.IsActive = true;
+
+            this.RefreshVariablesCommand = new AsyncRelayCommand(this.RefreshVariablesCommandHandlerAsync);
         }
+
+        /// <summary>
+        /// Gets the asynchronous command used to refresh the current set of variables
+        /// </summary>
+        public IAsyncRelayCommand RefreshVariablesCommand { get; }
 
         /// <summary>
         /// Override of <see cref="ObservableRecipient.OnActivated"/>.
@@ -113,11 +132,6 @@
             get => this.selectedVariable;
             set
             {
-                if (value == this.selectedVariable)
-                {
-                    return;
-                }
-
                 this.SetProperty(ref this.selectedVariable, value);
                 this.Messenger.Send(new VariableSelectedMessage(value));
             }
@@ -171,6 +185,34 @@
             }
 
             this.SelectedVariable = null;
+        }
+
+        /// <summary>
+        /// Method to receive <see cref="VariablesUnstagedMessage"/> messages
+        /// </summary>
+        /// <param name="message">An instance of <see cref="VariablesUnstagedMessage"/></param>
+        public void Receive(VariablesUnstagedMessage message)
+        {
+            foreach (VariableDelta delta in message.Value)
+            {
+                this.Variables.Add(message.AbandonChanges ? delta.Original : delta.Delta);
+            }
+        }
+
+        /// <summary>
+        /// Method to handle the <see cref="RefreshVariablesCommand"/>
+        /// </summary>
+        /// <returns>An asynchronous <see cref="Task"/></returns>
+        private async Task RefreshVariablesCommandHandlerAsync()
+        {
+            IVariable previouslySelected = this.SelectedVariable;
+            await this.variableService.GetNvramVariablesAsync();
+
+            // attempt to select the previously selected variable
+            if (previouslySelected != null)
+            {
+                this.SelectedVariable = this.Variables.First(v => v.Name == previouslySelected.Name);
+            }
         }
     }
 }

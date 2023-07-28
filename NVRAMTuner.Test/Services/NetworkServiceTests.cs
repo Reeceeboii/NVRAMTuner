@@ -1,7 +1,12 @@
-﻿namespace NVRAMTuner.Test.Services
+﻿#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable CS8618
+
+namespace NVRAMTuner.Test.Services
+#pragma warning restore IDE0079 // Remove unnecessary suppression
 {
-    using Client.Services;
     using Client.Services.Interfaces;
+    using Client.Services.Network;
+    using Client.Services.Network.Interfaces;
     using CommunityToolkit.Mvvm.Messaging;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -65,6 +70,7 @@
 
             // Assert
             this.sut.Should().NotBeNull();
+            NetworkService.DefaultSshPort.Should().Be("22");
         }
 
         /// <summary>
@@ -224,6 +230,7 @@
         [DataRow("   799234   ")]
         [DataRow("       250000")]
         [DataRow("2444442            ")]
+        [DataRow("")]
         public void VerifyNetworkPortStringCanRecogniseIncorrectPortsTest(string testCase)
         {
             NetworkService.VerifyNetworkPort(testCase).Should().BeFalse();

@@ -12,8 +12,7 @@
         /// Loads all NVRAM variables by contacting the router and running the 'nvram show' command.
         /// Returns this data in an <see cref="Nvram"/> variable
         /// </summary>
-        /// <returns>An <see cref="Nvram"/> instance wrapped in an asynchronous
-        /// <see cref="Task{TResult}"/></returns>
+        /// <returns>An asynchronous<see cref="Task{TResult}"/></returns>
         Task<Nvram> GetNvramVariablesAsync();
     }
 }

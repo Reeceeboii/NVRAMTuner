@@ -1,8 +1,9 @@
 ﻿#nullable enable
 
-namespace NVRAMTuner.Client.Services
+namespace NVRAMTuner.Client.Services.Network
 {
     using CommunityToolkit.Mvvm.Messaging;
+    using Events;
     using Interfaces;
     using Messages;
     using Models;
@@ -10,17 +11,19 @@ namespace NVRAMTuner.Client.Services
     using Renci.SshNet;
     using Renci.SshNet.Common;
     using Resources;
+    using Services.Interfaces;
     using System;
     using System.IO;
     using System.IO.Abstractions;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
     /// An implementation of a service for handling various network related operations
     /// pertinent to the operation of the NVRAMTuner application
     /// </summary>
-    public class NetworkService : IDisposable, INetworkService
+    public class NetworkService : INetworkService, IDisposable
     {
         /// <summary>
         /// An instance of <see cref="IFileSystem"/>
@@ -48,6 +51,18 @@ namespace NVRAMTuner.Client.Services
         private SshClient? client;
 
         /// <summary>
+        /// Timer used to track the elapsed time of the current connection
+        /// </summary>
+        private readonly Timer activeConnectionTimer;
+
+        /// <summary>
+        /// The time at which the active connection was initiated.
+        /// This is used to calculate the elapsed time within
+        /// <see cref="ActiveConnectionTimerTickArgs"/> instances
+        /// </summary>
+        private DateTime connectionInitiatedTime;
+
+        /// <summary>
         /// The default SSH port to assume a router is using
         /// </summary>
         public static string DefaultSshPort = "22";
@@ -69,6 +84,12 @@ namespace NVRAMTuner.Client.Services
             this.environmentService = environmentService;
             this.messenger = messenger;
             this.settingsService = settingsService;
+
+            this.activeConnectionTimer = new Timer(
+                _ => this.ActiveConnectionTimerOnTick(),
+                null, 
+                0, 
+                (int)TimeSpan.FromSeconds(1).TotalMilliseconds);
         }
 
         /// <summary>
@@ -133,6 +154,17 @@ namespace NVRAMTuner.Client.Services
         public event EventHandler? SshClientOnErrorOccurred;
 
         /// <summary>
+        /// Event to be raised whenever a new command is executed against a remote server
+        /// </summary>
+        public event EventHandler? CommandRan;
+
+        /// <summary>
+        /// Event raised by the timer tracking the length of the current connection. Fired every second
+        /// that a connection is active via the instance's <see cref="SshClient"/> (<see cref="client"/>)
+        /// </summary>
+        public event EventHandler<ActiveConnectionTimerTickArgs>? ConnectionTimerSecondTick;
+
+        /// <summary>
         /// Attempts to open an SSH connection to the remote server using either password-based authentication, or public/private key
         /// based authentication. This choice is up to the user and their local network configuration.
         /// If <paramref name="useTempClient"/> is set to false (its non-default value), the service's field instance of
@@ -156,7 +188,7 @@ namespace NVRAMTuner.Client.Services
         {
             if (!useTempClient && this.client is { IsConnected: true })
             {
-                throw new SshConnectionException("Client instance is already connected!");
+                throw new SshConnectionException("Service instance is already connected!");
             }
 
             ConnectionInfo connectionInfo;
@@ -230,7 +262,7 @@ namespace NVRAMTuner.Client.Services
             {
                 this.client.Connect();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 this.messenger.Send(new LogMessage($"Error during connection to '{router.RouterNickname}': \"{ex.Message}\""));
 
@@ -240,6 +272,9 @@ namespace NVRAMTuner.Client.Services
                 };
             }
 
+            // kick off the active connection timer (as the real client is being used)
+            this.StartActiveConnectionTimer();
+
             Tuple<string, string> hnAndOs = await this.GetRouterHostnameAndOs();
             this.client.ErrorOccurred += this.ClientOnErrorOccurred;
 
@@ -247,20 +282,10 @@ namespace NVRAMTuner.Client.Services
 
             return new SshConnectionInfo
             {
-                ConnectionSuccessful = true, 
-                HostName = hnAndOs.Item1, 
+                ConnectionSuccessful = true,
+                HostName = hnAndOs.Item1,
                 OperatingSystem = hnAndOs.Item2
             };
-        }
-
-        /// <summary>
-        /// Handler for the <see cref="BaseClient.ErrorOccurred"/> event
-        /// </summary>
-        /// <param name="sender">The event sender</param>
-        /// <param name="e">The <see cref="ExceptionEventArgs"/> instance</param>
-        private void ClientOnErrorOccurred(object sender, ExceptionEventArgs e)
-        {
-            this.SshClientOnErrorOccurred?.Invoke(this, e);
         }
 
         /// <summary>
@@ -279,6 +304,7 @@ namespace NVRAMTuner.Client.Services
                 this.client.ErrorOccurred -= this.ClientOnErrorOccurred;
                 this.client.Disconnect();
                 this.messenger.Send(new LogMessage("Disconnected"));
+                this.StopActiveConnectionTimer();
             });
         }
 
@@ -301,28 +327,18 @@ namespace NVRAMTuner.Client.Services
 
             if (clientOverride != null)
             {
-                return await Task.Run(() => clientOverride?.RunCommand(command)) 
+                return await Task.Run(() => clientOverride.RunCommand(command))
                        ?? throw new InvalidOperationException("Client is uninitialised");
             }
 
-            return await Task.Run(() => this.client?.RunCommand(command))
-                   ?? throw new InvalidOperationException("Overridden client is uninitialised");
-        }
+            if (this.client == null)
+            {
+                throw new InvalidOperationException("Overridden client is uninitialised");
+            }
 
-        /// <summary>
-        /// Gets the hostname and operating system of the router
-        /// </summary>
-        /// <param name="clientOverride">An optional <see cref="SshClient"/> parameter that can be used to override
-        /// the default behaviour of using the service's instance <see cref="SshClient"/></param>
-        /// <returns>A <see cref="Tuple{T1, T2}"/> that contains the hostname and operating system of the router</returns>
-        private async Task<Tuple<string, string>> GetRouterHostnameAndOs(SshClient? clientOverride = null)
-        {
-            SshCommand hostName = await this.RunCommandAgainstRouterAsync(ServiceResources.HostName_Command, clientOverride);
-            SshCommand os = await this.RunCommandAgainstRouterAsync(ServiceResources.Uname_Os_Command, clientOverride);
-
-            return new Tuple<string, string>(
-                hostName.Result.TrimEnd('\r', '\n'), 
-                os.Result.TrimEnd('\r', '\n'));
+            SshCommand commandResult = await Task.Run(() => this.client.RunCommand(command));
+            this.CommandRan?.Invoke(this, EventArgs.Empty);
+            return commandResult;
         }
 
         /// <summary>
@@ -354,7 +370,7 @@ namespace NVRAMTuner.Client.Services
         }
 
         /// <summary>
-        /// Disposes of any relevant resources
+        /// <inheritdoc cref="IDisposable.Dispose"/>
         /// </summary>
         public void Dispose()
         {
@@ -363,7 +379,67 @@ namespace NVRAMTuner.Client.Services
                 this.client.Disconnect();
             }
 
+            this.StopActiveConnectionTimer();
             this.client?.Dispose();
         }
+
+        /// <summary>
+        /// Stops the active connection timer and resets the initiated time
+        /// </summary>
+        private void StopActiveConnectionTimer()
+        {
+            this.connectionInitiatedTime = default;
+        }
+
+        /// <summary>
+        /// Stars the active connection timer and sets the initiated time to the current time
+        /// </summary>
+        private void StartActiveConnectionTimer()
+        {
+            this.connectionInitiatedTime = DateTime.Now;
+        }
+
+        /// <summary>
+        /// Handler for the <see cref="BaseClient.ErrorOccurred"/> event
+        /// </summary>
+        /// <param name="sender">The event sender</param>
+        /// <param name="e">The <see cref="ExceptionEventArgs"/> instance</param>
+        private void ClientOnErrorOccurred(object sender, ExceptionEventArgs e)
+        {
+            this.SshClientOnErrorOccurred?.Invoke(this, e);
+        }
+
+        /// <summary>
+        /// Gets the hostname and operating system of the router
+        /// </summary>
+        /// <param name="clientOverride">An optional <see cref="SshClient"/> parameter that can be used to override
+        /// the default behaviour of using the service's instance <see cref="SshClient"/></param>
+        /// <returns>A <see cref="Tuple{T1, T2}"/> that contains the hostname and operating system of the router</returns>
+        private async Task<Tuple<string, string>> GetRouterHostnameAndOs(SshClient? clientOverride = null)
+        {
+            SshCommand hostName = await this.RunCommandAgainstRouterAsync(ServiceResources.HostName_Command, clientOverride);
+            SshCommand os = await this.RunCommandAgainstRouterAsync(ServiceResources.Uname_Os_Command, clientOverride);
+
+            return new Tuple<string, string>(
+                hostName.Result.TrimEnd('\r', '\n'),
+                os.Result.TrimEnd('\r', '\n'));
+        }
+
+        /// <summary>
+        /// Tick event for <see cref="activeConnectionTimer"/>. Sends out a new <see cref="INetworkService.ConnectionTimerSecondTick"/> event
+        /// </summary>
+        private void ActiveConnectionTimerOnTick()
+        {
+            TimeSpan elapsed = DateTime.Now - this.connectionInitiatedTime;
+            string formatted = $"{(int)elapsed.TotalHours:D2}:{elapsed.Minutes:D2}:{elapsed.Seconds:D2}";
+
+            ActiveConnectionTimerTickArgs tickArgs = new ActiveConnectionTimerTickArgs
+            {
+                Elapsed = elapsed, 
+                ElapsedPretty = formatted
+            };
+
+            this.ConnectionTimerSecondTick?.Invoke(this, tickArgs);
+        }
     }
-} 
+}

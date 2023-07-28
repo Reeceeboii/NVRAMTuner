@@ -3,8 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:NVRAMTuner.Client.Views"
-             xmlns:enums="clr-namespace:NVRAMTuner.Client.Models.Enums"
              xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              mc:Ignorable="d"
@@ -39,12 +37,12 @@
         <MenuItem Header="_Tools">
             <MenuItem Header="Dump live NVRAM contents to file...">
                 <MenuItem.Icon>
-                    <iconPacks:PackIconFontisto Kind="Save" />
+                    <iconPacks:PackIconMaterial Kind="ContentSaveAll" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="Dump edited NVRAM contents to file...">
                 <MenuItem.Icon>
-                    <iconPacks:PackIconFontisto Kind="Save" />
+                    <iconPacks:PackIconMaterial Kind="ContentSaveEdit" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator />
@@ -52,49 +50,23 @@
                 <MenuItem.Icon>
                     <iconPacks:PackIconMaterial Kind="Cog" />
                 </MenuItem.Icon>
-                <!-- 
-                <MenuItem Header="Themes">
-                    <MenuItem.Icon>
-                        <iconPacks:PackIconMaterial Kind="ThemeLightDark" />
-                    </MenuItem.Icon>
-                    <MenuItem Header="Dark blue"
-                              Command="{Binding ChangeThemeCommand}"
-                              CommandParameter="{x:Static enums:ApplicationTheme.DarkBlue}"/>
-                    <MenuItem Header="Dark orange"
-                              Command="{Binding ChangeThemeCommand}"
-                              CommandParameter="{x:Static enums:ApplicationTheme.DarkOrange}"/>
-                    <MenuItem Header="Dark Red"
-                              Command="{Binding ChangeThemeCommand}"
-                              CommandParameter="{x:Static enums:ApplicationTheme.DarkRed}"/>
-                    <Separator />
-                    <MenuItem Header="Light blue"
-                              Command="{Binding ChangeThemeCommand}"
-                              CommandParameter="{x:Static enums:ApplicationTheme.LightBlue}"/>
-                    <MenuItem Header="Light orange"
-                              Command="{Binding ChangeThemeCommand}"
-                              CommandParameter="{x:Static enums:ApplicationTheme.LightOrange}"/>
-                    <MenuItem Header="Light Red"
-                              Command="{Binding ChangeThemeCommand}"
-                              CommandParameter="{x:Static enums:ApplicationTheme.LightRed}"/>
-                </MenuItem>
-                -->
             </MenuItem>
         </MenuItem>
         <MenuItem Header="_Help">
             <MenuItem Header="View source" Command="{Binding ViewSourceMenuCommand}">
                 <MenuItem.Icon>
-                    <iconPacks:PackIconFontAwesome Kind="GithubBrands" />
+                    <iconPacks:PackIconMaterial Kind="Github" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="Submit bug report" Command="{Binding ReportBugMenuCommand}">
                 <MenuItem.Icon>
-                    <iconPacks:PackIconBoxIcons Kind="RegularBug" />
+                    <iconPacks:PackIconMaterial Kind="Bug" />
                 </MenuItem.Icon>
             </MenuItem>
             <Separator/>
             <MenuItem Header="About" Click="AboutMenuItem_OnClick">
                 <MenuItem.Icon>
-                    <iconPacks:PackIconPicolIcons Kind="BadgeInformation" />
+                    <iconPacks:PackIconMaterial Kind="Information" />
                 </MenuItem.Icon>
             </MenuItem>
         </MenuItem>

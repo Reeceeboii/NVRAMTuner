@@ -3,6 +3,7 @@
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
     using CommunityToolkit.Mvvm.Messaging;
+    using Events;
     using MahApps.Metro.Controls.Dialogs;
     using Messages;
     using Messages.Theme;
@@ -10,6 +11,7 @@
     using Models.Enums;
     using Resources;
     using Services.Interfaces;
+    using Services.Network.Interfaces;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -77,6 +79,13 @@
         private Router targetRouterForConnection;
 
         /// <summary>
+        /// Backing field for <see cref="CommandsRanAgainstTargetRouter"/>
+        /// </summary>
+        private int commandsRanAgainstTargetRouter;
+
+        private string activeConnectionElapsedTime;
+
+        /// <summary>
         /// Initialises a new instance of the <see cref="HomeViewModel"/> class
         /// </summary>
         /// <param name="networkService">An instance of <see cref="INetworkService"/></param>
@@ -99,6 +108,9 @@
             this.processService = processService;
             this.variableService = variableService;
             this.messenger = messenger;
+
+            this.networkService.CommandRan += this.NetworkServiceOnCommandRan;
+            this.networkService.ConnectionTimerSecondTick += NetworkServiceOnConnectionTimerSecondTick;
 
             this.availableRouters = new ObservableCollection<Router>();
 
@@ -200,11 +212,31 @@
         }
 
         /// <summary>
+        /// Gets or sets an integer representing how many commands have been executed against the
+        /// <see cref="TargetRouterForConnection"/>
+        /// </summary>
+        public int CommandsRanAgainstTargetRouter
+        {
+            get => this.commandsRanAgainstTargetRouter;
+            private set => this.SetProperty(ref this.commandsRanAgainstTargetRouter, value);
+        }
+
+        /// <summary>
+        /// Gets or privately sets the string representation of the amount of time that the current
+        /// router connection has been elapsed for
+        /// </summary>
+        public string ActiveConnectionElapsedTime
+        {
+            get => this.activeConnectionElapsedTime;
+            private set => this.SetProperty(ref this.activeConnectionElapsedTime, value);
+        }
+
+        /// <summary>
         /// Gets a string denoting the current status of NVRAMTuner - to be displayed in the status bar
         /// </summary>
         public string NvramTunerStatus =>
             this.IsConnected
-                ? "Connected"
+                ? $"Connected to '{this.targetRouterForConnection.RouterNickname}'"
                 : "Disconnected";
 
         /// <summary>
@@ -310,6 +342,8 @@
                 this.messenger.Send(new RouterDisconnectMessage(this.TargetRouterForConnection));
             }
 
+            this.CommandsRanAgainstTargetRouter = 0;
+
             this.IsLoading = false;
         }
 
@@ -385,6 +419,26 @@
         private void OpenSettingsFlyoutCommandHandler()
         {
             this.messenger.Send(new OpenSettingsFlyoutMessage());
+        }
+
+        /// <summary>
+        /// Handles receiving <see cref="INetworkService.CommandRan"/> events
+        /// </summary>
+        /// <param name="sender">The sender of the event</param>
+        /// <param name="e">The event arguments</param>
+        private void NetworkServiceOnCommandRan(object sender, EventArgs e)
+        {
+            this.CommandsRanAgainstTargetRouter++;
+        }
+
+        /// <summary>
+        /// Handles receiving <see cref="INetworkService.ConnectionTimerSecondTick"/> events
+        /// </summary>
+        /// <param name="sender">The sender of the event</param>
+        /// <param name="e">The event arguments (<see cref="ActiveConnectionTimerTickArgs"/>)</param>
+        private void NetworkServiceOnConnectionTimerSecondTick(object sender, ActiveConnectionTimerTickArgs e)
+        {
+            this.ActiveConnectionElapsedTime = e.ElapsedPretty;
         }
     }
 }

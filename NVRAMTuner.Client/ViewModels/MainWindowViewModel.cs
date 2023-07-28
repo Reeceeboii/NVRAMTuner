@@ -93,8 +93,7 @@
         }
 
         /// <summary>
-        /// Override of <see cref="ObservableRecipient.OnActivated"/>.
-        /// Handles message registration
+        /// <inheritdoc cref="ObservableRecipient.OnActivated"/>
         /// </summary>
         protected override void OnActivated()
         {
