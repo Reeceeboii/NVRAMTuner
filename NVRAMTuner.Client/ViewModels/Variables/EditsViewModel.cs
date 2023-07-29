@@ -5,6 +5,7 @@
     using CommunityToolkit.Mvvm.Messaging;
     using Messages;
     using Messages.Variables;
+    using Messages.Variables.Staged;
     using Models.Nvram;
     using System;
 

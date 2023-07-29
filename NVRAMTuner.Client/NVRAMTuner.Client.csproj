@@ -184,13 +184,13 @@
     <Compile Include="Messages\RouterDisconnectMessage.cs" />
     <Compile Include="Messages\Theme\ThemeChangeMessage.cs" />
     <Compile Include="Messages\Theme\ThemeRequestMessage.cs" />
-    <Compile Include="Messages\Variables\ClearStagedVariablesMessage.cs" />
-    <Compile Include="Messages\Variables\RequestNumOfStagedVariablesMessage.cs" />
-    <Compile Include="Messages\Variables\RequestSelectedStagedVariableMessage.cs" />
+    <Compile Include="Messages\Variables\Staged\ClearStagedVariablesMessage.cs" />
+    <Compile Include="Messages\Variables\Staged\RequestNumOfStagedVariablesMessage.cs" />
+    <Compile Include="Messages\Variables\Staged\RequestSelectedStagedVariableMessage.cs" />
     <Compile Include="Messages\Variables\VariablesChangedMessage.cs" />
     <Compile Include="Messages\Variables\VariableSelectedMessage.cs" />
-    <Compile Include="Messages\Variables\VariableStagedMessage.cs" />
-    <Compile Include="Messages\Variables\VariablesUnstagedMessage.cs" />
+    <Compile Include="Messages\Variables\Staged\VariableStagedMessage.cs" />
+    <Compile Include="Messages\Variables\Staged\VariablesUnstagedMessage.cs" />
     <Compile Include="Models\Enums\ApplicationTheme.cs" />
     <Compile Include="Models\Enums\DiffSplitChars.cs" />
     <Compile Include="Models\Enums\VariableDiffDelimiter.cs" />
@@ -422,6 +422,7 @@
   <ItemGroup>
     <Resource Include="modem.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\CommunityToolkit.Mvvm.8.2.1\build\netstandard2.0\CommunityToolkit.Mvvm.targets" Condition="Exists('..\packages\CommunityToolkit.Mvvm.8.2.1\build\netstandard2.0\CommunityToolkit.Mvvm.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

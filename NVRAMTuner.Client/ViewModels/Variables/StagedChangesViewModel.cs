@@ -5,7 +5,7 @@
     using CommunityToolkit.Mvvm.Messaging;
     using MahApps.Metro.Controls.Dialogs;
     using Messages;
-    using Messages.Variables;
+    using Messages.Variables.Staged;
     using Models.Nvram;
     using Resources;
     using Services.Interfaces;

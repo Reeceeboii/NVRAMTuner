@@ -2,7 +2,7 @@
 {
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Messaging;
-    using Messages.Variables;
+    using Messages.Variables.Staged;
     using Models.Enums;
     using Models.Nvram;
     using System;

@@ -6,6 +6,7 @@
     using MahApps.Metro.Controls.Dialogs;
     using Messages;
     using Messages.Variables;
+    using Messages.Variables.Staged;
     using Models.Nvram;
     using Models.Nvram.Concrete;
     using Resources;
@@ -209,6 +210,7 @@
         {
             foreach (IVariable delta in message.Value)
             {
+                // TODO
                 //this.Variables.Add(message.KeepChanges ? delta.Original : delta.Delta);
             }
         }

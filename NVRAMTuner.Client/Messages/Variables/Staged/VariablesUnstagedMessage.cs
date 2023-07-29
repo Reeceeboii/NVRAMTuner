@@ -1,4 +1,4 @@
-﻿namespace NVRAMTuner.Client.Messages.Variables
+﻿namespace NVRAMTuner.Client.Messages.Variables.Staged
 {
     using CommunityToolkit.Mvvm.Messaging.Messages;
     using Models.Nvram;
