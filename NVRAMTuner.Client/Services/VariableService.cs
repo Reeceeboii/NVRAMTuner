@@ -45,7 +45,7 @@
         {
             this.networkService = networkService;
 
-            string rawFirmwareDefaults = ServiceResources.firmware_variable_defaults;
+            string rawFirmwareDefaults = ServiceResources.firmwareVariableDefaults;
             JObject defaultJsonObject = JsonConvert.DeserializeObject<JObject>(rawFirmwareDefaults);
 
             this.nvramDefaults = new Dictionary<string, Tuple<string, string>>();

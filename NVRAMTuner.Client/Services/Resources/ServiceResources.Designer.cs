@@ -63,9 +63,9 @@ namespace NVRAMTuner.Client.Services.Resources {
         /// <summary>
         ///   Looks up a localized string similar to {&quot;nvramver&quot;: {&quot;default&quot;: &quot;RTCONFIG_NVRAM_VER&quot;, &quot;description&quot;: &quot;&quot;}, &quot;restore_defaults&quot;: {&quot;default&quot;: &quot;0&quot;, &quot;description&quot;: &quot;Set to 0 to not restore defaults on boot&quot;}, &quot;sw_mode&quot;: {&quot;default&quot;: &quot;1&quot;, &quot;description&quot;: &quot;big switch for different mode&quot;}, &quot;ASUS_EULA&quot;: {&quot;default&quot;: &quot;0&quot;, &quot;description&quot;: &quot;&quot;}, &quot;preferred_lang&quot;: {&quot;default&quot;: &quot;EN&quot;, &quot;description&quot;: &quot;&quot;}, &quot;wan_ifnames&quot;: {&quot;default&quot;: &quot;0&quot;, &quot;description&quot;: &quot;&quot;}, &quot;lan_ifnames&quot;: {&quot;default&quot;: &quot;vlan0 eth1 eth2 eth3&quot;, &quot;description&quot;: &quot;&quot;}, &quot;lan1_ifnames&quot;: {&quot;default&quot;: &quot; }&quot;, &quot;descrip [rest of string was truncated]&quot;;.
         /// </summary>
-        public static string firmware_variable_defaults {
+        public static string firmwareVariableDefaults {
             get {
-                return ResourceManager.GetString("firmware_variable_defaults", resourceCulture);
+                return ResourceManager.GetString("firmwareVariableDefaults", resourceCulture);
             }
         }
         
@@ -75,15 +75,6 @@ namespace NVRAMTuner.Client.Services.Resources {
         public static string HostName_Command {
             get {
                 return ResourceManager.GetString("HostName Command", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to nvram show.
-        /// </summary>
-        public static string NVRAM_Show_Command {
-            get {
-                return ResourceManager.GetString("NVRAM Show Command", resourceCulture);
             }
         }
         
@@ -104,9 +95,18 @@ namespace NVRAMTuner.Client.Services.Resources {
         ///    nvram unset vpn_crt_client$i\_crl
         ///    nvram  [rest of string was truncated]&quot;;.
         /// </summary>
-        public static string RMerlinCertClearScript {
+        public static string MerlinCertClearScript {
             get {
-                return ResourceManager.GetString("RMerlinCertClearScript", resourceCulture);
+                return ResourceManager.GetString("MerlinCertClearScript", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to nvram show.
+        /// </summary>
+        public static string NVRAM_Show_Command {
+            get {
+                return ResourceManager.GetString("NVRAM Show Command", resourceCulture);
             }
         }
         
