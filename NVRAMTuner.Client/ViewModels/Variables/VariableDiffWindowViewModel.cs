@@ -151,7 +151,6 @@
                 
                 StringBuilder sb = new StringBuilder();
 
-
                 // TODO - these are slightly scuffed. They add new blank lines for no reason
                 foreach (string line in this.OldText.Split(char.Parse(value)))
                 {
