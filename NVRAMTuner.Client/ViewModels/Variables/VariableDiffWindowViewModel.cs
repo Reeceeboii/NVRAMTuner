@@ -151,9 +151,11 @@
                 
                 StringBuilder sb = new StringBuilder();
 
+
+                // TODO - these are slightly scuffed. They add new blank lines for no reason
                 foreach (string line in this.OldText.Split(char.Parse(value)))
                 {
-                    sb.Append($"{line}{value}{Environment.NewLine}");
+                    sb.Append($"{line}{Environment.NewLine}");
                 }
                 this.OldText = sb.ToString();
 
@@ -161,7 +163,7 @@
 
                 foreach (string line in this.NewText.Split(char.Parse(value)))
                 {
-                    sb.Append($"{line}{value}{Environment.NewLine}");
+                    sb.Append($"{line}{Environment.NewLine}");
                 }
                 this.NewText = sb.ToString();
             }

@@ -18,6 +18,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Margin="5" FontSize="{StaticResource MahApps.Font.Size.Dialog.Message}">
@@ -37,8 +38,15 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <UniformGrid Grid.Row="3" Rows="1">
+        <Separator Grid.Row="3"/>
 
+        <StackPanel Grid.Row="4">
+            <TextBlock Text="test"></TextBlock>
+        </StackPanel>
+
+        <Separator Grid.Row="5"/>
+
+        <UniformGrid Grid.Row="6" Rows="1">
             <Button Margin="5"
                     Command="{Binding ClearStagedDeltasCommand}">
                 <Button.Content>
@@ -50,5 +58,7 @@
             </Button>
             <Button Content="Commit changes" Margin="5" />
         </UniformGrid>
+
+
     </Grid>
 </UserControl>
