@@ -88,6 +88,29 @@ namespace NVRAMTuner.Client.Services.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to #!/bin/sh
+        ///
+        ///# THIS SCRIPT WAS TAKEN FROM https://www.snbforums.com/threads/asus-rt-ac68u-386-2_6-low-on-free-nvram.73158/post-695283
+        ///# It is licensed according to the wider SNBForums Ts&amp;Cs: https://www.snbforums.com/help/terms/
+        ///
+        ///echo &quot;Removing unused cert/key from nvram...&quot;
+        ///
+        ///for i in 1 2 3 4 5
+        ///do
+        ///    nvram unset vpn_crt_client$i\_ca
+        ///    nvram unset vpn_crt_client$i\_extra
+        ///    nvram unset vpn_crt_client$i\_crt
+        ///    nvram unset vpn_crt_client$i\_key
+        ///    nvram unset vpn_crt_client$i\_crl
+        ///    nvram  [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string RMerlinCertClearScript {
+            get {
+                return ResourceManager.GetString("RMerlinCertClearScript", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to uname -o.
         /// </summary>
         public static string Uname_Os_Command {
