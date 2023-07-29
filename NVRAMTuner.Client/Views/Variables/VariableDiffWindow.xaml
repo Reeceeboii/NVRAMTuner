@@ -3,7 +3,6 @@
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                 xmlns:local="clr-namespace:NVRAMTuner.Client.Views.Variables"
                  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
                  xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels.Variables"
                  xmlns:diffplex="clr-namespace:DiffPlex.Wpf.Controls;assembly=DiffPlex.Wpf"
@@ -26,17 +25,25 @@
             <Label Content="Side by side diff " />
             <CheckBox IsChecked="{Binding UnifiedDiff}" />
             <Label Content="Split diff string on character " />
-            <mah:SplitButton Width="50" />
+            <mah:SplitButton 
+                Width="150"
+                HorizontalAlignment="Left"
+                ItemsSource="{Binding DelimiterEnumToStringMap.Values}" 
+                SelectedItem="{Binding SelectedDiffSplitCharacter}"/>
         </StackPanel>
 
         <Separator Grid.Row="1"/>
 
         <diffplex:DiffViewer 
             Grid.Row="2"
-            OldText="{Binding SelectedStagedVariable.OriginalValue}"
-            OldTextHeader="Original value"
-            NewText="{Binding SelectedStagedVariable.ValueDelta}" 
-            NewTextHeader="Your changes"
-            IsSideBySide="{Binding UnifiedDiff}"/>
+            OldText="{Binding OldText}"
+            OldTextHeader="Variable's original value"
+            NewText="{Binding NewText}" 
+            NewTextHeader="Your new changes"
+            IsSideBySide="{Binding UnifiedDiff}"
+            LineNumberForeground="{DynamicResource MahApps.Brushes.Text}"
+            ChangeTypeForeground="{DynamicResource MahApps.Brushes.Text}"
+            HeaderForeground="{DynamicResource MahApps.Brushes.Text}"
+            Foreground="{DynamicResource MahApps.Brushes.Text}"/>
     </Grid>
 </mah:MetroWindow>

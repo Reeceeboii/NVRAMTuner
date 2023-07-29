@@ -60,6 +60,12 @@
 
             this.Messenger.Register<StagedChangesViewModel, RequestSelectedStagedVariableMessage>(
                 this, (recipient, message) => this.Receive(message));
+
+            this.Messenger.Register<StagedChangesViewModel, ClearStagedVariablesMessage>(
+                this, (recipient, message)  => this.Receive(message));
+
+            this.Messenger.Register<StagedChangesViewModel, RequestNumOfStagedVariablesMessage>(
+                this, (recipient, message) => this.Receive(message));
         }
 
         /// <summary>
@@ -103,6 +109,26 @@
         public void Receive(RequestSelectedStagedVariableMessage message)
         {
             message.Reply(this.SelectedDelta);
+        }
+
+        /// <summary>
+        /// Recipient method for the <see cref="RequestNumOfStagedVariablesMessage"/> request message
+        /// </summary>
+        /// <param name="message">An instance of <see cref="RequestNumOfStagedVariablesMessage"/></param>
+        public void Receive(RequestNumOfStagedVariablesMessage message)
+        {
+            message.Reply(this.VariableDeltas.Count);
+        }
+
+        /// <summary>
+        /// Recipient method for the <see cref="ClearStagedVariablesMessage"/> message.
+        /// Clears the list of deltas upon receiving this message
+        /// </summary>
+        /// <param name="_">An instance of <see cref="ClearStagedVariablesMessage"/></param>
+        public void Receive(ClearStagedVariablesMessage _)
+        {
+            this.VariableDeltas.Clear();
+            this.ClearStagedDeltasCommand.NotifyCanExecuteChanged();
         }
 
         /// <summary>

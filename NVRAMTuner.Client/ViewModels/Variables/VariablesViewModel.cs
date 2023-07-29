@@ -3,10 +3,12 @@
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
     using CommunityToolkit.Mvvm.Messaging;
+    using MahApps.Metro.Controls.Dialogs;
     using Messages;
     using Messages.Variables;
     using Models.Nvram;
     using Models.Nvram.Concrete;
+    using Resources;
     using Services.Interfaces;
     using System;
     using System.Collections.ObjectModel;
@@ -22,6 +24,11 @@
         /// Instance of <see cref="IVariableService"/>
         /// </summary>
         private readonly IVariableService variableService;
+
+        /// <summary>
+        /// Instance of <see cref="IDialogService"/>
+        /// </summary>
+        private readonly IDialogService dialogService;
 
         /// <summary>
         /// Backing field for <see cref="Variables"/>
@@ -51,11 +58,16 @@
         /// <summary>
         /// Initialises a new instance of the <see cref="VariablesViewModel"/> class
         /// </summary>
-        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
         /// <param name="variableService">An instance of <see cref="IVariableService"/></param>
-        public VariablesViewModel(IVariableService variableService, IMessenger messenger) : base(messenger)
+        /// <param name="dialogService">An instance of <see cref="IDialogService"/></param>
+        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
+        public VariablesViewModel(
+            IVariableService variableService, 
+            IDialogService dialogService,
+            IMessenger messenger) : base(messenger)
         {
             this.variableService = variableService;
+            this.dialogService = dialogService;
 
             this.Variables = new ObservableCollection<IVariable>();
             this.IsActive = true;
@@ -207,6 +219,32 @@
         /// <returns>An asynchronous <see cref="Task"/></returns>
         private async Task RefreshVariablesCommandHandlerAsync()
         {
+            // if there are any staged variables, warn the user that they will be abandoned post-refresh
+            RequestNumOfStagedVariablesMessage reqMsg = this.Messenger.Send<RequestNumOfStagedVariablesMessage>();
+            if (reqMsg.Response != 0)
+            {
+                MessageDialogResult refreshConfirmation = await this.dialogService.ShowMessageAsync(
+                    this,
+                    "Abandon staged changes?",
+                    ViewModelStrings.RefreshWhileVariablesAreStagedDialogMessage,
+                    MessageDialogStyle.AffirmativeAndNegative,
+                    new MetroDialogSettings
+                    {
+                        DefaultButtonFocus = MessageDialogResult.Affirmative,
+                        AffirmativeButtonText = "Yes, refresh", 
+                        NegativeButtonText = "Cancel"
+                    });
+
+                if (refreshConfirmation == MessageDialogResult.Affirmative)
+                {
+                    this.Messenger.Send(new ClearStagedVariablesMessage());
+                }
+                else
+                {
+                    return;
+                }
+            }
+
             IVariable previouslySelected = this.SelectedVariable;
             await this.variableService.GetNvramVariablesAsync();
 

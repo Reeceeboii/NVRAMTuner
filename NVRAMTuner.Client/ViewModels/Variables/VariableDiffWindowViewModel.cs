@@ -3,8 +3,11 @@
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Messaging;
     using Messages.Variables;
+    using Models.Enums;
     using Models.Nvram;
+    using System;
     using System.Collections.Generic;
+    using System.Text;
 
     /// <summary>
     /// ViewModel for the VariableDiff window
@@ -27,9 +30,24 @@
         private bool unifiedDiff;
 
         /// <summary>
-        /// Backing field for <see cref="DiffSplitCharacters"/>
+        /// Backing field for <see cref="SelectedDiffSplitCharacter"/>
         /// </summary>
-        private List<string> diffSplitCharacters;
+        private string selectedDiffSplitCharacter;
+
+        /// <summary>
+        /// Backing field for <see cref="OldText"/>
+        /// </summary>
+        private string oldText;
+
+        /// <summary>
+        /// Backing field for <see cref="NewText"/>
+        /// </summary>
+        private string newText;
+
+        /// <summary>
+        /// Backing field for <see cref="DelimiterEnumToStringMap"/>
+        /// </summary>
+        private Dictionary<VariableDiffDelimiter, string> delimiterEnumToStringMap;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="VariableDiffWindowViewModel"/> class
@@ -41,6 +59,18 @@
             this.SelectedStagedVariable = response.Response;
 
             this.WindowTitle = $"Diff of '{this.SelectedStagedVariable.Name}'";
+
+            this.DelimiterEnumToStringMap = new Dictionary<VariableDiffDelimiter, string>
+            {
+                { VariableDiffDelimiter.NoSplit, "No split" },
+                { VariableDiffDelimiter.Comma, "," },
+                { VariableDiffDelimiter.LessThan, "<" }
+            };
+
+            this.SelectedDiffSplitCharacter = this.DelimiterEnumToStringMap[0];
+
+            this.OldText = this.SelectedStagedVariable.OriginalValue;
+            this.NewText = this.SelectedStagedVariable.ValueDelta;
 
             this.UnifiedDiff = false;
         }
@@ -64,6 +94,24 @@
         }
 
         /// <summary>
+        /// Gets or sets the old text to display in the diff view
+        /// </summary>
+        public string OldText
+        {
+            get => this.oldText;
+            set => this.SetProperty(ref this.oldText, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the new text to display in the diff view
+        /// </summary>
+        public string NewText
+        {
+            get => this.newText;
+            set => this.SetProperty(ref this.newText, value);
+        }
+
+        /// <summary>
         /// Gets or sets a value representing whether or not the diff should be displayed in a unified fashion
         /// </summary>
         public bool UnifiedDiff
@@ -73,14 +121,50 @@
         }
 
         /// <summary>
-        /// Gets or sets a list of values that can be used to split diff values.
+        /// Gets or sets a dictionary values that can be used to split diff values.
         /// This is provided as the majority (or perhaps all) of the NVRAM values are single line
         /// values with no line breaks. This makes diffs pretty useless.
         /// </summary>
-        public List<string> DiffSplitCharacters
+        public Dictionary<VariableDiffDelimiter, string> DelimiterEnumToStringMap
         {
-            get => this.diffSplitCharacters;
-            set => this.SetProperty(ref this.diffSplitCharacters, value);
+            get => this.delimiterEnumToStringMap;
+            set => this.SetProperty(ref this.delimiterEnumToStringMap, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the currently selected diff split character
+        /// </summary>
+        public string SelectedDiffSplitCharacter
+        {
+            get => this.selectedDiffSplitCharacter;
+            set
+            {
+                if (value == this.DelimiterEnumToStringMap[VariableDiffDelimiter.NoSplit])
+                {
+                    this.OldText = this.SelectedStagedVariable.OriginalValue;
+                    this.NewText = this.SelectedStagedVariable.ValueDelta;
+                    this.SetProperty(ref this.selectedDiffSplitCharacter, value);
+                    return;
+                }
+
+                this.SetProperty(ref this.selectedDiffSplitCharacter, value);
+                
+                StringBuilder sb = new StringBuilder();
+
+                foreach (string line in this.OldText.Split(char.Parse(value)))
+                {
+                    sb.Append($"{line}{value}{Environment.NewLine}");
+                }
+                this.OldText = sb.ToString();
+
+                sb.Clear();
+
+                foreach (string line in this.NewText.Split(char.Parse(value)))
+                {
+                    sb.Append($"{line}{value}{Environment.NewLine}");
+                }
+                this.NewText = sb.ToString();
+            }
         }
     }
 }

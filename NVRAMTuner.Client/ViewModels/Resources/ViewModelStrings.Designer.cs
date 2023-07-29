@@ -79,6 +79,15 @@ namespace NVRAMTuner.Client.ViewModels.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You currently have staged variables that you have made changes to. If you refresh the list of variables from your router, your staged changes will be abandoned. Are you sure you wish to continue?.
+        /// </summary>
+        public static string RefreshWhileVariablesAreStagedDialogMessage {
+            get {
+                return ResourceManager.GetString("RefreshWhileVariablesAreStagedDialogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There are errors in the form. Click into fields for specific errors.
         /// </summary>
         public static string RouterSetupOverallFormErrorsMessage {

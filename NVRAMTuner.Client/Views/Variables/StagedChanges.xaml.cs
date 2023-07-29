@@ -2,7 +2,6 @@
 {
     using Microsoft.Extensions.DependencyInjection;
     using NVRAMTuner.Client.ViewModels.Variables;
-    using System.Diagnostics;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Input;

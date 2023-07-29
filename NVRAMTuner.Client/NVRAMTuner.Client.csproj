@@ -184,6 +184,8 @@
     <Compile Include="Messages\RouterDisconnectMessage.cs" />
     <Compile Include="Messages\Theme\ThemeChangeMessage.cs" />
     <Compile Include="Messages\Theme\ThemeRequestMessage.cs" />
+    <Compile Include="Messages\Variables\ClearStagedVariablesMessage.cs" />
+    <Compile Include="Messages\Variables\RequestNumOfStagedVariablesMessage.cs" />
     <Compile Include="Messages\Variables\RequestSelectedStagedVariableMessage.cs" />
     <Compile Include="Messages\Variables\VariablesChangedMessage.cs" />
     <Compile Include="Messages\Variables\VariableSelectedMessage.cs" />
@@ -191,6 +193,7 @@
     <Compile Include="Messages\Variables\VariablesUnstagedMessage.cs" />
     <Compile Include="Models\Enums\ApplicationTheme.cs" />
     <Compile Include="Models\Enums\DiffSplitChars.cs" />
+    <Compile Include="Models\Enums\VariableDiffDelimiter.cs" />
     <Compile Include="Models\Nvram\Concrete\CustomClientList.cs" />
     <Compile Include="Models\Nvram\IVariable.cs" />
     <Compile Include="Models\Nvram\Concrete\NcSettingConf.cs" />
