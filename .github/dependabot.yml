@@ -9,14 +9,17 @@ updates:
     directory: "/NVRAMTuner.Client"
     schedule:
       interval: "weekly"
-    assignees: "Reeceeboii"
+    assignees:
+      - "Reeceeboii"
   - package-ecosystem: "nuget"
     directory: "/NVRAMTuner.Test"
     schedule:
       interval: "weekly"
-    assignees: "Reeceeboii"
+    assignees:
+      - "Reeceeboii"
   - package-ecosystem: "pip"
     directory: "/NvramTuner.Scripts"
     schedule:
       interval: "weekly"
-    assignees: "Reeceeboii"
+    assignees:
+      - "Reeceeboii"
