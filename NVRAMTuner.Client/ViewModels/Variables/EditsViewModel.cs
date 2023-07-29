@@ -5,8 +5,8 @@
     using CommunityToolkit.Mvvm.Messaging;
     using Messages;
     using Messages.Variables;
-    using Models;
     using Models.Nvram;
+    using System;
 
     /// <summary>
     /// ViewModel for the Edits view
@@ -17,11 +17,6 @@
         /// Backing field for <see cref="SelectedVariable"/>
         /// </summary>
         private IVariable selectedVariable;
-
-        /// <summary>
-        /// Backing field for <see cref="EditableValue"/>
-        /// </summary>
-        private string editableValue;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="EditsViewModel"/> class
@@ -52,31 +47,7 @@
         public IVariable SelectedVariable
         {
             get => this.selectedVariable;
-            set
-            {
-                if (value == this.selectedVariable)
-                {
-                    return;
-                }
-
-                this.SetProperty(ref this.selectedVariable, value);
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets an editable value. This is initialised as a copy of the variable's
-        /// value so that the edits can always be rolled back to the originals pulled from the router if the user wishes
-        /// </summary>
-        public string EditableValue
-        {
-            get => this.editableValue;
-            set
-            {
-                this.SetProperty(ref this.editableValue, value);
-
-                this.RollbackChangesCommand.NotifyCanExecuteChanged();
-                this.StageChangesCommand.NotifyCanExecuteChanged();
-            }
+            set => this.SetProperty(ref this.selectedVariable, value); 
         }
 
         /// <summary>
@@ -90,8 +61,18 @@
                 return;
             }
 
+            // unsubscribe from the previous variable's published delta change event if a new (& different) selection is made
+            if (this.SelectedVariable != null && message.Value.Name != this.SelectedVariable.Name)
+            {
+                this.SelectedVariable.ValueDeltaChanged -= this.SelectedValueOnValueDeltaChanged;
+            }
+            
             this.SelectedVariable = message.Value;
-            this.EditableValue = message.Value.OriginalValue;
+            this.SelectedVariable.ValueDeltaChanged += this.SelectedValueOnValueDeltaChanged;
+
+            // initialise delta to the original value
+            this.SelectedVariable.ValueDelta = message.Value.OriginalValue;
+
             this.RollbackChangesCommand.NotifyCanExecuteChanged();
             this.StageChangesCommand.NotifyCanExecuteChanged();
         }
@@ -101,7 +82,7 @@
         /// </summary>
         private void RollbackChangesCommandHandler()
         {
-            this.EditableValue = this.SelectedVariable.OriginalValue;
+            this.SelectedVariable.ValueDelta = this.SelectedVariable.OriginalValue;
         }
 
         /// <summary>
@@ -109,11 +90,13 @@
         /// </summary>
         private void StageChangesCommandHandler()
         {
-            IVariable appliedDelta = this.selectedVariable;
-            appliedDelta.ValueDelta = this.EditableValue;
-            VariableDelta delta = new VariableDelta(this.selectedVariable, appliedDelta);
+            if (this.SelectedVariable.ValueDelta == this.SelectedVariable.OriginalValue)
+            {
+                return;
+            }
 
-            this.Messenger.Send(new VariableStagedMessage(delta));
+            this.SelectedVariable.ValueDeltaChanged -= this.SelectedValueOnValueDeltaChanged;
+            this.Messenger.Send(new VariableStagedMessage(this.SelectedVariable));
             this.Messenger.Send(new LogMessage($"Staged changes to {this.SelectedVariable.Name}"));
 
             this.SelectedVariable = null;
@@ -132,10 +115,23 @@
         {
             if (this.SelectedVariable != null)
             {
-                return this.EditableValue != this.SelectedVariable.OriginalValue;
+                return this.SelectedVariable.ValueDelta != this.SelectedVariable.OriginalValue;
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Event handler for the <see cref="IVariable.ValueDeltaChanged"/> event.
+        /// When the delta changes, we want to re-evaluate the can-execute state
+        /// of <see cref="RollbackChangesCommand"/> and <see cref="StageChangesCommand"/>
+        /// </summary>
+        /// <param name="sender">The sender of the event</param>
+        /// <param name="e">The event args</param>
+        private void SelectedValueOnValueDeltaChanged(object sender, EventArgs e)
+        {
+            this.RollbackChangesCommand.NotifyCanExecuteChanged();
+            this.StageChangesCommand.NotifyCanExecuteChanged();
         }
     }
 }

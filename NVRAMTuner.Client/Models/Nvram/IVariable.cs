@@ -1,10 +1,17 @@
 ﻿namespace NVRAMTuner.Client.Models.Nvram
 {
+    using System;
+
     /// <summary>
     /// Interface for the highest level representation of an NVRAM variable
     /// </summary>
     public interface IVariable
     {
+        /// <summary>
+        /// Event raised when the <see cref="ValueDelta"/> is changed
+        /// </summary>
+        event EventHandler ValueDeltaChanged;
+
         /// <summary>
         /// Gets or sets the variable's name
         /// </summary>

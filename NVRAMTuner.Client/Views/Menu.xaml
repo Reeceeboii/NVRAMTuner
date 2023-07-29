@@ -1,10 +1,10 @@
 ﻿<UserControl x:Class="NVRAMTuner.Client.Views.Menu"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:HomeViewModel, IsDesignTimeCreatable=False}"
              d:DesignHeight="30"
@@ -64,7 +64,7 @@
                 </MenuItem.Icon>
             </MenuItem>
             <Separator/>
-            <MenuItem Header="About" Click="AboutMenuItem_OnClick">
+            <MenuItem Header="About" Click="AboutMenuItemOnClick">
                 <MenuItem.Icon>
                     <iconPacks:PackIconMaterial Kind="Information" />
                 </MenuItem.Icon>

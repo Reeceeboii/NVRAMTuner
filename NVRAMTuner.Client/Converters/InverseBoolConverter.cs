@@ -10,14 +10,7 @@
     [ValueConversion(typeof(bool), typeof(bool))]
     public class InverseBoolConverter : IValueConverter
     {
-        /// <summary>
-        /// Converter that inverts a boolean value
-        /// </summary>
-        /// <param name="value">The value produced by the binding source.</param>
-        /// <param name="targetType">The type of the binding target property.</param>
-        /// <param name="parameter">The converter parameter to use.</param>
-        /// <param name="culture">The culture to use in the converter.</param>
-        /// <returns>A converted value. If the method returns <see langword="null" />, the valid null value is used.</returns>
+        /// <inheritdoc cref="IValueConverter.Convert"/>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
@@ -41,7 +34,7 @@
         /// <param name="parameter">The converter parameter to use.</param>
         /// <param name="culture">The culture to use in the converter.</param>
         /// <returns>A converted value. If the method returns <see langword="null" />, the valid null value is used.</returns>
-        /// <exception cref="NotImplementedException">This is not implemented</exception>
+        /// <exception cref="NotImplementedException">This is not used or implemented</exception>
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();

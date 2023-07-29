@@ -13,29 +13,32 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0">
+        <TextBlock Grid.Row="0" Margin="5" FontSize="{StaticResource MahApps.Font.Size.Dialog.Message}">
             <Run Text="Staged changes:" />
             <Run Text="{Binding VariableDeltas.Count, Mode=OneWay}" />
         </TextBlock>
 
-        <ListView Grid.Row="1" ItemsSource="{Binding VariableDeltas}">
+        <Separator Grid.Row="1" />
+
+        <ListView Grid.Row="2" ItemsSource="{Binding VariableDeltas}" SelectedItem="{Binding SelectedDelta}">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Label Content="{Binding Original.Name}" />
+                    <StackPanel x:Name="StagedVariable" MouseDown="StagedVariableOnMouseDown">
+                        <TextBlock Text="{Binding Name}" />
+                    </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
 
-        <UniformGrid Grid.Row="2" Rows="1">
-            <!--
-            <Button Command="{Binding ClearStagedDeltasCommand}" 
-                    Content="Clear staged"
-                    Margin="5" />
-            -->
+        <UniformGrid Grid.Row="3" Rows="1">
+
             <Button Margin="5"
                     Command="{Binding ClearStagedDeltasCommand}">
                 <Button.Content>

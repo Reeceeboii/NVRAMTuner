@@ -50,6 +50,7 @@
             collection.AddScoped<EditsViewModel>();
             collection.AddScoped<SettingsFlyoutViewModel>();
             collection.AddScoped<StagedChangesViewModel>();
+            collection.AddTransient<VariableDiffWindowViewModel>();
 
             this.Services = collection.BuildServiceProvider();
         }

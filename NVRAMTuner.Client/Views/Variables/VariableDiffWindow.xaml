@@ -1,0 +1,42 @@
+﻿<mah:MetroWindow x:Class="NVRAMTuner.Client.Views.Variables.VariableDiffWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:local="clr-namespace:NVRAMTuner.Client.Views.Variables"
+                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                 xmlns:vm="clr-namespace:NVRAMTuner.Client.ViewModels.Variables"
+                 xmlns:diffplex="clr-namespace:DiffPlex.Wpf.Controls;assembly=DiffPlex.Wpf"
+                 mc:Ignorable="d"
+                 d:DataContext="{d:DesignInstance Type=vm:VariableDiffWindowViewModel, IsDesignTimeCreatable=False}"
+                 Title="{Binding WindowTitle}"
+                 d:Title="Diff window for some variable..."
+                 Height="450"
+                 MinHeight="450"
+                 Width="900"
+                 MinWidth="500">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="5">
+            <Label Content="Side by side diff " />
+            <CheckBox IsChecked="{Binding UnifiedDiff}" />
+            <Label Content="Split diff string on character " />
+            <mah:SplitButton Width="50" />
+        </StackPanel>
+
+        <Separator Grid.Row="1"/>
+
+        <diffplex:DiffViewer 
+            Grid.Row="2"
+            OldText="{Binding SelectedStagedVariable.OriginalValue}"
+            OldTextHeader="Original value"
+            NewText="{Binding SelectedStagedVariable.ValueDelta}" 
+            NewTextHeader="Your changes"
+            IsSideBySide="{Binding UnifiedDiff}"/>
+    </Grid>
+</mah:MetroWindow>

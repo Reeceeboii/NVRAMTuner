@@ -83,6 +83,9 @@
         /// </summary>
         private int commandsRanAgainstTargetRouter;
 
+        /// <summary>
+        /// Backing field for <see cref="ActiveConnectionElapsedTime"/>
+        /// </summary>
         private string activeConnectionElapsedTime;
 
         /// <summary>
@@ -110,7 +113,7 @@
             this.messenger = messenger;
 
             this.networkService.CommandRan += this.NetworkServiceOnCommandRan;
-            this.networkService.ConnectionTimerSecondTick += NetworkServiceOnConnectionTimerSecondTick;
+            this.networkService.ConnectionTimerSecondTick += this.NetworkServiceOnConnectionTimerSecondTick;
 
             this.availableRouters = new ObservableCollection<Router>();
 

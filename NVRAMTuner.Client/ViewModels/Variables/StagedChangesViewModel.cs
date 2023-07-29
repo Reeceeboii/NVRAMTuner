@@ -6,7 +6,7 @@
     using MahApps.Metro.Controls.Dialogs;
     using Messages;
     using Messages.Variables;
-    using Models;
+    using Models.Nvram;
     using Resources;
     using Services.Interfaces;
     using System.Collections.ObjectModel;
@@ -16,7 +16,7 @@
     /// <summary>
     /// ViewModel for the staged changes view
     /// </summary>
-    public class StagedChangesViewModel : ObservableRecipient, IRecipient<VariableStagedMessage>
+    public class StagedChangesViewModel : ObservableRecipient
     {
         /// <summary>
         /// An instance of <see cref="IDialogService"/>
@@ -26,7 +26,12 @@
         /// <summary>
         /// Backing field for <see cref="VariableDeltas"/>
         /// </summary>
-        private ObservableCollection<VariableDelta> variableDeltas;
+        private ObservableCollection<IVariable> variableDeltas;
+
+        /// <summary>
+        /// Backing field for <see cref="SelectedDelta"/>
+        /// </summary>
+        private IVariable selectedDelta;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="StagedChangesViewModel"/> class
@@ -38,10 +43,23 @@
             this.dialogService = dialogService;
 
             this.IsActive = true;
+
             this.ClearStagedDeltasCommand = new AsyncRelayCommand(this.ClearStagedDeltasCommandHandlerAsync, 
                 () => this.VariableDeltas.Any());
 
-            this.VariableDeltas = new ObservableCollection<VariableDelta>();
+            this.VariableDeltas = new ObservableCollection<IVariable>();
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="ObservableRecipient.OnActivated"/>
+        /// </summary>
+        protected override void OnActivated()
+        {
+            this.Messenger.Register<StagedChangesViewModel, VariableStagedMessage>(
+                this, (recipient, message) => recipient.Receive(message));
+
+            this.Messenger.Register<StagedChangesViewModel, RequestSelectedStagedVariableMessage>(
+                this, (recipient, message) => this.Receive(message));
         }
 
         /// <summary>
@@ -50,24 +68,41 @@
         public IAsyncRelayCommand ClearStagedDeltasCommand { get; }
 
         /// <summary>
-        /// Gets or sets an <see cref="ObservableCollection{T}"/> of <see cref="VariableDelta"/> instances,
+        /// Gets or sets an <see cref="ObservableCollection{T}"/> of <see cref="IVariable"/> instances,
         /// representing all of the currently staged changes
         /// </summary>
-        public ObservableCollection<VariableDelta> VariableDeltas
+        public ObservableCollection<IVariable> VariableDeltas
         {
             get => this.variableDeltas;
             set => this.SetProperty(ref this.variableDeltas, value);
         }
 
         /// <summary>
-        /// Recipient method for the <see cref="VariableStagedMessage"/>
+        /// The currently selected delta from the list of staged variables
+        /// </summary>
+        public IVariable SelectedDelta
+        {
+            get => this.selectedDelta;
+            set => this.SetProperty(ref this.selectedDelta, value);
+        }
+
+        /// <summary>
+        /// Recipient method for the <see cref="VariableStagedMessage"/> message
         /// </summary>
         /// <param name="message">An instance of <see cref="VariableStagedMessage"/></param>
-        /// <exception cref="System.NotImplementedException"></exception>
         public void Receive(VariableStagedMessage message)
         {
             this.VariableDeltas.Add(message.Value);
             this.ClearStagedDeltasCommand.NotifyCanExecuteChanged();
+        }
+
+        /// <summary>
+        /// Recipient method for the <see cref="RequestSelectedStagedVariableMessage"/> message
+        /// </summary>
+        /// <param name="message">An instance of <see cref="RequestSelectedStagedVariableMessage"/></param>
+        public void Receive(RequestSelectedStagedVariableMessage message)
+        {
+            message.Reply(this.SelectedDelta);
         }
 
         /// <summary>

@@ -1,12 +1,28 @@
 ﻿namespace NVRAMTuner.Client.Models.Nvram
 {
+    using CommunityToolkit.Mvvm.ComponentModel;
     using System;
 
     /// <summary>
     /// Abstract model class representing all items that NVRAM variables share
     /// </summary>
-    public abstract class VariableBase<T> : IVariable
+    public abstract class VariableBase<T> : ObservableObject, IVariable
     {
+        /// <summary>
+        /// Backing field for <see cref="ValueDelta"/>
+        /// </summary>
+        private string valueDelta;
+
+        /// <summary>
+        /// Backing field for <see cref="SizeBytes"/>
+        /// </summary>
+        private int sizeBytes;
+
+        /// <summary>
+        /// Event raised when the <see cref="ValueDelta"/> is changed
+        /// </summary>
+        public event EventHandler ValueDeltaChanged;
+
         /// <summary>
         /// Gets or sets the variable's name
         /// </summary>
@@ -20,7 +36,16 @@
         /// <summary>
         /// Gets or sets a delta (change) applied to the original value
         /// </summary>
-        public string ValueDelta { get; set; }
+        public string ValueDelta
+        {
+            get => this.valueDelta;
+            set
+            {
+                this.SetProperty(ref this.valueDelta, value);
+                this.SizeBytes = this.valueDelta.Length;
+                this.ValueDeltaChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
 
         /// <summary>
         /// Gets or sets the variable's value
@@ -30,7 +55,11 @@
         /// <summary>
         /// Gets or sets the variable's size in bytes
         /// </summary>
-        public int SizeBytes { get; set; }
+        public int SizeBytes
+        {
+            get => this.sizeBytes;
+            set => this.SetProperty(ref this.sizeBytes, value);
+        }
 
         /// <summary>
         /// Gets or sets a description of the variable

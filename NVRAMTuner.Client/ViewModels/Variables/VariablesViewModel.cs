@@ -5,7 +5,6 @@
     using CommunityToolkit.Mvvm.Messaging;
     using Messages;
     using Messages.Variables;
-    using Models;
     using Models.Nvram;
     using Models.Nvram.Concrete;
     using Services.Interfaces;
@@ -83,6 +82,9 @@
 
             this.Messenger.Register<VariablesViewModel, VariableStagedMessage>(
                 this, (recipient, message) => this.Receive(message));
+
+            this.Messenger.Register<VariablesViewModel, VariablesUnstagedMessage>(
+                this, (recipient, message) => this.Receive(message));
         }
 
         /// <summary>
@@ -159,8 +161,8 @@
         /// <summary>
         /// Recipient method for <see cref="RouterDisconnectMessage"/> messages
         /// </summary>
-        /// <param name="message">An instance of <see cref="RouterDisconnectMessage"/></param>
-        public void Receive(RouterDisconnectMessage message)
+        /// <param name="_">An instance of <see cref="RouterDisconnectMessage"/></param>
+        public void Receive(RouterDisconnectMessage _)
         {
             this.Variables.Clear();
         }
@@ -171,8 +173,8 @@
         /// elegant solution right now. And plus my CPU is so fast I'm biased towards this
         /// not actually mattering at all. HOWEVER: TODO - performance
         /// </summary>
-        /// <param name="message">An instance of <see cref="VariableStagedMessage"/></param>
-        public void Receive(VariableStagedMessage message)
+        /// <param name="_">An instance of <see cref="VariableStagedMessage"/></param>
+        public void Receive(VariableStagedMessage _)
         {
             int indexToRemove = this.Variables.IndexOf(this.SelectedVariable);
             this.Variables.RemoveAt(indexToRemove);
@@ -193,9 +195,9 @@
         /// <param name="message">An instance of <see cref="VariablesUnstagedMessage"/></param>
         public void Receive(VariablesUnstagedMessage message)
         {
-            foreach (VariableDelta delta in message.Value)
+            foreach (IVariable delta in message.Value)
             {
-                this.Variables.Add(message.AbandonChanges ? delta.Original : delta.Delta);
+                //this.Variables.Add(message.KeepChanges ? delta.Original : delta.Delta);
             }
         }
 

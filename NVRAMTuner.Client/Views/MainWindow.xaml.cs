@@ -2,6 +2,7 @@
 {
     using MahApps.Metro.Controls;
     using Microsoft.Extensions.DependencyInjection;
+    using System.ComponentModel;
     using System.Windows;
     using ViewModels;
 

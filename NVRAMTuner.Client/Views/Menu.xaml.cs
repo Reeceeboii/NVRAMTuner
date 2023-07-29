@@ -1,10 +1,8 @@
 ﻿namespace NVRAMTuner.Client.Views
 {
     using MahApps.Metro.Controls;
-    using Microsoft.Extensions.DependencyInjection;
     using System.Windows;
     using System.Windows.Controls;
-    using ViewModels;
 
     /// <summary>
     /// Interaction logic for Menu.xaml
@@ -25,7 +23,7 @@
         /// </summary>
         /// <param name="sender">The sender of the event</param>
         /// <param name="e">Instance of <see cref="RoutedEventArgs"/></param>
-        private void AboutMenuItem_OnClick(object sender, RoutedEventArgs e)
+        private void AboutMenuItemOnClick(object sender, RoutedEventArgs e)
         {
             MetroWindow aboutWindow = new AboutWindow();
             aboutWindow.ShowDialog();

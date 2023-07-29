@@ -81,6 +81,12 @@
     <Reference Include="ControlzEx, Version=5.0.0.0, Culture=neutral, PublicKeyToken=69f1c32f803d307e, processorArchitecture=MSIL">
       <HintPath>..\packages\ControlzEx.5.0.2\lib\net462\ControlzEx.dll</HintPath>
     </Reference>
+    <Reference Include="DiffPlex, Version=1.7.1.0, Culture=neutral, PublicKeyToken=1d35e91d1bd7bc0f, processorArchitecture=MSIL">
+      <HintPath>..\packages\DiffPlex.1.7.1\lib\net40\DiffPlex.dll</HintPath>
+    </Reference>
+    <Reference Include="DiffPlex.Wpf, Version=1.4.0.0, Culture=neutral, PublicKeyToken=1d35e91d1bd7bc0f, processorArchitecture=MSIL">
+      <HintPath>..\packages\DiffPlex.Wpf.1.4.0\lib\net48\DiffPlex.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="FluentAssertions, Version=6.11.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentAssertions.6.11.0\lib\net47\FluentAssertions.dll</HintPath>
     </Reference>
@@ -181,11 +187,13 @@
     <Compile Include="Messages\RouterDisconnectMessage.cs" />
     <Compile Include="Messages\Theme\ThemeChangeMessage.cs" />
     <Compile Include="Messages\Theme\ThemeRequestMessage.cs" />
+    <Compile Include="Messages\Variables\RequestSelectedStagedVariableMessage.cs" />
     <Compile Include="Messages\Variables\VariablesChangedMessage.cs" />
     <Compile Include="Messages\Variables\VariableSelectedMessage.cs" />
     <Compile Include="Messages\Variables\VariableStagedMessage.cs" />
     <Compile Include="Messages\Variables\VariablesUnstagedMessage.cs" />
     <Compile Include="Models\Enums\ApplicationTheme.cs" />
+    <Compile Include="Models\Enums\DiffSplitChars.cs" />
     <Compile Include="Models\Nvram\Concrete\CustomClientList.cs" />
     <Compile Include="Models\Nvram\IVariable.cs" />
     <Compile Include="Models\Nvram\Concrete\NcSettingConf.cs" />
@@ -198,7 +206,6 @@
     <Compile Include="Models\SshConnectionInfo.cs" />
     <Compile Include="Models\Nvram\Concrete\NvramVariable.cs" />
     <Compile Include="Models\Nvram\Nvram.cs" />
-    <Compile Include="Models\VariableDelta.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
@@ -246,6 +253,7 @@
     <Compile Include="ViewModels\SettingsFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Variables\EditsViewModel.cs" />
     <Compile Include="ViewModels\Variables\StagedChangesViewModel.cs" />
+    <Compile Include="ViewModels\Variables\VariableDiffWindowViewModel.cs" />
     <Compile Include="ViewModels\Variables\VariablesViewModel.cs" />
     <Compile Include="Views\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
@@ -271,6 +279,9 @@
     </Compile>
     <Compile Include="Views\Variables\StagedChanges.xaml.cs">
       <DependentUpon>StagedChanges.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Variables\VariableDiffWindow.xaml.cs">
+      <DependentUpon>VariableDiffWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Variables\Variables.xaml.cs">
       <DependentUpon>Variables.xaml</DependentUpon>
@@ -329,6 +340,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Variables\StagedChanges.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Variables\VariableDiffWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -407,7 +422,12 @@
   <ItemGroup>
     <Resource Include="modem.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="License.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="DiffPlex.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\CommunityToolkit.Mvvm.8.2.1\build\netstandard2.0\CommunityToolkit.Mvvm.targets" Condition="Exists('..\packages\CommunityToolkit.Mvvm.8.2.1\build\netstandard2.0\CommunityToolkit.Mvvm.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

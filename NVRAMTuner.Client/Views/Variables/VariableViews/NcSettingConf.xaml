@@ -13,7 +13,7 @@
         <TabControl Style="{DynamicResource MahApps.Styles.TabControl.AnimatedSingleRow}"
                     mah:TabControlHelper.Underlined="TabPanel">
             <TabItem Header="Raw">
-                <TextBox TextWrapping="Wrap" Text="{Binding DataContext.EditableValue, 
+                <TextBox TextWrapping="Wrap" Text="{Binding DataContext.SelectedVariable.ValueDelta, 
                                                 ElementName=VariableContentControl,
                                                 UpdateSourceTrigger=PropertyChanged}"/>
             </TabItem>
