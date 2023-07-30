@@ -23,6 +23,13 @@ jobs:
             - name: Setup MSBuild & add to PATH
               uses: microsoft/setup-msbuild@v1.1
 
+            # https://github.com/darenm/Setup-VSTest
+            # This action sets up VSTest.console.exe as a CLI tool for use in actions by:
+            #    - optionally downloading and caching a version of VSWhere.exe to help find the latest VSTest.console.exe on the machine
+            #    - Adds the location of the VSTest.console.exe to the PATH
+            - name: Setup VSTest
+              uses: https://github.com/darenm/Setup-VSTest
+
             # https://github.com/NuGet/setup-nuget
             # This action downloads and installs a given version of NuGet.exe.
             # Using this action will add nuget to your $PATH on all operating systems, 
@@ -40,9 +47,11 @@ jobs:
             - name: NuGet package restore
               run: nuget restore NVRAMTuner.sln
 
+            # Build the Release configuration of the solution using MSBuild
             - name: Build Release configuration
               run: msbuild NVRAMTuner.sln /p:platform="Any CPU" /p:configuration="Release"
 
+            # Run the unit test .dll from NVRAMTuner's test release directory
             - name: Run unit tests
               run: vstest.console .\NVRAMTuner.Test\bin\Release\NVRAMTuner.Test.dll
               
