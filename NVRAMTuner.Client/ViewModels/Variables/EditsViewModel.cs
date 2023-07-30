@@ -71,9 +71,6 @@
             this.SelectedVariable = message.Value;
             this.SelectedVariable.ValueDeltaChanged += this.SelectedValueOnValueDeltaChanged;
 
-            // initialise delta to the original value
-            this.SelectedVariable.ValueDelta = message.Value.OriginalValue;
-
             this.RollbackChangesCommand.NotifyCanExecuteChanged();
             this.StageChangesCommand.NotifyCanExecuteChanged();
         }

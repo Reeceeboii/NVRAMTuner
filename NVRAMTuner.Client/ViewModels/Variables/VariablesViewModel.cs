@@ -210,8 +210,8 @@
         {
             foreach (IVariable delta in message.Value)
             {
-                // TODO
-                //this.Variables.Add(message.KeepChanges ? delta.Original : delta.Delta);
+                delta.ValueDelta = message.KeepChanges ? delta.ValueDelta : delta.OriginalValue;
+                this.Variables.Add(delta);
             }
         }
 
