@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Suggest a new feature for NVRAMTuner
-title: Feature
+title: 'Feature: '
 labels: enhancement
 assignees: ''
 
