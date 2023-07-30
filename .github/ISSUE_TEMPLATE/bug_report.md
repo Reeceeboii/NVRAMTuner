@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Report a bug within NVRAMTuner
-title: Bug
+title: 'Bug: '
 labels: bug
 assignees: ''
 
