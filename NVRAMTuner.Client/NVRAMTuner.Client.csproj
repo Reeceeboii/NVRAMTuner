@@ -145,7 +145,7 @@
     <Compile Include="Services\DataPersistenceService.cs" />
     <Compile Include="Services\DialogService.cs" />
     <Compile Include="Services\Wrappers\Interfaces\IMessengerService.cs" />
-    <Compile Include="Services\Wrappers\Interfaces\EnvironmentService.cs" />
+    <Compile Include="Services\Wrappers\EnvironmentService.cs" />
     <Compile Include="Services\Interfaces\IDialogService.cs" />
     <Compile Include="Services\Network\NetworkService.cs" />
     <Compile Include="Services\Network\Interfaces\INetworkService.cs" />

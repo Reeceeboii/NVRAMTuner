@@ -32,19 +32,22 @@
             collection.AddScoped<IMessenger, WeakReferenceMessenger>();
 
             // Services
-            collection.AddScoped<IProcessService, ProcessService>();
-            collection.AddScoped<IEnvironmentService, EnvironmentService>();
             collection.AddScoped<IDialogService, DialogService>();
             collection.AddScoped<INetworkService, NetworkService>();
             collection.AddScoped<IDataPersistenceService, DataPersistenceService>();
             collection.AddScoped<IDataEncryptionService, DataEncryptionService>();
-            collection.AddScoped<IWindowsSecurityService, WindowsSecurityService>();
             collection.AddScoped<IVariableService, VariableService>();
-            collection.AddSingleton<ISettingsService, SettingsService>();
+            collection.AddScoped<ISettingsService, SettingsService>();
+
+            // 'Wrapper' services
+            collection.AddScoped<IProcessService, ProcessService>();
+            collection.AddScoped<IEnvironmentService, EnvironmentService>();
+            collection.AddScoped<IWindowsSecurityService, WindowsSecurityService>();
+            collection.AddScoped<IMessengerService, MessengerService>();
 
             // ViewModels and navigation
-            collection.AddSingleton<MainWindowViewModel>();
-            collection.AddSingleton<AboutWindowViewModel>();
+            collection.AddScoped<MainWindowViewModel>();
+            collection.AddScoped<AboutWindowViewModel>();
             collection.AddScoped<HomeViewModel>();
             collection.AddScoped<LogsViewModel>();
             collection.AddTransient<RouterSetupViewModel>();

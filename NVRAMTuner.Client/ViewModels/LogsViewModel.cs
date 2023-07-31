@@ -2,10 +2,10 @@
 {
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
-    using CommunityToolkit.Mvvm.Messaging;
     using Messages;
     using Models;
     using Services.Interfaces;
+    using Services.Wrappers.Interfaces;
     using System;
     using System.Collections.ObjectModel;
     using System.Globalization;
@@ -16,7 +16,7 @@
     /// <summary>
     /// ViewModel for the logs view
     /// </summary>
-    public class LogsViewModel : ObservableRecipient, IRecipient<LogMessage>
+    public class LogsViewModel : ObservableObject
     {
         /// <summary>
         /// Instance of <see cref="IDialogService"/>
@@ -41,13 +41,13 @@
         /// <summary>
         /// Initialises a new instance of the <see cref="LogsViewModel"/> class
         /// </summary>
-        /// <param name="messenger">Instance of <see cref="IMessenger"/></param>
+        /// <param name="messengerService">Instance of <see cref="IMessengerService"/></param>
         /// <param name="dialogService">Instance of <see cref="IDialogService"/></param>
         /// <param name="dataPersistenceService">Instance of <see cref="IDataPersistenceService"/></param>
         public LogsViewModel(
-            IMessenger messenger, 
+            IMessengerService messengerService, 
             IDialogService dialogService,
-            IDataPersistenceService dataPersistenceService) : base(messenger)
+            IDataPersistenceService dataPersistenceService)
         {
             this.dialogService = dialogService;
             this.dataPersistenceService = dataPersistenceService;
@@ -59,12 +59,15 @@
 
             this.ClearLogsCommand = new RelayCommand(this.ClearLogsCommandHandler, this.ClearLogsCommandCanExecute);
             this.SaveLogsCommand = new RelayCommand(this.SaveLogsCommandHandler, this.SaveLogsCommandCanExecute);
-            this.IsActive = true;
 
             this.logEntries.CollectionChanged += (sender, args) =>
             {
                 this.UpdateApplicableCommandsBasedOnLogChanges();
             };
+
+            // register messages
+            messengerService.Register<LogsViewModel, LogMessage>(this, 
+                (recipient, message) => this.Receive(message));
         }
 
         /// <summary>

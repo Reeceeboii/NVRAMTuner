@@ -2,7 +2,6 @@
 {
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
-    using CommunityToolkit.Mvvm.Messaging;
     using Messages;
     using Models.Enums;
     using Services.Interfaces;
@@ -15,7 +14,7 @@
     /// <summary>
     /// ViewModel for the SettingsFlyout view
     /// </summary>
-    public class SettingsFlyoutViewModel : ObservableRecipient, IRecipient<OpenSettingsFlyoutMessage>
+    public class SettingsFlyoutViewModel : ObservableObject
     {
         /// <summary>
         /// An instance of <see cref="ISettingsService"/>
@@ -50,24 +49,26 @@
         /// <summary>
         /// Initialises a new instance of the <see cref="SettingsFlyoutViewModel"/> class
         /// </summary>
-        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
+        /// <param name="messengerService">An instance of <see cref="IMessengerService"/></param>
         /// <param name="settingsService">An instance of <see cref="ISettingsService"/></param>
         /// <param name="processService">An instance of <see cref="IProcessService"/></param>
         /// <param name="environmentService">An instance of <see cref="IEnvironmentService"/></param>
         /// <param name="fileSystem">An instance of <see cref="IFileSystem"/></param>
         public SettingsFlyoutViewModel(
-            IMessenger messenger, 
+            IMessengerService messengerService, 
             ISettingsService settingsService,
             IProcessService processService,
             IEnvironmentService environmentService,
-            IFileSystem fileSystem) : base(messenger)
+            IFileSystem fileSystem)
         {
             this.settingsService = settingsService;
             this.processService = processService;
             this.environmentService = environmentService;
             this.fileSystem = fileSystem;
 
-            this.IsActive = true;
+            // register messages
+            messengerService.Register<SettingsFlyoutViewModel, OpenSettingsFlyoutMessage>(this,
+                (recipient, message) => recipient.Receive(message));
 
             this.OpenSettingsFolderCommand = new RelayCommand(this.OpenSettingsFolderCommandHandler);
 

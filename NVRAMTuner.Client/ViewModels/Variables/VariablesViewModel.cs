@@ -2,7 +2,6 @@
 {
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
-    using CommunityToolkit.Mvvm.Messaging;
     using MahApps.Metro.Controls.Dialogs;
     using Messages;
     using Messages.Variables;
@@ -11,6 +10,7 @@
     using Models.Nvram.Concrete;
     using Resources;
     using Services.Interfaces;
+    using Services.Wrappers.Interfaces;
     using System;
     using System.Collections.ObjectModel;
     using System.Linq;
@@ -19,7 +19,7 @@
     /// <summary>
     /// ViewModel for the variables view
     /// </summary>
-    public class VariablesViewModel : ObservableRecipient
+    public class VariablesViewModel : ObservableObject
     {
         /// <summary>
         /// Instance of <see cref="IVariableService"/>
@@ -30,6 +30,11 @@
         /// Instance of <see cref="IDialogService"/>
         /// </summary>
         private readonly IDialogService dialogService;
+
+        /// <summary>
+        /// Instance of <see cref="IMessengerService"/>
+        /// </summary>
+        private readonly IMessengerService messengerService;
 
         /// <summary>
         /// Backing field for <see cref="Variables"/>
@@ -61,44 +66,38 @@
         /// </summary>
         /// <param name="variableService">An instance of <see cref="IVariableService"/></param>
         /// <param name="dialogService">An instance of <see cref="IDialogService"/></param>
-        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
+        /// <param name="messengerService">An instance of <see cref="IMessengerService"/></param>
         public VariablesViewModel(
             IVariableService variableService, 
             IDialogService dialogService,
-            IMessenger messenger) : base(messenger)
+            IMessengerService messengerService)
         {
             this.variableService = variableService;
             this.dialogService = dialogService;
+            this.messengerService = messengerService;
 
             this.Variables = new ObservableCollection<IVariable>();
-            this.IsActive = true;
 
             this.RefreshVariablesCommand = new AsyncRelayCommand(this.RefreshVariablesCommandHandlerAsync);
+
+            // register messages
+            this.messengerService.Register<VariablesViewModel, VariablesChangedMessage>(
+                this, (recipient, message) => this.Receive(message));
+
+            this.messengerService.Register<VariablesViewModel, RouterDisconnectMessage>(
+                this, (recipient, message) => this.Receive(message));
+
+            this.messengerService.Register<VariablesViewModel, VariableStagedMessage>(
+                this, (recipient, message) => this.Receive(message));
+
+            this.messengerService.Register<VariablesViewModel, VariablesUnstagedMessage>(
+                this, (recipient, message) => this.Receive(message));
         }
 
         /// <summary>
         /// Gets the asynchronous command used to refresh the current set of variables
         /// </summary>
         public IAsyncRelayCommand RefreshVariablesCommand { get; }
-
-        /// <summary>
-        /// Override of <see cref="ObservableRecipient.OnActivated"/>.
-        /// Handles message registration
-        /// </summary>
-        protected override void OnActivated()
-        { 
-            this.Messenger.Register<VariablesViewModel, VariablesChangedMessage>(
-                this, (recipient, message) => this.Receive(message));
-
-            this.Messenger.Register<VariablesViewModel, RouterDisconnectMessage>(
-                this, (recipient, message) => this.Receive(message));
-
-            this.Messenger.Register<VariablesViewModel, VariableStagedMessage>(
-                this, (recipient, message) => this.Receive(message));
-
-            this.Messenger.Register<VariablesViewModel, VariablesUnstagedMessage>(
-                this, (recipient, message) => this.Receive(message));
-        }
 
         /// <summary>
         /// Gets or sets an <see cref="ObservableCollection{T}"/> of <see cref="NvramVariable"/> instances
@@ -148,7 +147,7 @@
             set
             {
                 this.SetProperty(ref this.selectedVariable, value);
-                this.Messenger.Send(new VariableSelectedMessage(value));
+                this.messengerService.Send(new VariableSelectedMessage(value));
             }
         }
 
@@ -222,7 +221,7 @@
         private async Task RefreshVariablesCommandHandlerAsync()
         {
             // if there are any staged variables, warn the user that they will be abandoned post-refresh
-            RequestNumOfStagedVariablesMessage reqMsg = this.Messenger.Send<RequestNumOfStagedVariablesMessage>();
+            RequestNumOfStagedVariablesMessage reqMsg = this.messengerService.Send<RequestNumOfStagedVariablesMessage>();
             if (reqMsg.Response != 0)
             {
                 MessageDialogResult refreshConfirmation = await this.dialogService.ShowMessageAsync(
@@ -239,7 +238,7 @@
 
                 if (refreshConfirmation == MessageDialogResult.Affirmative)
                 {
-                    this.Messenger.Send(new ClearStagedVariablesMessage());
+                    this.messengerService.Send(new ClearStagedVariablesMessage());
                 }
                 else
                 {

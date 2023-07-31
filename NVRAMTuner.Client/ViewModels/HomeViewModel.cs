@@ -2,7 +2,6 @@
 {
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
-    using CommunityToolkit.Mvvm.Messaging;
     using Events;
     using MahApps.Metro.Controls.Dialogs;
     using Messages;
@@ -50,9 +49,9 @@
         private readonly IVariableService variableService;
 
         /// <summary>
-        /// Instance of <see cref="IMessenger"/>
+        /// Instance of <see cref="IMessengerService"/>
         /// </summary>
-        private readonly IMessenger messenger;
+        private readonly IMessengerService messengerService;
 
         /// <summary>
         /// Backing field for <see cref="RoutersPresent"/>
@@ -97,21 +96,21 @@
         /// <param name="dataPersistenceService">An instance of <see cref="IDataPersistenceService"/></param>
         /// <param name="processService">An instance of <see cref="IProcessService"/></param>
         /// <param name="variableService">An instance of <see cref="IVariableService"/></param>
-        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
+        /// <param name="messengerService">An instance of <see cref="IMessengerService"/></param>
         public HomeViewModel(
             INetworkService networkService,
             IDialogService dialogService, 
             IDataPersistenceService dataPersistenceService,
             IProcessService processService,
             IVariableService variableService,
-            IMessenger messenger)
+            IMessengerService messengerService)
         {
             this.networkService = networkService;
             this.dialogService = dialogService;
             this.dataPersistenceService = dataPersistenceService;
             this.processService = processService;
             this.variableService = variableService;
-            this.messenger = messenger;
+            this.messengerService = messengerService;
 
             this.networkService.CommandRan += this.NetworkServiceOnCommandRan;
             this.networkService.ConnectionTimerSecondTick += this.NetworkServiceOnConnectionTimerSecondTick;
@@ -311,7 +310,7 @@
 
                     if (setupRes == MessageDialogResult.Affirmative)
                     {
-                        this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.RouterSetupViewModel));
+                        this.messengerService.Send(new NavigationRequestMessage(NavigableViewModel.RouterSetupViewModel));
                     }
                 });
 
@@ -343,7 +342,7 @@
 
                 this.DisconnectFromTargetRouterCommand.NotifyCanExecuteChanged();
                 this.OnPropertyChanged(nameof(this.NvramTunerStatus));
-                this.messenger.Send(new RouterDisconnectMessage(this.TargetRouterForConnection));
+                this.messengerService.Send(new RouterDisconnectMessage(this.TargetRouterForConnection));
             }
 
             this.CommandsRanAgainstTargetRouter = 0;
@@ -404,7 +403,7 @@
 
                 this.IsLoading = false;
 
-                this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.RouterSetupViewModel));
+                this.messengerService.Send(new NavigationRequestMessage(NavigableViewModel.RouterSetupViewModel));
             }
         }
 
@@ -414,7 +413,7 @@
         /// <param name="theme">Member of the <see cref="ApplicationTheme"/> enumeration</param>
         private void ChangeThemeCommandHandler(ApplicationTheme theme)
         {
-            this.messenger.Send(new ThemeChangeMessage(theme));
+            this.messengerService.Send(new ThemeChangeMessage(theme));
         }
 
         /// <summary>
@@ -422,7 +421,7 @@
         /// </summary>
         private void OpenSettingsFlyoutCommandHandler()
         {
-            this.messenger.Send(new OpenSettingsFlyoutMessage());
+            this.messengerService.Send(new OpenSettingsFlyoutMessage());
         }
 
         /// <summary>

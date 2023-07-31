@@ -1,7 +1,5 @@
 ﻿namespace NVRAMTuner.Client.Services
 {
-    using CommunityToolkit.Mvvm.ComponentModel;
-    using CommunityToolkit.Mvvm.Messaging;
     using Interfaces;
     using Messages;
     using Messages.Variables;
@@ -18,16 +16,22 @@
     using System.Runtime.CompilerServices;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
+    using Wrappers.Interfaces;
 
     /// <summary>
     /// Service to handle NVRAM variable operations
     /// </summary>
-    public class VariableService : ObservableRecipient, IVariableService
+    public class VariableService : IVariableService
     {
         /// <summary>
         /// Instance of <see cref="INetworkService"/>
         /// </summary>
         private readonly INetworkService networkService;
+
+        /// <summary>
+        /// Instance of <see cref="IMessengerService"/>
+        /// </summary>
+        private readonly IMessengerService messengerService;
 
         /// <summary>
         /// Dictionary holding the descriptions and default values of the
@@ -40,10 +44,11 @@
         /// Initialises a new instance of the <see cref="VariableService"/> class
         /// </summary>
         /// <param name="networkService">An instance of <see cref="INetworkService"/></param>
-        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
-        public VariableService(INetworkService networkService, IMessenger messenger) : base(messenger)
+        /// <param name="messengerService">An instance of <see cref="IMessengerService"/></param>
+        public VariableService(INetworkService networkService, IMessengerService messengerService)
         {
             this.networkService = networkService;
+            this.messengerService = messengerService;
 
             string rawFirmwareDefaults = ServiceResources.firmwareVariableDefaults;
             JObject defaultJsonObject = JsonConvert.DeserializeObject<JObject>(rawFirmwareDefaults);
@@ -169,7 +174,7 @@
                 }
             }
 
-            this.Messenger.Send(new LogMessage($"{allVariables.Count} variables loaded from router"));
+            this.messengerService.Send(new LogMessage($"{allVariables.Count} variables loaded from router"));
 
             int totalVariableSizeBytes = allVariables.Sum(variable => variable.Name.Length + variable.OriginalValue.Length);
 
@@ -182,7 +187,7 @@
                 VariableSizeBytes = totalVariableSizeBytes
             };
 
-            this.Messenger.Send(new VariablesChangedMessage(nvram));
+            this.messengerService.Send(new VariablesChangedMessage(nvram));
             return nvram;
         }
 

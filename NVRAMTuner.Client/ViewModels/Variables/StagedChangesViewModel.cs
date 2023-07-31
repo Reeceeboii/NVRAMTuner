@@ -2,13 +2,13 @@
 {
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
-    using CommunityToolkit.Mvvm.Messaging;
     using MahApps.Metro.Controls.Dialogs;
     using Messages;
     using Messages.Variables.Staged;
     using Models.Nvram;
     using Resources;
     using Services.Interfaces;
+    using Services.Wrappers.Interfaces;
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading.Tasks;
@@ -16,10 +16,15 @@
     /// <summary>
     /// ViewModel for the staged changes view
     /// </summary>
-    public class StagedChangesViewModel : ObservableRecipient
+    public class StagedChangesViewModel : ObservableObject
     {
         /// <summary>
-        /// An instance of <see cref="IDialogService"/>
+        /// Instance of <see cref="IMessengerService"/>
+        /// </summary>
+        private readonly IMessengerService messengerService;
+
+        /// <summary>
+        /// Instance of <see cref="IDialogService"/>
         /// </summary>
         private readonly IDialogService dialogService;
 
@@ -36,35 +41,29 @@
         /// <summary>
         /// Initialises a new instance of the <see cref="StagedChangesViewModel"/> class
         /// </summary>
-        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
+        /// <param name="messengerService">An instance of <see cref="IMessengerService"/></param>
         /// <param name="dialogService">An instance of <see cref="IDialogService"/></param>
-        public StagedChangesViewModel(IMessenger messenger, IDialogService dialogService) : base(messenger)
+        public StagedChangesViewModel(IMessengerService messengerService, IDialogService dialogService)
         {
             this.dialogService = dialogService;
-
-            this.IsActive = true;
+            this.messengerService = messengerService;
 
             this.ClearStagedDeltasCommand = new AsyncRelayCommand(this.ClearStagedDeltasCommandHandlerAsync, 
                 () => this.VariableDeltas.Any());
 
             this.VariableDeltas = new ObservableCollection<IVariable>();
-        }
 
-        /// <summary>
-        /// <inheritdoc cref="ObservableRecipient.OnActivated"/>
-        /// </summary>
-        protected override void OnActivated()
-        {
-            this.Messenger.Register<StagedChangesViewModel, VariableStagedMessage>(
+            // register messages
+            this.messengerService.Register<StagedChangesViewModel, VariableStagedMessage>(
                 this, (recipient, message) => recipient.Receive(message));
 
-            this.Messenger.Register<StagedChangesViewModel, RequestSelectedStagedVariableMessage>(
+            this.messengerService.Register<StagedChangesViewModel, RequestSelectedStagedVariableMessage>(
                 this, (recipient, message) => this.Receive(message));
 
-            this.Messenger.Register<StagedChangesViewModel, ClearStagedVariablesMessage>(
-                this, (recipient, message)  => this.Receive(message));
+            this.messengerService.Register<StagedChangesViewModel, ClearStagedVariablesMessage>(
+                this, (recipient, message) => this.Receive(message));
 
-            this.Messenger.Register<StagedChangesViewModel, RequestNumOfStagedVariablesMessage>(
+            this.messengerService.Register<StagedChangesViewModel, RequestNumOfStagedVariablesMessage>(
                 this, (recipient, message) => this.Receive(message));
         }
 
@@ -157,12 +156,12 @@
             }
 
             bool keepChanges = unstageDialogResult == MessageDialogResult.Affirmative;
-            this.Messenger.Send(new VariablesUnstagedMessage(this.VariableDeltas.ToList(), keepChanges));
+            this.messengerService.Send(new VariablesUnstagedMessage(this.VariableDeltas.ToList(), keepChanges));
 
             this.VariableDeltas.Clear();
             this.ClearStagedDeltasCommand.NotifyCanExecuteChanged();
 
-            this.Messenger.Send(new LogMessage($"{staged} variable{(staged > 1 ? "s" : string.Empty)} unstaged"));
+            this.messengerService.Send(new LogMessage($"{staged} variable{(staged > 1 ? "s" : string.Empty)} unstaged"));
         }
     }
 }

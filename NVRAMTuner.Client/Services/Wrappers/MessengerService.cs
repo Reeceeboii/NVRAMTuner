@@ -29,5 +29,23 @@
         {
             return this.messenger.Send(message);
         }
+
+        /// <summary>
+        /// <inheritdoc cref="IMessenger.Send{TMessage,TToken}"/>
+        /// </summary>
+        public TMessage Send<TMessage>() where TMessage : class, new()
+        {
+            return this.messenger.Send<TMessage>();
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="IMessenger.Register{TRecipient,TMessage,TToken}"/>
+        /// </summary>
+        public void Register<TRecipient, TMessage>(TRecipient recipient, MessageHandler<TRecipient, TMessage> handler)
+            where TRecipient : class
+            where TMessage : class
+        {
+            this.messenger.Register(recipient, handler);
+        }
     }
 }

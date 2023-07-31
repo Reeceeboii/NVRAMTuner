@@ -1,13 +1,13 @@
 ﻿namespace NVRAMTuner.Client.Services
 {
-    using CommunityToolkit.Mvvm.Messaging;
+    using Interfaces;
     using Messages;
     using Messages.Theme;
     using Models.Enums;
     using Properties;
-    using Interfaces;
     using System.ComponentModel;
     using System.Configuration;
+    using Wrappers.Interfaces;
 
     /// <summary>
     /// Service to handle retrieving and storing settings
@@ -20,16 +20,17 @@
         private readonly Settings settings;
 
         /// <summary>
-        /// Instance of <see cref="IMessenger"/>
+        /// Instance of <see cref="IMessengerService"/>
         /// </summary>
-        private readonly IMessenger messenger;
+        private readonly IMessengerService messengerService;
 
         /// <summary>
         /// Initialises a new instance of the <see cref="SettingsService"/> class
         /// </summary>
-        public SettingsService(IMessenger messenger)
+        /// <param name="messengerService">An instance of <see cref="IMessengerService"/></param>
+        public SettingsService(IMessengerService messengerService)
         {
-            this.messenger = messenger;
+            this.messengerService = messengerService;
 
             this.settings = Settings.Default;
             this.settings.PropertyChanged += this.SettingsOnPropertyChanged;
@@ -49,7 +50,7 @@
                 }
 
                 this.settings.AppTheme = value;
-                this.messenger.Send(new ThemeChangeMessage(value));
+                this.messengerService.Send(new ThemeChangeMessage(value));
             }
         }
 
@@ -78,7 +79,7 @@
         private void SettingsOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             this.settings.Save();
-            this.messenger.Send(new LogMessage("Settings have been saved"));
+            this.messengerService.Send(new LogMessage("Settings have been saved"));
         }
     }
 }
