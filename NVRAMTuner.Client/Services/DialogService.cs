@@ -1,4 +1,6 @@
-﻿namespace NVRAMTuner.Client.Services
+﻿#nullable enable
+
+namespace NVRAMTuner.Client.Services
 {
     using Interfaces;
     using MahApps.Metro.Controls.Dialogs;
