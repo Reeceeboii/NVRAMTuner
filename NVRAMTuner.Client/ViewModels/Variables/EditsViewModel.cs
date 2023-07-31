@@ -48,7 +48,7 @@
         public IVariable SelectedVariable
         {
             get => this.selectedVariable;
-            set => this.SetProperty(ref this.selectedVariable, value); 
+            private set => this.SetProperty(ref this.selectedVariable, value); 
         }
 
         /// <summary>
