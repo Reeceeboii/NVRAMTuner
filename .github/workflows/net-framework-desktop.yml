@@ -1,8 +1,8 @@
 name: .NET Framework WPF build
 
 on:
-    push:
-        branches: [ master ]
+    #push: -not required for a minute
+    #    branches: [ master ]
     pull_request:
         branches: [ master ]
 
