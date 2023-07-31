@@ -7,6 +7,7 @@ namespace NVRAMTuner.Test.Services
     using Client.Services.Interfaces;
     using Client.Services.Network;
     using Client.Services.Network.Interfaces;
+    using Client.Services.Wrappers.Interfaces;
     using CommunityToolkit.Mvvm.Messaging;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;

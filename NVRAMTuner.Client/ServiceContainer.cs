@@ -7,6 +7,8 @@
     using Services.Interfaces;
     using Services.Network;
     using Services.Network.Interfaces;
+    using Services.Wrappers;
+    using Services.Wrappers.Interfaces;
     using System;
     using System.IO.Abstractions;
     using ViewModels;

@@ -1,13 +1,11 @@
-﻿
-#nullable enable
-
-namespace NVRAMTuner.Client.Services
+﻿namespace NVRAMTuner.Client.Services
 {
     using Interfaces;
     using MahApps.Metro.Controls.Dialogs;
     using Ookii.Dialogs.Wpf;
     using System;
     using System.Threading.Tasks;
+    using Wrappers.Interfaces;
 
     /// <summary>
     /// Service class for handling any dialogs that are displayed to the user

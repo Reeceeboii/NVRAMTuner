@@ -6,6 +6,7 @@
     using Messages;
     using Models.Enums;
     using Services.Interfaces;
+    using Services.Wrappers.Interfaces;
     using System;
     using System.Collections.Generic;
     using System.IO.Abstractions;

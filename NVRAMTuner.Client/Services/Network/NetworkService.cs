@@ -18,6 +18,7 @@ namespace NVRAMTuner.Client.Services.Network
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Wrappers.Interfaces;
 
     /// <summary>
     /// An implementation of a service for handling various network related operations

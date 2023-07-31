@@ -1,11 +1,11 @@
 ﻿namespace NVRAMTuner.Client.Services
 {
     using CommunityToolkit.Mvvm.Messaging;
-    using Interfaces;
     using Messages;
     using Messages.Theme;
     using Models.Enums;
     using Properties;
+    using Interfaces;
     using System.ComponentModel;
     using System.Configuration;
 

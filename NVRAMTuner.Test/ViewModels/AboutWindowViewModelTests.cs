@@ -2,7 +2,7 @@
 
 namespace NVRAMTuner.Test.ViewModels
 {
-    using Client.Services.Interfaces;
+    using Client.Services.Wrappers.Interfaces;
     using Client.ViewModels;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;

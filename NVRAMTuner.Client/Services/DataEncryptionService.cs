@@ -6,6 +6,7 @@
     using System.Security.Cryptography;
     using System.Security.Principal;
     using System.Text;
+    using Wrappers.Interfaces;
 
     /// <summary>
     /// Provides the ability to encrypt/decrypt data using the Windows Data Protection API (DPAPI)

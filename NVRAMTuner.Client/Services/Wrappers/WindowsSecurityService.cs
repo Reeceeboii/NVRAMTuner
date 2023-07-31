@@ -1,4 +1,4 @@
-﻿namespace NVRAMTuner.Client.Services
+﻿namespace NVRAMTuner.Client.Services.Wrappers
 {
     using Interfaces;
     using System.Security.Principal;

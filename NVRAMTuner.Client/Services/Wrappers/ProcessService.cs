@@ -1,12 +1,13 @@
-﻿namespace NVRAMTuner.Client.Services.Interfaces
+﻿namespace NVRAMTuner.Client.Services.Wrappers
 {
+    using Interfaces;
     using System.Diagnostics;
 
     /// <summary>
-    /// Interface for a service that wraps around <see cref="System.Diagnostics.Process"/> to
-    /// allow dependency injection and unit testing.
+    /// Service class for managing interactions with external processes.
+    /// Acts as a wrapper around the <see cref="System.Diagnostics.Process"/> class
     /// </summary>
-    public interface IProcessService
+    public class ProcessService : IProcessService
     {
         /// <summary>
         /// Wrapper around <see cref="Process.Start(string, string)"/> to allow dependency injection
@@ -20,7 +21,10 @@
         /// <param name="fileName">The filename of the external process to start</param>
         /// <param name="arguments">The arguments pass</param>
         /// <returns>A new <see cref="Process"/> instance</returns>
-        Process Start(string fileName, string arguments);
+        public Process Start(string fileName, string arguments)
+        {
+            return Process.Start(fileName, arguments);
+        }
 
         /// <summary>
         /// Wrapper around <see cref="Process.Start(string)"/> to allow dependency injection
@@ -32,6 +36,9 @@
         /// </summary>
         /// <param name="fileName">The filename of the external process to start</param>
         /// <returns>A new <see cref="Process"/> instance</returns>
-        Process Start(string fileName);
+        public Process Start(string fileName)
+        {
+            return Process.Start(fileName);
+        }
     }
 }

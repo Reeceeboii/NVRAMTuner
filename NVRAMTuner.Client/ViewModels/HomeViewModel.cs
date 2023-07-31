@@ -12,6 +12,7 @@
     using Resources;
     using Services.Interfaces;
     using Services.Network.Interfaces;
+    using Services.Wrappers.Interfaces;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;

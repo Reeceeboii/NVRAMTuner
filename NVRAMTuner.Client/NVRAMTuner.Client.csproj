@@ -144,14 +144,14 @@
     <Compile Include="Services\DataEncryptionService.cs" />
     <Compile Include="Services\DataPersistenceService.cs" />
     <Compile Include="Services\DialogService.cs" />
-    <Compile Include="Services\EnvironmentService.cs" />
+    <Compile Include="Services\Wrappers\Interfaces\EnvironmentService.cs" />
     <Compile Include="Services\Interfaces\IDialogService.cs" />
     <Compile Include="Services\Network\NetworkService.cs" />
     <Compile Include="Services\Network\Interfaces\INetworkService.cs" />
     <Compile Include="Services\Interfaces\IDataPersistenceService.cs" />
     <Compile Include="Services\Interfaces\IDataEncryptionService.cs" />
-    <Compile Include="Services\Interfaces\IEnvironmentService.cs" />
-    <Compile Include="Services\Interfaces\IWindowsSecurityService.cs" />
+    <Compile Include="Services\Wrappers\Interfaces\IEnvironmentService.cs" />
+    <Compile Include="Services\Wrappers\Interfaces\IWindowsSecurityService.cs" />
     <Compile Include="Services\Interfaces\IVariableService.cs" />
     <Compile Include="Services\Interfaces\ISettingsService.cs" />
     <Compile Include="Services\Resources\ServiceResources.Designer.cs">
@@ -166,7 +166,7 @@
     </Compile>
     <Compile Include="Services\SettingsService.cs" />
     <Compile Include="Services\VariableService.cs" />
-    <Compile Include="Services\WindowsSecurityService.cs" />
+    <Compile Include="Services\Wrappers\WindowsSecurityService.cs" />
     <Compile Include="Utils\ApplicationThemes.cs" />
     <Compile Include="Utils\StringUtils.cs" />
     <Compile Include="Validators\ValidIpv4AddressAttribute.cs" />
@@ -246,8 +246,8 @@
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="ServiceContainer.cs" />
-    <Compile Include="Services\Interfaces\IProcessService.cs" />
-    <Compile Include="Services\ProcessService.cs" />
+    <Compile Include="Services\Wrappers\Interfaces\IProcessService.cs" />
+    <Compile Include="Services\Wrappers\ProcessService.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="Views\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -388,6 +388,7 @@
       <Version>19.2.29</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Release (

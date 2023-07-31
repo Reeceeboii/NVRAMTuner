@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace NVRAMTuner.Client.Services
+﻿namespace NVRAMTuner.Client.Services
 {
     using CommunityToolkit.Mvvm.Messaging;
     using Interfaces;
@@ -15,6 +13,7 @@ namespace NVRAMTuner.Client.Services
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Serialization;
+    using Wrappers.Interfaces;
 
     /// <summary>
     /// A service class for handling data persistence required by NVRAMTuner
