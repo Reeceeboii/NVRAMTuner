@@ -57,6 +57,7 @@
     <Compile Include="Services\NetworkServiceTests.cs" />
     <Compile Include="ViewModels\AboutWindowViewModelTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\Variables\EditsViewModelTests.cs" />
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
@@ -85,6 +86,7 @@
       <Version>19.2.29</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
