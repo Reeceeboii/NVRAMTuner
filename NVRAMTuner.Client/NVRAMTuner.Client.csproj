@@ -144,6 +144,7 @@
     <Compile Include="Services\DataEncryptionService.cs" />
     <Compile Include="Services\DataPersistenceService.cs" />
     <Compile Include="Services\DialogService.cs" />
+    <Compile Include="Services\Wrappers\Interfaces\IMessengerService.cs" />
     <Compile Include="Services\Wrappers\Interfaces\EnvironmentService.cs" />
     <Compile Include="Services\Interfaces\IDialogService.cs" />
     <Compile Include="Services\Network\NetworkService.cs" />
@@ -166,6 +167,7 @@
     </Compile>
     <Compile Include="Services\SettingsService.cs" />
     <Compile Include="Services\VariableService.cs" />
+    <Compile Include="Services\Wrappers\MessengerService.cs" />
     <Compile Include="Services\Wrappers\WindowsSecurityService.cs" />
     <Compile Include="Utils\ApplicationThemes.cs" />
     <Compile Include="Utils\StringUtils.cs" />
