@@ -39,6 +39,7 @@ namespace NVRAMTuner.Test.Services
 
         /// <summary>
         /// Mock <see cref="IMessenger"/> used by the tests
+        /// TODO - convert to wrapper: https://github.com/Reeceeboii/NVRAMTuner/issues/25
         /// </summary>
         private Mock<IMessenger> mockMessenger;
 

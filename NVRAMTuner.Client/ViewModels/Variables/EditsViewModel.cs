@@ -64,7 +64,7 @@
         /// Recipient method for <see cref="VariableSelectedMessage"/> instances
         /// </summary>
         /// <param name="message">Instance of <see cref="VariableSelectedMessage"/></param>
-        public void Receive(VariableSelectedMessage message)
+        private void Receive(VariableSelectedMessage message)
         {
             if (message.Value == null)
             {
