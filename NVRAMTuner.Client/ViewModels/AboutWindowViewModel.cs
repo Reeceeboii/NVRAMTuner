@@ -2,8 +2,7 @@
 {
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
-    using Services;
-    using Services.Interfaces;
+    using Services.Wrappers.Interfaces;
     using System;
     using System.Windows.Input;
 

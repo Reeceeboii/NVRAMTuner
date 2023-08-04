@@ -1,8 +1,5 @@
-﻿#nullable enable
-
-namespace NVRAMTuner.Client.Services
+﻿namespace NVRAMTuner.Client.Services
 {
-    using CommunityToolkit.Mvvm.Messaging;
     using Interfaces;
     using Messages;
     using Models;
@@ -15,6 +12,7 @@ namespace NVRAMTuner.Client.Services
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Serialization;
+    using Wrappers.Interfaces;
 
     /// <summary>
     /// A service class for handling data persistence required by NVRAMTuner
@@ -37,9 +35,9 @@ namespace NVRAMTuner.Client.Services
         private readonly IFileSystem fileSystem;
 
         /// <summary>
-        /// Instance of <see cref="IMessenger"/>
+        /// Instance of <see cref="IMessengerService"/>
         /// </summary>
-        private readonly IMessenger messenger;
+        private readonly IMessengerService messengerService;
 
         /// <summary>
         /// File extension to be used by NVRAMTuner for any binary <see cref="Router"/> files it creates.
@@ -58,17 +56,17 @@ namespace NVRAMTuner.Client.Services
         /// <param name="dataEncryptionService">An instance of <see cref="IDataEncryptionService"/></param>
         /// <param name="environmentService">An instance of <see cref="IEnvironmentService"/></param>
         /// <param name="fileSystem">An instance of <see cref="IFileSystem"/></param>
-        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
+        /// <param name="messengerService">An instance of <see cref="IMessengerService"/></param>
         public DataPersistenceService(
             IDataEncryptionService dataEncryptionService,
             IEnvironmentService environmentService,
             IFileSystem fileSystem,
-            IMessenger messenger)
+            IMessengerService messengerService)
         {
             this.dataEncryptionService = dataEncryptionService;
             this.environmentService = environmentService;
             this.fileSystem = fileSystem;
-            this.messenger = messenger;
+            this.messengerService = messengerService;
 
             this.routerSerialiser = new XmlSerializer(typeof(Router));
         }
@@ -101,7 +99,7 @@ namespace NVRAMTuner.Client.Services
             byte[] encryptedRouter = this.dataEncryptionService.EncryptData(Encoding.UTF8.GetBytes(serialisedRouter));
             this.fileSystem.File.WriteAllBytes(serialiseTarget, encryptedRouter);
 
-            this.messenger.Send(new LogMessage($"Router \"{router.RouterNickname}\" has been saved"));
+            this.messengerService.Send(new LogMessage($"Router \"{router.RouterNickname}\" has been saved"));
         }
 
         /// <summary>
@@ -147,7 +145,7 @@ namespace NVRAMTuner.Client.Services
                 routers.Add(router);
             }
 
-            this.messenger.Send(new LogMessage($"{routers.Count} previously saved routers are valid and have been loaded"));
+            this.messengerService.Send(new LogMessage($"{routers.Count} previously saved routers are valid and have been loaded"));
 
             return routers;
         }

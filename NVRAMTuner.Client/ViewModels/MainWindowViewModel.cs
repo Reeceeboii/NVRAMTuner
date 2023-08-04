@@ -1,12 +1,12 @@
 ﻿namespace NVRAMTuner.Client.ViewModels
 {
     using CommunityToolkit.Mvvm.ComponentModel;
-    using CommunityToolkit.Mvvm.Messaging;
     using ControlzEx.Theming;
     using Messages;
     using Messages.Theme;
     using Models.Enums;
     using Services.Interfaces;
+    using Services.Wrappers.Interfaces;
     using System.ComponentModel;
     using System.Threading.Tasks;
     using System.Windows;
@@ -19,12 +19,12 @@
     ///
     /// Also, any high level errors send via <see cref="DialogErrorMessage"/>s are sent here.
     /// </summary>
-    public class MainWindowViewModel : ObservableRecipient
+    public class MainWindowViewModel : ObservableObject
     {
         /// <summary>
-        /// The currently visible ViewModel. This is changed in response to navigation events.
+        /// Instance of <see cref="IMessengerService"/>
         /// </summary>
-        private ObservableObject currentViewModel;
+        private readonly IMessengerService messengerService;
 
         /// <summary>
         /// Instance of <see cref="IDialogService"/>
@@ -35,6 +35,11 @@
         /// Instance of <see cref="ISettingsService"/>
         /// </summary>
         private readonly ISettingsService settingsService;
+
+        /// <summary>
+        /// The currently visible ViewModel. This is changed in response to navigation events.
+        /// </summary>
+        private ObservableObject currentViewModel;
 
         /// <summary>
         /// Instance of <see cref="HomeViewModel"/>
@@ -55,18 +60,19 @@
         /// <summary>
         /// Initialises a new instance of the <see cref="MainWindowViewModel"/> class
         /// </summary>
-        /// <param name="messenger">Instance of <see cref="IMessenger"/></param>
+        /// <param name="messengerService">Instance of <see cref="IMessengerService"/></param>
         /// <param name="dialogService">Instance of <see cref="IDialogService"/></param>
         /// <param name="settingsService">Instance of <see cref="ISettingsService"/></param>
         /// <param name="homeViewModel">Instance of <see cref="HomeViewModel"/></param>
         /// <param name="routerSetupViewModel">Instance of <see cref="RouterSetupViewModel"/></param>
         public MainWindowViewModel(
-            IMessenger messenger,
+            IMessengerService messengerService,
             IDialogService dialogService,
             ISettingsService settingsService,
             HomeViewModel homeViewModel,
-            RouterSetupViewModel routerSetupViewModel) : base(messenger)
+            RouterSetupViewModel routerSetupViewModel)
         {
+            this.messengerService = messengerService;
             this.dialogService = dialogService;
             this.settingsService = settingsService;
 
@@ -74,7 +80,18 @@
             this.routerSetupViewModel = routerSetupViewModel;
             this.CurrentViewModel = this.homeViewModel;
 
-            this.IsActive = true;
+            // register messages
+            this.messengerService.Register<MainWindowViewModel, NavigationRequestMessage>(this,
+                (recipient, message) => recipient.Receive(message));
+
+            this.messengerService.Register<MainWindowViewModel, DialogErrorMessage>(this,
+                (recipient, message) => recipient.Receive(message));
+
+            this.messengerService.Register<MainWindowViewModel, ThemeChangeMessage>(this,
+                (recipient, message) => recipient.Receive(message));
+
+            this.messengerService.Register<MainWindowViewModel, ThemeRequestMessage>(this,
+                (recipient, message) => recipient.Receive(message));
 
             // sync the application's theme to the host OS by default
             this.currentApplicationTheme = this.settingsService.ApplicationTheme;
@@ -90,24 +107,6 @@
         {
             get => this.currentViewModel;
             set => this.SetProperty(ref this.currentViewModel, value);
-        }
-
-        /// <summary>
-        /// <inheritdoc cref="ObservableRecipient.OnActivated"/>
-        /// </summary>
-        protected override void OnActivated()
-        {
-            this.Messenger.Register<MainWindowViewModel, NavigationRequestMessage>(this, 
-                (recipient, message) => recipient.Receive(message));
-
-            this.Messenger.Register<MainWindowViewModel, DialogErrorMessage>(this,
-                (recipient, message) => recipient.Receive(message));
-
-            this.Messenger.Register<MainWindowViewModel, ThemeChangeMessage>(this,
-                (recipient, message) => recipient.Receive(message));
-
-            this.Messenger.Register<MainWindowViewModel, ThemeRequestMessage>(this,
-                (recipient, message) => recipient.Receive(message));
         }
 
         /// <summary>
@@ -153,7 +152,7 @@
                 return;
             }
 
-            this.Messenger.Send(new LogMessage($"Theme changed to: {message.Value}"));
+            this.messengerService.Send(new LogMessage($"Theme changed to: {message.Value}"));
          
             this.currentApplicationTheme = message.Value;
             this.SetAndSyncAppTheme();

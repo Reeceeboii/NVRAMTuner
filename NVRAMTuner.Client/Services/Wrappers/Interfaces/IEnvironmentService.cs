@@ -1,4 +1,4 @@
-﻿namespace NVRAMTuner.Client.Services.Interfaces
+﻿namespace NVRAMTuner.Client.Services.Wrappers.Interfaces
 {
     using System;
 

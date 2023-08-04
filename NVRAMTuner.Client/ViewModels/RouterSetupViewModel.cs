@@ -4,7 +4,6 @@ namespace NVRAMTuner.Client.ViewModels
 {
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
-    using CommunityToolkit.Mvvm.Messaging;
     using MahApps.Metro.Controls.Dialogs;
     using Messages;
     using Models;
@@ -13,6 +12,7 @@ namespace NVRAMTuner.Client.ViewModels
     using Services.Interfaces;
     using Services.Network;
     using Services.Network.Interfaces;
+    using Services.Wrappers.Interfaces;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
@@ -43,9 +43,9 @@ namespace NVRAMTuner.Client.ViewModels
         private readonly IDataPersistenceService dataPersistenceService;
 
         /// <summary>
-        /// Instance of <see cref="IMessenger"/>
+        /// Instance of <see cref="IMessengerService"/>
         /// </summary>
-        private readonly IMessenger messenger;
+        private readonly IMessengerService messengerService;
 
         /// <summary>
         /// Backing field for <see cref="RouterIpv4Address"/>
@@ -103,17 +103,17 @@ namespace NVRAMTuner.Client.ViewModels
         /// <param name="networkService">An instance of <see cref="INetworkService"/></param>
         /// <param name="dialogService">An instance of <see cref="IDialogService"/></param>
         /// <param name="dataPersistenceService">An instance of <see cref="IDataPersistenceService"/></param>
-        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
+        /// <param name="messengerService">An instance of <see cref="IMessengerService"/></param>
         public RouterSetupViewModel(
             INetworkService networkService,
             IDialogService dialogService,
             IDataPersistenceService dataPersistenceService,
-            IMessenger messenger)
+            IMessengerService messengerService)
         {
             this.networkService = networkService;
             this.dialogService = dialogService;
             this.dataPersistenceService = dataPersistenceService;
-            this.messenger = messenger;
+            this.messengerService = messengerService;
 
             this.routerIpv4Address = string.Empty;
             this.sshPort = string.Empty;
@@ -141,7 +141,7 @@ namespace NVRAMTuner.Client.ViewModels
             this.VerifyRouterDetailsCommandAsync = new AsyncRelayCommand(this.VerifyRouterDetailsCommandHandlerAsync);
             this.ExitSetupCommandAsync = new AsyncRelayCommand(this.ExitSetupCommandHandlerAsync);
 
-            this.messenger.Send(new LogMessage("Entered router setup process"));
+            this.messengerService.Send(new LogMessage("Entered router setup process"));
         }
 
         /// <summary>
@@ -452,7 +452,7 @@ namespace NVRAMTuner.Client.ViewModels
                         if (verifySuccessChoice == MessageDialogResult.Affirmative)
                         {
                             await this.dataPersistenceService.SerialiseRouterToEncryptedFileAsync(router);
-                            this.messenger.Send(
+                            this.messengerService.Send(
                                 new NavigationRequestMessage(NavigableViewModel.HomeViewModel));
                         }
                     }
@@ -494,8 +494,8 @@ namespace NVRAMTuner.Client.ViewModels
 
             if (userExitChoice == MessageDialogResult.Affirmative)
             {
-                this.messenger.Send(new LogMessage("Exited router setup process"));
-                this.messenger.Send(new NavigationRequestMessage(NavigableViewModel.HomeViewModel));
+                this.messengerService.Send(new LogMessage("Exited router setup process"));
+                this.messengerService.Send(new NavigationRequestMessage(NavigableViewModel.HomeViewModel));
             }
         }
 

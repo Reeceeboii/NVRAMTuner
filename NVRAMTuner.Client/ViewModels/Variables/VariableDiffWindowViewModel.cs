@@ -5,6 +5,7 @@
     using Messages.Variables.Staged;
     using Models.Enums;
     using Models.Nvram;
+    using Services.Wrappers.Interfaces;
     using System;
     using System.Collections.Generic;
     using System.Text;
@@ -12,7 +13,7 @@
     /// <summary>
     /// ViewModel for the VariableDiff window
     /// </summary>
-    public class VariableDiffWindowViewModel : ObservableRecipient
+    public class VariableDiffWindowViewModel : ObservableObject
     {
         /// <summary>
         /// Backing field for <see cref="WindowTitle"/>
@@ -52,10 +53,11 @@
         /// <summary>
         /// Initialises a new instance of the <see cref="VariableDiffWindowViewModel"/> class
         /// </summary>
-        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
-        public VariableDiffWindowViewModel(IMessenger messenger) : base(messenger)
+        /// <param name="messengerService">An instance of <see cref="IMessengerService"/></param>
+        public VariableDiffWindowViewModel(IMessengerService messengerService)
         {
-            RequestSelectedStagedVariableMessage response = this.Messenger.Send<RequestSelectedStagedVariableMessage>();
+            WeakReferenceMessenger.Default.Send<RequestSelectedStagedVariableMessage>();
+            RequestSelectedStagedVariableMessage response = messengerService.Send<RequestSelectedStagedVariableMessage>();
             this.SelectedStagedVariable = response.Response;
 
             this.WindowTitle = $"Diff of '{this.SelectedStagedVariable.Name}'";
@@ -151,7 +153,7 @@
                 
                 StringBuilder sb = new StringBuilder();
 
-                // TODO - these are slightly scuffed. They add new blank lines for no reason
+                // TODO - https://github.com/Reeceeboii/NVRAMTuner/issues/33
                 foreach (string line in this.OldText.Split(char.Parse(value)))
                 {
                     sb.Append($"{line}{Environment.NewLine}");

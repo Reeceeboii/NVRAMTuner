@@ -7,6 +7,7 @@ namespace NVRAMTuner.Test.Services
     using Client.Services.Interfaces;
     using Client.Services.Network;
     using Client.Services.Network.Interfaces;
+    using Client.Services.Wrappers.Interfaces;
     using CommunityToolkit.Mvvm.Messaging;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -38,6 +39,7 @@ namespace NVRAMTuner.Test.Services
 
         /// <summary>
         /// Mock <see cref="IMessenger"/> used by the tests
+        /// TODO - convert to wrapper: https://github.com/Reeceeboii/NVRAMTuner/issues/25
         /// </summary>
         private Mock<IMessenger> mockMessenger;
 

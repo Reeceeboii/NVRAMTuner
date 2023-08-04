@@ -2,17 +2,17 @@
 {
     using CommunityToolkit.Mvvm.ComponentModel;
     using CommunityToolkit.Mvvm.Input;
-    using CommunityToolkit.Mvvm.Messaging;
     using Messages;
     using Messages.Variables;
     using Messages.Variables.Staged;
     using Models.Nvram;
+    using Services.Wrappers.Interfaces;
     using System;
 
     /// <summary>
     /// ViewModel for the Edits view
     /// </summary>
-    public class EditsViewModel : ObservableRecipient, IRecipient<VariableSelectedMessage>
+    public class EditsViewModel : ObservableObject
     {
         /// <summary>
         /// Backing field for <see cref="SelectedVariable"/>
@@ -20,15 +20,24 @@
         private IVariable selectedVariable;
 
         /// <summary>
+        /// Instance of <see cref="IMessengerService"/>
+        /// </summary>
+        private readonly IMessengerService messengerService;
+
+        /// <summary>
         /// Initialises a new instance of the <see cref="EditsViewModel"/> class
         /// </summary>
-        /// <param name="messenger">Instance of <see cref="IMessenger"/></param>
-        public EditsViewModel(IMessenger messenger) : base(messenger)
+        /// <param name="messengerService">Instance of <see cref="IMessengerService"/></param>
+        public EditsViewModel(IMessengerService messengerService)
         {
-            this.IsActive = true;
+            this.messengerService = messengerService;
 
             this.RollbackChangesCommand = new RelayCommand(this.RollbackChangesCommandHandler, this.RollbackOrStageCommandCanExecute);
             this.StageChangesCommand = new RelayCommand(this.StageChangesCommandHandler, this.RollbackOrStageCommandCanExecute);
+
+            // register messages
+            this.messengerService.Register<EditsViewModel, VariableSelectedMessage>(this, 
+                (recipient, message) => this.Receive(message));
         }
 
         /// <summary>
@@ -55,7 +64,7 @@
         /// Recipient method for <see cref="VariableSelectedMessage"/> instances
         /// </summary>
         /// <param name="message">Instance of <see cref="VariableSelectedMessage"/></param>
-        public void Receive(VariableSelectedMessage message)
+        private void Receive(VariableSelectedMessage message)
         {
             if (message.Value == null)
             {
@@ -94,8 +103,9 @@
             }
 
             this.SelectedVariable.ValueDeltaChanged -= this.SelectedValueOnValueDeltaChanged;
-            this.Messenger.Send(new VariableStagedMessage(this.SelectedVariable));
-            this.Messenger.Send(new LogMessage($"Staged changes to {this.SelectedVariable.Name}"));
+
+            this.messengerService.Send(new VariableStagedMessage(this.SelectedVariable));
+            this.messengerService.Send(new LogMessage($"Staged changes to {this.SelectedVariable.Name}"));
 
             this.SelectedVariable = null;
             this.RollbackChangesCommand.NotifyCanExecuteChanged();
