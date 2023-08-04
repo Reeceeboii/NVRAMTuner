@@ -14,7 +14,7 @@
         private readonly IMessenger messenger;
 
         /// <summary>
-        /// Initialises a new instance of the <see cref="MessengerService"/> class
+        /// Initialises a new instance of the <see cref="MessengerService"/> class.
         /// </summary>
         /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
         public MessengerService(IMessenger messenger)
