@@ -31,6 +31,11 @@
         private readonly IDialogService dialogService;
 
         /// <summary>
+        /// Instance of <see cref="INetworkService"/>
+        /// </summary>
+        private readonly INetworkService networkService;
+
+        /// <summary>
         /// Backing field for <see cref="VariableDeltas"/>
         /// </summary>
         private ObservableCollection<IVariable> variableDeltas;
@@ -60,10 +65,15 @@
         /// </summary>
         /// <param name="messengerService">An instance of <see cref="IMessengerService"/></param>
         /// <param name="dialogService">An instance of <see cref="IDialogService"/></param>
-        public StagedChangesViewModel(IMessengerService messengerService, IDialogService dialogService)
+        /// <param name="networkService">An instance of <see cref="INetworkService"/></param>
+        public StagedChangesViewModel(
+            IMessengerService messengerService,
+            IDialogService dialogService,
+            INetworkService networkService)
         {
-            this.dialogService = dialogService;
             this.messengerService = messengerService;
+            this.dialogService = dialogService;
+            this.networkService = networkService;
 
             this.ClearStagedDeltasCommand = new AsyncRelayCommand(this.ClearStagedDeltasCommandHandlerAsync, 
                 () => this.VariableDeltas.Any());

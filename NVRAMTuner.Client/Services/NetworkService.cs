@@ -2,21 +2,23 @@
 
 namespace NVRAMTuner.Client.Services
 {
-    using CommunityToolkit.Mvvm.Messaging;
     using Events;
     using Interfaces;
     using Messages;
     using Models;
     using Models.Enums;
+    using Models.Nvram;
     using Renci.SshNet;
     using Renci.SshNet.Common;
     using Resources;
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.IO.Abstractions;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using ViewModels.Variables;
     using Wrappers.Interfaces;
 
     /// <summary>
@@ -36,9 +38,9 @@ namespace NVRAMTuner.Client.Services
         private readonly IEnvironmentService environmentService;
 
         /// <summary>
-        /// An instance of <see cref="IMessenger"/>
+        /// An instance of <see cref="IMessengerService"/>
         /// </summary>
-        private readonly IMessenger messenger;
+        private readonly IMessengerService messengerService;
 
         /// <summary>
         /// An instance of <see cref="ISettingsService"/>
@@ -72,17 +74,17 @@ namespace NVRAMTuner.Client.Services
         /// </summary>
         /// <param name="fileSystem">An instance of <see cref="IFileSystem"/></param>
         /// <param name="environmentService">An instance of <see cref="IEnvironmentService"/></param>
-        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
+        /// <param name="messengerService">An instance of <see cref="IMessengerService"/></param>
         /// <param name="settingsService">An instance of <see cref="ISettingsService"/></param>
         public NetworkService(
             IFileSystem fileSystem,
             IEnvironmentService environmentService,
-            IMessenger messenger,
+            IMessengerService messengerService,
             ISettingsService settingsService)
         {
             this.fileSystem = fileSystem;
             this.environmentService = environmentService;
-            this.messenger = messenger;
+            this.messengerService = messengerService;
             this.settingsService = settingsService;
 
             this.activeConnectionTimer = new Timer(
@@ -207,7 +209,7 @@ namespace NVRAMTuner.Client.Services
 
                 if (!this.fileSystem.File.Exists(privateKeyPath))
                 {
-                    this.messenger.Send(new LogMessage("Private SSH key not found"));
+                    this.messengerService.Send(new LogMessage("Private SSH key not found"));
                     throw new FileNotFoundException("Private SSH key not found", privateKeyPath);
                 }
 
@@ -230,7 +232,7 @@ namespace NVRAMTuner.Client.Services
                     {
                         Tuple<string, string> tempHnAndOs = await this.GetRouterHostnameAndOs(tempClient);
 
-                        this.messenger.Send(new LogMessage($"Connected successfully to {tempHnAndOs.Item1} using temporary client. Disconnecting..."));
+                        this.messengerService.Send(new LogMessage($"Connected successfully to {tempHnAndOs.Item1} using temporary client. Disconnecting..."));
 
                         tempClient.Disconnect();
 
@@ -245,7 +247,7 @@ namespace NVRAMTuner.Client.Services
                     tempClient.Disconnect();
                 }
 
-                this.messenger.Send(new LogMessage("Failed to connect using temporary client"));
+                this.messengerService.Send(new LogMessage("Failed to connect using temporary client"));
 
                 return new SshConnectionInfo
                 {
@@ -264,7 +266,7 @@ namespace NVRAMTuner.Client.Services
             }
             catch (Exception ex)
             {
-                this.messenger.Send(new LogMessage($"Error during connection to '{router.RouterNickname}': \"{ex.Message}\""));
+                this.messengerService.Send(new LogMessage($"Error during connection to '{router.RouterNickname}': \"{ex.Message}\""));
 
                 return new SshConnectionInfo
                 {
@@ -278,7 +280,7 @@ namespace NVRAMTuner.Client.Services
             Tuple<string, string> hnAndOs = await this.GetRouterHostnameAndOs();
             this.client.ErrorOccurred += this.ClientOnErrorOccurred;
 
-            this.messenger.Send(new LogMessage($"Connected to {hnAndOs.Item1}"));
+            this.messengerService.Send(new LogMessage($"Connected to {hnAndOs.Item1}"));
 
             return new SshConnectionInfo
             {
@@ -303,7 +305,7 @@ namespace NVRAMTuner.Client.Services
             {
                 this.client.ErrorOccurred -= this.ClientOnErrorOccurred;
                 this.client.Disconnect();
-                this.messenger.Send(new LogMessage("Disconnected"));
+                this.messengerService.Send(new LogMessage("Disconnected"));
                 this.StopActiveConnectionTimer();
             });
         }
@@ -339,6 +341,17 @@ namespace NVRAMTuner.Client.Services
             SshCommand commandResult = await Task.Run(() => this.client.RunCommand(command));
             this.CommandRan?.Invoke(this, EventArgs.Empty);
             return commandResult;
+        }
+
+        /// <summary>
+        /// Commits a collection of changes to the target router
+        /// </summary>
+        /// <param name="variableDeltas">A list of <see cref="IVariable"/> instances. These
+        /// are typically passed through from the <see cref="StagedChangesViewModel"/></param>
+        /// <returns></returns>
+        public async Task CommitChangesToRouter(List<IVariable> variableDeltas)
+        {
+
         }
 
         /// <summary>
