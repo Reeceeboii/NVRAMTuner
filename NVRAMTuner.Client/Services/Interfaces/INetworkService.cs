@@ -1,4 +1,4 @@
-﻿namespace NVRAMTuner.Client.Services.Network.Interfaces
+﻿namespace NVRAMTuner.Client.Services.Interfaces
 {
     using Events;
     using Models;

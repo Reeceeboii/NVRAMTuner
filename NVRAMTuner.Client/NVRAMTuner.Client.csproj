@@ -150,8 +150,8 @@
     <Compile Include="Services\Wrappers\Interfaces\IMessengerService.cs" />
     <Compile Include="Services\Wrappers\EnvironmentService.cs" />
     <Compile Include="Services\Interfaces\IDialogService.cs" />
-    <Compile Include="Services\Network\NetworkService.cs" />
-    <Compile Include="Services\Network\Interfaces\INetworkService.cs" />
+    <Compile Include="Services\NetworkService.cs" />
+    <Compile Include="Services\Interfaces\INetworkService.cs" />
     <Compile Include="Services\Interfaces\IDataPersistenceService.cs" />
     <Compile Include="Services\Interfaces\IDataEncryptionService.cs" />
     <Compile Include="Services\Wrappers\Interfaces\IEnvironmentService.cs" />

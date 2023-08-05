@@ -1,6 +1,6 @@
 ﻿#nullable enable
 
-namespace NVRAMTuner.Client.Services.Network
+namespace NVRAMTuner.Client.Services
 {
     using CommunityToolkit.Mvvm.Messaging;
     using Events;
@@ -11,7 +11,6 @@ namespace NVRAMTuner.Client.Services.Network
     using Renci.SshNet;
     using Renci.SshNet.Common;
     using Resources;
-    using Services.Interfaces;
     using System;
     using System.IO;
     using System.IO.Abstractions;

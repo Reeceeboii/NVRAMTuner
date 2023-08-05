@@ -5,8 +5,6 @@
     using Microsoft.Extensions.DependencyInjection;
     using Services;
     using Services.Interfaces;
-    using Services.Network;
-    using Services.Network.Interfaces;
     using Services.Wrappers;
     using Services.Wrappers.Interfaces;
     using System;

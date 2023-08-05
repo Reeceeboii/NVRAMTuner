@@ -5,7 +5,6 @@
     using Messages.Variables;
     using Models.Nvram;
     using Models.Nvram.Concrete;
-    using Network.Interfaces;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using Renci.SshNet;
