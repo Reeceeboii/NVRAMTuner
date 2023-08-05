@@ -6,6 +6,7 @@
     using MahApps.Metro.Controls.Dialogs;
     using Messages;
     using Messages.Theme;
+    using Messages.Variables.Staged;
     using Models;
     using Models.Enums;
     using Resources;
@@ -335,6 +336,28 @@
         {
             this.IsLoading = true;
 
+            RequestNumOfStagedVariablesMessage reqStaged = this.messengerService.Send<RequestNumOfStagedVariablesMessage>();
+            if (reqStaged.Response >= 1)
+            {
+                MessageDialogResult result = await this.dialogService.ShowMessageAsync(
+                    this,
+                    "Abandon staged changes?",
+                    ViewModelStrings.DisconnectWhileVariablesAreStagedDialogMessage,
+                    MessageDialogStyle.AffirmativeAndNegative,
+                    new MetroDialogSettings
+                    {
+                        AffirmativeButtonText = "Disconnect",
+                        NegativeButtonText = "Cancel",
+                        DefaultButtonFocus = MessageDialogResult.Affirmative
+                    });
+
+                if (result == MessageDialogResult.Negative)
+                {
+                    this.IsLoading = false;
+                    return;
+                }
+            }
+
             if (this.networkService.IsConnected)
             {
                 await this.networkService.DisconnectFromRouter();
@@ -343,10 +366,10 @@
                 this.DisconnectFromTargetRouterCommand.NotifyCanExecuteChanged();
                 this.OnPropertyChanged(nameof(this.NvramTunerStatus));
                 this.messengerService.Send(new RouterDisconnectMessage(this.TargetRouterForConnection));
+                this.messengerService.Send(new ClearStagedVariablesMessage());
             }
 
             this.CommandsRanAgainstTargetRouter = 0;
-
             this.IsLoading = false;
         }
 

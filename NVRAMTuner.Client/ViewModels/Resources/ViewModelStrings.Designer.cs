@@ -70,6 +70,15 @@ namespace NVRAMTuner.Client.ViewModels.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You currently have staged variables that you have made changes to. If you disconnect from your router, your staged changes will be abandoned. Are you sure you wish to continue?.
+        /// </summary>
+        public static string DisconnectWhileVariablesAreStagedDialogMessage {
+            get {
+                return ResourceManager.GetString("DisconnectWhileVariablesAreStagedDialogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to NVRAMTuner was unable to find any routers on your system that were previously saved. If this is your first time using NVRAMTuner, enter the setup process now to add a router. Otherwise, please place a previously saved router file in the expected location..
         /// </summary>
         public static string NoSavedRoutersFoundDialogMessage {
