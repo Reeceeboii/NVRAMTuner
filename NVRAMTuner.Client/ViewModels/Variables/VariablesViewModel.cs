@@ -155,7 +155,7 @@
         /// Recipient method for <see cref="VariablesChangedMessage"/> messages
         /// </summary>
         /// <param name="message">An instance of <see cref="VariablesChangedMessage"/></param>
-        public void Receive(VariablesChangedMessage message)
+        private void Receive(VariablesChangedMessage message)
         {
             this.Variables = new ObservableCollection<IVariable>(message.Value.Variables);
 
@@ -174,7 +174,7 @@
         /// Recipient method for <see cref="RouterDisconnectMessage"/> messages
         /// </summary>
         /// <param name="_">An instance of <see cref="RouterDisconnectMessage"/></param>
-        public void Receive(RouterDisconnectMessage _)
+        private void Receive(RouterDisconnectMessage _)
         {
             this.Variables.Clear();
         }
@@ -186,7 +186,7 @@
         /// not actually mattering at all. HOWEVER: TODO - performance
         /// </summary>
         /// <param name="_">An instance of <see cref="VariableStagedMessage"/></param>
-        public void Receive(VariableStagedMessage _)
+        private void Receive(VariableStagedMessage _)
         {
             int indexToRemove = this.Variables.IndexOf(this.SelectedVariable);
             this.Variables.RemoveAt(indexToRemove);
@@ -205,7 +205,7 @@
         /// Method to receive <see cref="VariablesUnstagedMessage"/> messages
         /// </summary>
         /// <param name="message">An instance of <see cref="VariablesUnstagedMessage"/></param>
-        public void Receive(VariablesUnstagedMessage message)
+        private void Receive(VariablesUnstagedMessage message)
         {
             foreach (IVariable delta in message.Value)
             {

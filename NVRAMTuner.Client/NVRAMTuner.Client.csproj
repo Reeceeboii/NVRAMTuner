@@ -103,6 +103,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\ConfigurableIntToVisibilityConverter.cs" />
+    <Compile Include="Converters\IntSignToSolidColourBrushConverter.cs" />
+    <Compile Include="Converters\Parameters\ConfigurableVisConverterParams.cs" />
     <Compile Include="Converters\RelayCommandCanExecuteToBoolConverter.cs" />
     <Compile Include="Converters\ConfigurableBoolToVisibilityConverter.cs" />
     <Compile Include="Converters\InverseBoolConverter.cs" />
