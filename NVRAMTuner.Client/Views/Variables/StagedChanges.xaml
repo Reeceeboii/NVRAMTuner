@@ -85,7 +85,7 @@
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button Margin="5">
+            <Button Margin="5" Command="{Binding CommitStagedDeltasCommand}">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
                         <Label Content="COMMIT" FontSize="{StaticResource MahApps.Font.Size.Button}"/>

@@ -11,6 +11,7 @@
     using Services.Interfaces;
     using Services.Wrappers.Interfaces;
     using System.Collections.ObjectModel;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -67,6 +68,9 @@
             this.ClearStagedDeltasCommand = new AsyncRelayCommand(this.ClearStagedDeltasCommandHandlerAsync, 
                 () => this.VariableDeltas.Any());
 
+            this.CommitStagedDeltasCommand = new AsyncRelayCommand(this.CommitStagedDeltasCommandHandlerAsync,
+                () => this.VariableDeltas.Any());
+
             this.VariableDeltas = new ObservableCollection<IVariable>();
 
             // register messages
@@ -81,6 +85,11 @@
         /// Gets the command used to clear all of the currently staged deltas
         /// </summary>
         public IAsyncRelayCommand ClearStagedDeltasCommand { get; }
+
+        /// <summary>
+        /// Gets the command used to commit the currently staged deltas to the router
+        /// </summary>
+        public IAsyncRelayCommand CommitStagedDeltasCommand { get; }
 
         /// <summary>
         /// Gets or sets an <see cref="ObservableCollection{T}"/> of <see cref="IVariable"/> instances,
@@ -140,6 +149,7 @@
             this.NetChangeSizeBytes += message.Value.ValueDelta.Length - message.Value.OriginalValue.Length;
             this.SizeAfterCommitBytes += this.NetChangeSizeBytes;
             this.ClearStagedDeltasCommand.NotifyCanExecuteChanged();
+            this.CommitStagedDeltasCommand.NotifyCanExecuteChanged();
         }
 
         /// <summary>
@@ -170,6 +180,7 @@
             this.VariableDeltas.Clear();
             this.NetChangeSizeBytes = 0;
             this.ClearStagedDeltasCommand.NotifyCanExecuteChanged();
+            this.CommitStagedDeltasCommand.NotifyCanExecuteChanged();
         }
 
         /// <summary>
@@ -180,6 +191,17 @@
         {
             this.OriginalSizeBytes = message.Value.VariableSizeBytes;
             this.SizeAfterCommitBytes = message.Value.VariableSizeBytes;
+        }
+
+        /// <summary>
+        /// Handler method for the <see cref="CommitStagedDeltasCommand"/>
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        private Task CommitStagedDeltasCommandHandlerAsync()
+        {
+            Debug.WriteLine("commit");
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -214,6 +236,7 @@
             this.VariableDeltas.Clear();
             this.NetChangeSizeBytes = 0;
             this.ClearStagedDeltasCommand.NotifyCanExecuteChanged();
+            this.CommitStagedDeltasCommand.NotifyCanExecuteChanged();
 
             this.messengerService.Send(new LogMessage($"{staged} variable{(staged > 1 ? "s" : string.Empty)} unstaged"));
         }
