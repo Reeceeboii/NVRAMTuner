@@ -70,7 +70,7 @@
         public async Task<Nvram> GetNvramVariablesAsync()
         {
             SshCommand command =
-                await this.networkService.RunCommandAgainstRouterAsync(ServiceResources.NVRAM_Show_Command);
+                await this.networkService.RunCommandAgainstRouterAsync(ServiceResources.NvramShowCommand);
 
             #region https://github.com/sshnet/SSH.NET/issues/1149
 

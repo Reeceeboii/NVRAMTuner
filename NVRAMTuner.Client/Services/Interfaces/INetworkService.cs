@@ -2,11 +2,14 @@
 {
     using Events;
     using Models;
+    using Models.Nvram;
     using Renci.SshNet;
     using Renci.SshNet.Common;
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
+    using ViewModels.Variables;
 
     /// <summary>
     /// An interface for a service that handles network operations pertinent to NVRAMTuner
@@ -71,6 +74,14 @@
         /// <exception cref="SshConnectionException">If the client is not yet connected to a server</exception>
         /// <exception cref="InvalidOperationException">If the client is not yet initialised</exception>
         Task<SshCommand> RunCommandAgainstRouterAsync(string command, SshClient clientOverride = null);
+
+        /// <summary>
+        /// Commits a collection of changes to the target router
+        /// </summary>
+        /// <param name="variableDeltas">A list of <see cref="IVariable"/> instances. These
+        /// are typically passed through from the <see cref="StagedChangesViewModel"/></param>
+        /// <returns>An asynchronous <see cref="Task"/></returns>
+        Task CommitChangesToRouter(List<IVariable> variableDeltas);
 
         /// <summary>
         /// Scans the local system for a pair of SSH keys on behalf of the user

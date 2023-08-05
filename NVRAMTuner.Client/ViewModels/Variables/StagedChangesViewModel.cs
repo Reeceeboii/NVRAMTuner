@@ -208,10 +208,9 @@
         /// </summary>
         /// <returns></returns>
         /// <exception cref="System.NotImplementedException"></exception>
-        private Task CommitStagedDeltasCommandHandlerAsync()
+        private async Task CommitStagedDeltasCommandHandlerAsync()
         {
-            Debug.WriteLine("commit");
-            return Task.CompletedTask;
+            await this.networkService.CommitChangesToRouter(this.VariableDeltas.ToList());
         }
 
         /// <summary>

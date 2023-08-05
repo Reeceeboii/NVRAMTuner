@@ -16,6 +16,7 @@ namespace NVRAMTuner.Client.Services
     using System.IO;
     using System.IO.Abstractions;
     using System.Linq;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using ViewModels.Variables;
@@ -348,10 +349,25 @@ namespace NVRAMTuner.Client.Services
         /// </summary>
         /// <param name="variableDeltas">A list of <see cref="IVariable"/> instances. These
         /// are typically passed through from the <see cref="StagedChangesViewModel"/></param>
-        /// <returns></returns>
+        /// <returns>An asynchronous <see cref="Task"/></returns>
         public async Task CommitChangesToRouter(List<IVariable> variableDeltas)
         {
+            // final sanity check to ensure that we won't be uselessly setting variables to be equal to themselves
+            List<IVariable> targetList = variableDeltas
+                .Where(v => v.ValueDelta != v.OriginalValue)
+                .ToList();
 
+            StringBuilder builder = new StringBuilder();
+
+            foreach (IVariable variable in variableDeltas)
+            {
+                // TODO need to look into behaviour of strings with spaces etc... vs numeric and boolean values
+                builder.Append($"{ServiceResources.NvramSetCommand} {variable.Name}={variable.ValueDelta}\n");
+            }
+
+            builder.Append($"{ServiceResources.NvramCommitCommand}\n");
+
+            string command = builder.ToString();
         }
 
         /// <summary>
@@ -430,8 +446,8 @@ namespace NVRAMTuner.Client.Services
         /// <returns>A <see cref="Tuple{T1, T2}"/> that contains the hostname and operating system of the router</returns>
         private async Task<Tuple<string, string>> GetRouterHostnameAndOs(SshClient? clientOverride = null)
         {
-            SshCommand hostName = await this.RunCommandAgainstRouterAsync(ServiceResources.HostName_Command, clientOverride);
-            SshCommand os = await this.RunCommandAgainstRouterAsync(ServiceResources.Uname_Os_Command, clientOverride);
+            SshCommand hostName = await this.RunCommandAgainstRouterAsync(ServiceResources.HostNameCommand, clientOverride);
+            SshCommand os = await this.RunCommandAgainstRouterAsync(ServiceResources.UnameOsCommand, clientOverride);
 
             return new Tuple<string, string>(
                 hostName.Result.TrimEnd('\r', '\n'),

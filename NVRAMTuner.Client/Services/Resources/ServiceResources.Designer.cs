@@ -72,9 +72,9 @@ namespace NVRAMTuner.Client.Services.Resources {
         /// <summary>
         ///   Looks up a localized string similar to hostname.
         /// </summary>
-        public static string HostName_Command {
+        public static string HostNameCommand {
             get {
-                return ResourceManager.GetString("HostName Command", resourceCulture);
+                return ResourceManager.GetString("HostNameCommand", resourceCulture);
             }
         }
         
@@ -102,20 +102,38 @@ namespace NVRAMTuner.Client.Services.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to nvram commit.
+        /// </summary>
+        public static string NvramCommitCommand {
+            get {
+                return ResourceManager.GetString("NvramCommitCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to nvram set.
+        /// </summary>
+        public static string NvramSetCommand {
+            get {
+                return ResourceManager.GetString("NvramSetCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to nvram show.
         /// </summary>
-        public static string NVRAM_Show_Command {
+        public static string NvramShowCommand {
             get {
-                return ResourceManager.GetString("NVRAM Show Command", resourceCulture);
+                return ResourceManager.GetString("NvramShowCommand", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to uname -o.
         /// </summary>
-        public static string Uname_Os_Command {
+        public static string UnameOsCommand {
             get {
-                return ResourceManager.GetString("Uname Os Command", resourceCulture);
+                return ResourceManager.GetString("UnameOsCommand", resourceCulture);
             }
         }
     }
