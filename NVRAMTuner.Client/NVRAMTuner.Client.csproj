@@ -332,6 +332,7 @@
     </None>
     <None Include="Resources\README.md" />
     <None Include="Services\Resources\firmware_variable_defaults.json" />
+    <None Include="Services\Resources\NVRAMTunerShTemplate.sh" />
     <None Include="Services\Resources\RMerlinCertClear.sh" />
   </ItemGroup>
   <ItemGroup>

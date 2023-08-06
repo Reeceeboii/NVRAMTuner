@@ -16,7 +16,6 @@ namespace NVRAMTuner.Client.Services
     using System.IO;
     using System.IO.Abstractions;
     using System.Linq;
-    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using ViewModels.Variables;
@@ -339,6 +338,14 @@ namespace NVRAMTuner.Client.Services
                 throw new InvalidOperationException("Overridden client is uninitialised");
             }
 
+            /*
+             * Visual Studio seems to like pausing execution on this await call,
+             * stating that any exceptions thrown by the underlying wrapped RunCommand()
+             * method are 'user-unhandled', even if the caller does wrap in a try/catch and
+             * handle exceptions correctly.
+             *
+             * I am once again asking Visual Studio to shut the fuck up.
+             */
             SshCommand commandResult = await Task.Run(() => this.client.RunCommand(command));
             this.CommandRan?.Invoke(this, EventArgs.Empty);
             return commandResult;
@@ -352,22 +359,23 @@ namespace NVRAMTuner.Client.Services
         /// <returns>An asynchronous <see cref="Task"/></returns>
         public async Task CommitChangesToRouter(List<IVariable> variableDeltas)
         {
-            // final sanity check to ensure that we won't be uselessly setting variables to be equal to themselves
-            List<IVariable> targetList = variableDeltas
-                .Where(v => v.ValueDelta != v.OriginalValue)
-                .ToList();
-
-            StringBuilder builder = new StringBuilder();
-
-            foreach (IVariable variable in variableDeltas)
+            string fileContents = this.BuildShellScriptFile(variableDeltas);
+            string fileName = $"NVRAMTunerScript-{DateTime.Now:dd-MM@HH.mm}.sh";
+            
+            try
             {
-                // TODO need to look into behaviour of strings with spaces etc... vs numeric and boolean values
-                builder.Append($"{ServiceResources.NvramSetCommand} {variable.Name}={variable.ValueDelta}\n");
+                // upload shell script to router's /tmp directory
+                await this.RunCommandAgainstRouterAsync($@"echo ""{fileContents}"" > /tmp/{fileName}");
+                // ensure that script has execute bit set (-rwxrwxrwx)
+                await this.RunCommandAgainstRouterAsync($"{ServiceResources.CmhodExecuteCommand} /tmp/{fileName}");
+                // execute the file to apply the user's changes
+                SshCommand execCommand = await this.RunCommandAgainstRouterAsync($"sh /tmp/{fileName}");
             }
-
-            builder.Append($"{ServiceResources.NvramCommitCommand}\n");
-
-            string command = builder.ToString();
+            catch (Exception ex)
+            {
+                // https://www.youtube.com/watch?v=KnhXwlFeRP8
+                this.messengerService.Send(new DialogErrorMessage(ex));
+            }
         }
 
         /// <summary>
@@ -469,6 +477,43 @@ namespace NVRAMTuner.Client.Services
             };
 
             this.ConnectionTimerSecondTick?.Invoke(this, tickArgs);
+        }
+
+        /// <summary>
+        /// Builds the contents of a .sh file that can be ran against the router to carry out the
+        /// alterations to NVRAM that the user has staged
+        /// </summary>
+        /// <param name="variableDeltas">A list of <see cref="IVariable"/> instances. These
+        /// are typically passed through from the <see cref="StagedChangesViewModel"/></param>
+        /// <returns>A completed shell script template</returns>
+        private string BuildShellScriptFile(List<IVariable> variableDeltas)
+        {
+            // final sanity check to ensure that we won't be uselessly setting variables to be equal to themselves
+            List<IVariable> targetList = variableDeltas
+                .Where(v => v.ValueDelta != v.OriginalValue)
+                .ToList();
+
+            using StringWriter writer = new StringWriter
+            {
+                NewLine = "\n"
+            };
+
+            writer.WriteLine("# Applying changes to existing variables");
+            writer.WriteLine($"echo Applying {targetList.Count} variable alterations");
+
+            foreach (IVariable variable in targetList)
+            {
+                // TODO need to look into behaviour of strings with spaces etc... vs numeric and boolean values
+                writer.WriteLine($"{ServiceResources.NvramSetCommand} {variable.Name}={variable.ValueDelta}");
+            }
+
+            writer.WriteLine("\n# Committing all changes to memory");
+            writer.WriteLine($"{ServiceResources.NvramCommitCommand}");
+
+            return string.Format(
+                ServiceResources.NvramTunerShTemplate,
+                DateTime.Now.ToString("MM/dd/yyyy @ HH:mm"),
+                writer.GetStringBuilder());
         }
     }
 }

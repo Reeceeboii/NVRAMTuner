@@ -49,7 +49,7 @@
             this.networkService = networkService;
             this.messengerService = messengerService;
 
-            string rawFirmwareDefaults = ServiceResources.firmwareVariableDefaults;
+            string rawFirmwareDefaults = ServiceResources.FirmwareVariableDefaults;
             JObject defaultJsonObject = JsonConvert.DeserializeObject<JObject>(rawFirmwareDefaults);
 
             this.nvramDefaults = new Dictionary<string, Tuple<string, string>>();
