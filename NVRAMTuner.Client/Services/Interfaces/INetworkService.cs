@@ -81,7 +81,7 @@
         /// <param name="variableDeltas">A list of <see cref="IVariable"/> instances. These
         /// are typically passed through from the <see cref="StagedChangesViewModel"/></param>
         /// <returns>An asynchronous <see cref="Task"/></returns>
-        Task CommitChangesToRouter(List<IVariable> variableDeltas);
+        Task CommitChangesToRouterAsync(List<IVariable> variableDeltas);
 
         /// <summary>
         /// Scans the local system for a pair of SSH keys on behalf of the user

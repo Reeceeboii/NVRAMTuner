@@ -5,7 +5,7 @@
     using Events;
     using MahApps.Metro.Controls.Dialogs;
     using Messages;
-    using Messages.Theme;
+    using Messages.Settings;
     using Messages.Variables.Staged;
     using Models;
     using Models.Enums;

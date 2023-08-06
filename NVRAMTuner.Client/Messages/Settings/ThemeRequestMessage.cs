@@ -1,4 +1,4 @@
-﻿namespace NVRAMTuner.Client.Messages.Theme
+﻿namespace NVRAMTuner.Client.Messages.Settings
 {
     using CommunityToolkit.Mvvm.Messaging.Messages;
     using Models.Enums;

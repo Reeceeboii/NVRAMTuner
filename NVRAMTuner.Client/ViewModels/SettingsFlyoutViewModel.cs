@@ -70,6 +70,9 @@
             messengerService.Register<SettingsFlyoutViewModel, OpenSettingsFlyoutMessage>(this,
                 (recipient, message) => recipient.Receive(message));
 
+            // if settings are changed from elsewhere, the flyout needs to synchronise its values against these
+            this.settingsService.SettingsChangedEvent += (sender, args) => this.ReadAndSynchroniseCurrentSettings();
+
             this.OpenSettingsFolderCommand = new RelayCommand(this.OpenSettingsFolderCommandHandler);
 
             this.AvailableApplicationThemes = Enum.GetValues(typeof(ApplicationTheme)).Cast<ApplicationTheme>().ToList();
@@ -126,6 +129,20 @@
         }
 
         /// <summary>
+        /// Gets or sets a value representing whether or not the pre-commit warning message
+        /// should be displayed to the user
+        /// </summary>
+        public bool DisplayPreCommitWarning
+        {
+            get => this.settingsService.DisplayPreCommitWarning;
+            set
+            {
+                this.settingsService.DisplayPreCommitWarning = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
         /// Recipient method for <see cref="OpenSettingsFlyoutMessage"/> messages
         /// </summary>
         /// <param name="message">An instance of <see cref="OpenSettingsFlyoutMessage"/>"/></param>
@@ -141,6 +158,7 @@
         {
             this.ApplicationTheme = this.settingsService.ApplicationTheme;
             this.SshKeepAliveIntervalMinutes = this.settingsService.SshKeepAliveIntervalMinutes;
+            this.DisplayPreCommitWarning = this.settingsService.DisplayPreCommitWarning;
         }
 
         /// <summary>

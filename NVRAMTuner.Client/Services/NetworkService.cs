@@ -357,7 +357,7 @@ namespace NVRAMTuner.Client.Services
         /// <param name="variableDeltas">A list of <see cref="IVariable"/> instances. These
         /// are typically passed through from the <see cref="StagedChangesViewModel"/></param>
         /// <returns>An asynchronous <see cref="Task"/></returns>
-        public async Task CommitChangesToRouter(List<IVariable> variableDeltas)
+        public async Task CommitChangesToRouterAsync(List<IVariable> variableDeltas)
         {
             string fileContents = this.BuildShellScriptFile(variableDeltas);
             string fileName = $"NVRAMTunerScript-{DateTime.Now:dd-MM@HH.mm}.sh";
@@ -369,7 +369,7 @@ namespace NVRAMTuner.Client.Services
                 // ensure that script has execute bit set (-rwxrwxrwx)
                 await this.RunCommandAgainstRouterAsync($"{ServiceResources.CmhodExecuteCommand} /tmp/{fileName}");
                 // execute the file to apply the user's changes
-                SshCommand execCommand = await this.RunCommandAgainstRouterAsync($"sh /tmp/{fileName}");
+                // SshCommand execCommand = await this.RunCommandAgainstRouterAsync($"sh /tmp/{fileName}");
             }
             catch (Exception ex)
             {

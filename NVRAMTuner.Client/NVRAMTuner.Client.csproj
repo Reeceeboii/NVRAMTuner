@@ -116,8 +116,8 @@
     <Compile Include="Messages\NavigationRequestMessage.cs" />
     <Compile Include="Messages\OpenSettingsFlyoutMessage.cs" />
     <Compile Include="Messages\RouterDisconnectMessage.cs" />
-    <Compile Include="Messages\Theme\ThemeChangeMessage.cs" />
-    <Compile Include="Messages\Theme\ThemeRequestMessage.cs" />
+    <Compile Include="Messages\Settings\ThemeChangeMessage.cs" />
+    <Compile Include="Messages\Settings\ThemeRequestMessage.cs" />
     <Compile Include="Messages\Variables\Staged\ClearStagedVariablesMessage.cs" />
     <Compile Include="Messages\Variables\Staged\RequestNumOfStagedVariablesMessage.cs" />
     <Compile Include="Messages\Variables\Staged\RequestSelectedStagedVariableMessage.cs" />
@@ -172,6 +172,7 @@
     <Compile Include="Services\VariableService.cs" />
     <Compile Include="Services\Wrappers\MessengerService.cs" />
     <Compile Include="Services\Wrappers\WindowsSecurityService.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Utils\ApplicationThemes.cs" />
     <Compile Include="Utils\StringUtils.cs" />
     <Compile Include="Validators\ValidIpv4AddressAttribute.cs" />

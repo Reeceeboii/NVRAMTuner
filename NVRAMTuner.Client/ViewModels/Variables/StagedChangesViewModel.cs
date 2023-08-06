@@ -11,7 +11,6 @@
     using Services.Interfaces;
     using Services.Wrappers.Interfaces;
     using System.Collections.ObjectModel;
-    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -34,6 +33,11 @@
         /// Instance of <see cref="INetworkService"/>
         /// </summary>
         private readonly INetworkService networkService;
+
+        /// <summary>
+        /// Instance of <see cref="ISettingsService"/>
+        /// </summary>
+        private readonly ISettingsService settingsService;
 
         /// <summary>
         /// Backing field for <see cref="VariableDeltas"/>
@@ -66,14 +70,17 @@
         /// <param name="messengerService">An instance of <see cref="IMessengerService"/></param>
         /// <param name="dialogService">An instance of <see cref="IDialogService"/></param>
         /// <param name="networkService">An instance of <see cref="INetworkService"/></param>
+        /// <param name="settingsService">An instance of <see cref="ISettingsService"/></param>
         public StagedChangesViewModel(
             IMessengerService messengerService,
             IDialogService dialogService,
-            INetworkService networkService)
+            INetworkService networkService,
+            ISettingsService settingsService)
         {
             this.messengerService = messengerService;
             this.dialogService = dialogService;
             this.networkService = networkService;
+            this.settingsService = settingsService;
 
             this.ClearStagedDeltasCommand = new AsyncRelayCommand(this.ClearStagedDeltasCommandHandlerAsync, 
                 () => this.VariableDeltas.Any());
@@ -210,7 +217,33 @@
         /// <exception cref="System.NotImplementedException"></exception>
         private async Task CommitStagedDeltasCommandHandlerAsync()
         {
-            await this.networkService.CommitChangesToRouter(this.VariableDeltas.ToList());
+            if (this.settingsService.DisplayPreCommitWarning)
+            {
+                MessageDialogResult commitWarningDialogResult = await this.dialogService.ShowMessageAsync(
+                    this,
+                    "Warning!",
+                    ViewModelStrings.CommitWarningDialogMessage,
+                    MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
+                    new MetroDialogSettings
+                    {
+                        AffirmativeButtonText = "Continue, don't warn me again",
+                        NegativeButtonText = "Go back",
+                        FirstAuxiliaryButtonText = "Continue, warn me again next time",
+                        DefaultButtonFocus = MessageDialogResult.Affirmative
+                    });
+
+                if (commitWarningDialogResult == MessageDialogResult.Negative)
+                {
+                    return;
+                }
+
+                if (commitWarningDialogResult == MessageDialogResult.Affirmative)
+                {
+                    this.settingsService.DisplayPreCommitWarning = false;
+                }
+            }
+
+            await this.networkService.CommitChangesToRouterAsync(this.VariableDeltas.ToList());
         }
 
         /// <summary>

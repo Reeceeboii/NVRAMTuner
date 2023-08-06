@@ -24,7 +24,8 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Vertical">
@@ -34,7 +35,6 @@
             <TextBlock Text="Appearance" FontSize="{StaticResource MahApps.Font.Size.Dialog.Title}" />
             <Separator Margin="0 5 0 10"/>
         </StackPanel>
-
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -53,24 +53,48 @@
         </StackPanel>
 
         <Grid Grid.Row="3">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0"
-                   Content="SSH connection 'keep alive' interval (minutes) "
+
+            <Label Grid.Row="0" Grid.Column="0"
+                   Content="SSH connection 'keep alive' interval (minutes)*"
                    FontSize="{StaticResource MahApps.Font.Size.Dialog.Message}"/>
-            <mah:NumericUpDown Grid.Column="1"
-                               Value="{Binding SshKeepAliveIntervalMinutes, UpdateSourceTrigger=PropertyChanged, Delay=250}"
+            <mah:NumericUpDown Grid.Row="0" Grid.Column="1"
+                               Value="{Binding SshKeepAliveIntervalMinutes, UpdateSourceTrigger=PropertyChanged, Delay=150}"
                                Minimum="1"
                                Maximum="60"/>
+            <Label Grid.Row="1" Grid.Column="0"
+                   Content="*(will not apply until next active connection)"
+                   FontSize="{StaticResource MahApps.Font.Size.Content}"/>
         </Grid>
 
         <StackPanel Grid.Row="4" Orientation="Vertical" Margin="0 20 0 0">
             <TextBlock Text="Data management" FontSize="{StaticResource MahApps.Font.Size.Dialog.Title}" />
             <Separator Margin="0 5 0 10" />
+            <TextBlock Text="Something goes here..." FontSize="{StaticResource MahApps.Font.Size.Dialog.Message}"/>
         </StackPanel>
+
+        <StackPanel Grid.Row="5" Orientation="Vertical" Margin="0 20 0 0">
+            <TextBlock Text="Miscellaneous" FontSize="{StaticResource MahApps.Font.Size.Dialog.Title}" />
+            <Separator Margin="0 5 0 10" />
+        </StackPanel>
+
+        <Grid Grid.Row="6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="Display pre-commit warning"
+                   FontSize="{StaticResource MahApps.Font.Size.Dialog.Message}"/>
+            <CheckBox Grid.Column="1"
+                      Style="{StaticResource MahApps.Styles.CheckBox.Win10}"
+                      IsChecked="{Binding DisplayPreCommitWarning, UpdateSourceTrigger=PropertyChanged}" />
+        </Grid>
     </Grid>
-
-
 </mah:Flyout>

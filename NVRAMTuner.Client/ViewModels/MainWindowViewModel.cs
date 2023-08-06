@@ -3,7 +3,7 @@
     using CommunityToolkit.Mvvm.ComponentModel;
     using ControlzEx.Theming;
     using Messages;
-    using Messages.Theme;
+    using Messages.Settings;
     using Models.Enums;
     using Services.Interfaces;
     using Services.Wrappers.Interfaces;
