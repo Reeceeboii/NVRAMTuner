@@ -1,0 +1,5 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules]
+"{B739EAEE-9035-4A4C-8345-038D42DE082A}"="v2.32|Action=Allow|Active=TRUE|Dir=Out|Protocol=6|RPort=22|RA4=DefaultGateway|RA6=DefaultGateway|IFType=Lan|App=%SystemDrive%\\Dev\\NVRAMTuner\\NVRAMTuner.Client\\bin\\Debug\\NVRAMTuner.exe|Name=NVRAMTuner DEBUG Port 22 rule|Desc=Use to easily block outgoing port 22 connections for the debug NVRAMTuner binary|"
+"{185E38F7-BF49-4183-96E8-7A6FF02A67E8}"="v2.32|Action=Allow|Active=TRUE|Dir=Out|Protocol=6|RPort=22|RA4=DefaultGateway|RA6=DefaultGateway|IFType=Lan|App=%SystemDrive%\\Dev\\NVRAMTuner\\NVRAMTuner.Client\\bin\\Release\\NVRAMTuner.exe|Name=NVRAMTuner RELEASE Port 22 rule|Desc=Use to easily block outgoing port 22 connections for the release NVRAMTuner binary|"
