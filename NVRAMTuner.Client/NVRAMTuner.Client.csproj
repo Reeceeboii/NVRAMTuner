@@ -392,7 +392,7 @@
       <Version>2020.0.2</Version>
     </PackageReference>
     <PackageReference Include="System.IO.Abstractions">
-      <Version>19.2.29</Version>
+      <Version>19.2.51</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup />
