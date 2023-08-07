@@ -62,8 +62,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\Variables\EditsViewModelTests.cs" />
     <None Include="app.config" />
-    <None Include="Miscellaneous test helpers\NVRAMTuner Windows Firewall Testing.reg" />
-    <None Include="Miscellaneous test helpers\README.md" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NVRAMTuner.Client\NVRAMTuner.Client.csproj">
