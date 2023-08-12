@@ -98,6 +98,15 @@
         bool FolderContainsSshKeys(string folder);
 
         /// <summary>
+        /// Builds the contents of a .sh file that can be ran against the router to carry out the
+        /// alterations to NVRAM that the user has staged
+        /// </summary>
+        /// <param name="variableDeltas">A list of <see cref="IVariable"/> instances. These
+        /// are typically passed through from the <see cref="StagedChangesViewModel"/></param>
+        /// <returns>A completed shell script template</returns>
+        string BuildShellScriptFile(List<IVariable> variableDeltas);
+
+        /// <summary>
         /// Disposes of any relevant resources
         /// </summary>
         void Dispose();

@@ -117,7 +117,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CmhodExecuteCommand" xml:space="preserve">
+  <data name="BourneShellCommand" xml:space="preserve">
+    <value>sh</value>
+    <comment>Calls the 'sh' command</comment>
+  </data>
+  <data name="ChmodExecuteCommand" xml:space="preserve">
     <value>chmod +x</value>
     <comment>https://man7.org/linux/man-pages/man1/chmod.1.html</comment>
   </data>

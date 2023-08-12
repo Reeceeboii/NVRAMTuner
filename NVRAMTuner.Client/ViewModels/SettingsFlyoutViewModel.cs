@@ -145,8 +145,8 @@
         /// <summary>
         /// Recipient method for <see cref="OpenSettingsFlyoutMessage"/> messages
         /// </summary>
-        /// <param name="message">An instance of <see cref="OpenSettingsFlyoutMessage"/>"/></param>
-        public void Receive(OpenSettingsFlyoutMessage message)
+        /// <param name="_">An instance of <see cref="OpenSettingsFlyoutMessage"/>"/></param>
+        public void Receive(OpenSettingsFlyoutMessage _)
         {
             this.IsOpen = true;
         }

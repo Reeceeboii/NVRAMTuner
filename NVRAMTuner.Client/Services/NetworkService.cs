@@ -13,6 +13,7 @@ namespace NVRAMTuner.Client.Services
     using Resources;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.IO.Abstractions;
     using System.Linq;
@@ -53,11 +54,6 @@ namespace NVRAMTuner.Client.Services
         private SshClient? client;
 
         /// <summary>
-        /// Timer used to track the elapsed time of the current connection
-        /// </summary>
-        private readonly Timer activeConnectionTimer;
-
-        /// <summary>
         /// The time at which the active connection was initiated.
         /// This is used to calculate the elapsed time within
         /// <see cref="ActiveConnectionTimerTickArgs"/> instances
@@ -87,7 +83,7 @@ namespace NVRAMTuner.Client.Services
             this.messengerService = messengerService;
             this.settingsService = settingsService;
 
-            this.activeConnectionTimer = new Timer(
+            Timer timer = new Timer(
                 _ => this.ActiveConnectionTimerOnTick(),
                 null, 
                 0, 
@@ -153,12 +149,12 @@ namespace NVRAMTuner.Client.Services
         /// <summary>
         /// Event to be raised when an error occurs in the connection to the router via the <see cref="SshClient"/>
         /// </summary>
-        public event EventHandler? SshClientOnErrorOccurred;
+        public event EventHandler SshClientOnErrorOccurred;
 
         /// <summary>
         /// Event to be raised whenever a new command is executed against a remote server
         /// </summary>
-        public event EventHandler? CommandRan;
+        public event EventHandler CommandRan;
 
         /// <summary>
         /// Event raised by the timer tracking the length of the current connection. Fired every second
@@ -338,15 +334,17 @@ namespace NVRAMTuner.Client.Services
                 throw new InvalidOperationException("Overridden client is uninitialised");
             }
 
-            /*
-             * Visual Studio seems to like pausing execution on this await call,
-             * stating that any exceptions thrown by the underlying wrapped RunCommand()
-             * method are 'user-unhandled', even if the caller does wrap in a try/catch and
-             * handle exceptions correctly.
-             *
-             * I am once again asking Visual Studio to shut the fuck up.
-             */
-            SshCommand commandResult = await Task.Run(() => this.client.RunCommand(command));
+            SshCommand commandResult = null;
+            try
+            {
+                commandResult = await Task.Run(() => this.client.RunCommand(command));
+            }
+            catch (Exception ex)
+            {
+                // TODO https://github.com/Reeceeboii/NVRAMTuner/issues/41
+                Debug.WriteLine(ex);
+            }
+
             this.CommandRan?.Invoke(this, EventArgs.Empty);
             return commandResult;
         }
@@ -367,9 +365,10 @@ namespace NVRAMTuner.Client.Services
                 // upload shell script to router's /tmp directory
                 await this.RunCommandAgainstRouterAsync($@"echo ""{fileContents}"" > /tmp/{fileName}");
                 // ensure that script has execute bit set (-rwxrwxrwx)
-                await this.RunCommandAgainstRouterAsync($"{ServiceResources.CmhodExecuteCommand} /tmp/{fileName}");
+                await this.RunCommandAgainstRouterAsync($"{ServiceResources.ChmodExecuteCommand} /tmp/{fileName}");
                 // execute the file to apply the user's changes
-                // SshCommand execCommand = await this.RunCommandAgainstRouterAsync($"sh /tmp/{fileName}");
+                SshCommand cmd = await this.RunCommandAgainstRouterAsync($"{ServiceResources.BourneShellCommand} /tmp/{fileName}");
+                this.messengerService.Send(new LogMessage(cmd.Result));
             }
             catch (Exception ex)
             {
@@ -404,6 +403,45 @@ namespace NVRAMTuner.Client.Services
             bool privateKeyExists = this.fileSystem.File.Exists(privateKeyPath);
 
             return pubKeyExists && privateKeyExists;
+        }
+
+        /// <summary>
+        /// Builds the contents of a .sh file that can be ran against the router to carry out the
+        /// alterations to NVRAM that the user has staged
+        /// </summary>
+        /// <param name="variableDeltas">A list of <see cref="IVariable"/> instances. These
+        /// are typically passed through from the <see cref="StagedChangesViewModel"/></param>
+        /// <returns>A completed shell script template</returns>
+        public string BuildShellScriptFile(List<IVariable> variableDeltas)
+        {
+            // final sanity check to ensure that we won't be uselessly setting variables to be equal to themselves
+            List<IVariable> targetList = variableDeltas
+                .Where(v => v.ValueDelta != v.OriginalValue)
+                .ToList();
+
+            using StringWriter writer = new StringWriter
+            {
+                NewLine = "\n"
+            };
+
+            writer.WriteLine("# Applying changes to existing variables");
+            writer.WriteLine($"echo Applying {targetList.Count} variable alterations");
+
+            foreach (IVariable variable in targetList)
+            {
+                string formattedValue = variable.ValueDelta.Contains(" ")
+                    ? $"\"{variable.ValueDelta}\""
+                    : variable.ValueDelta;
+                writer.WriteLine($"{ServiceResources.NvramSetCommand} {variable.Name}={formattedValue}");
+            }
+
+            writer.WriteLine("\n# Committing all changes to memory");
+            writer.WriteLine($"{ServiceResources.NvramCommitCommand}");
+
+            return string.Format(
+                ServiceResources.NvramTunerShTemplate,
+                DateTime.Now.ToString("MM/dd/yyyy @ HH:mm"),
+                writer.GetStringBuilder());
         }
 
         /// <summary>
@@ -463,7 +501,7 @@ namespace NVRAMTuner.Client.Services
         }
 
         /// <summary>
-        /// Tick event for <see cref="activeConnectionTimer"/>. Sends out a new <see cref="INetworkService.ConnectionTimerSecondTick"/> event
+        /// Sends out a new <see cref="INetworkService.ConnectionTimerSecondTick"/> event
         /// </summary>
         private void ActiveConnectionTimerOnTick()
         {
@@ -477,43 +515,6 @@ namespace NVRAMTuner.Client.Services
             };
 
             this.ConnectionTimerSecondTick?.Invoke(this, tickArgs);
-        }
-
-        /// <summary>
-        /// Builds the contents of a .sh file that can be ran against the router to carry out the
-        /// alterations to NVRAM that the user has staged
-        /// </summary>
-        /// <param name="variableDeltas">A list of <see cref="IVariable"/> instances. These
-        /// are typically passed through from the <see cref="StagedChangesViewModel"/></param>
-        /// <returns>A completed shell script template</returns>
-        private string BuildShellScriptFile(List<IVariable> variableDeltas)
-        {
-            // final sanity check to ensure that we won't be uselessly setting variables to be equal to themselves
-            List<IVariable> targetList = variableDeltas
-                .Where(v => v.ValueDelta != v.OriginalValue)
-                .ToList();
-
-            using StringWriter writer = new StringWriter
-            {
-                NewLine = "\n"
-            };
-
-            writer.WriteLine("# Applying changes to existing variables");
-            writer.WriteLine($"echo Applying {targetList.Count} variable alterations");
-
-            foreach (IVariable variable in targetList)
-            {
-                // TODO need to look into behaviour of strings with spaces etc... vs numeric and boolean values
-                writer.WriteLine($"{ServiceResources.NvramSetCommand} {variable.Name}={variable.ValueDelta}");
-            }
-
-            writer.WriteLine("\n# Committing all changes to memory");
-            writer.WriteLine($"{ServiceResources.NvramCommitCommand}");
-
-            return string.Format(
-                ServiceResources.NvramTunerShTemplate,
-                DateTime.Now.ToString("MM/dd/yyyy @ HH:mm"),
-                writer.GetStringBuilder());
         }
     }
 }

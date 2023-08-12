@@ -61,11 +61,20 @@ namespace NVRAMTuner.Client.Services.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to sh.
+        /// </summary>
+        public static string BourneShellCommand {
+            get {
+                return ResourceManager.GetString("BourneShellCommand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to chmod +x.
         /// </summary>
-        public static string CmhodExecuteCommand {
+        public static string ChmodExecuteCommand {
             get {
-                return ResourceManager.GetString("CmhodExecuteCommand", resourceCulture);
+                return ResourceManager.GetString("ChmodExecuteCommand", resourceCulture);
             }
         }
         

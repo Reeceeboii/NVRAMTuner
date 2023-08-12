@@ -10,7 +10,9 @@
     using Resources;
     using Services.Interfaces;
     using Services.Wrappers.Interfaces;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.IO.Abstractions;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -38,6 +40,11 @@
         /// Instance of <see cref="ISettingsService"/>
         /// </summary>
         private readonly ISettingsService settingsService;
+        
+        /// <summary>
+        /// Instance of <see cref="IFileSystem"/>
+        /// </summary>
+        private readonly IFileSystem fileSystem;
 
         /// <summary>
         /// Backing field for <see cref="VariableDeltas"/>
@@ -71,24 +78,38 @@
         /// <param name="dialogService">An instance of <see cref="IDialogService"/></param>
         /// <param name="networkService">An instance of <see cref="INetworkService"/></param>
         /// <param name="settingsService">An instance of <see cref="ISettingsService"/></param>
+        /// <param name="fileSystem">An instance of <see cref="IFileSystem"/></param>
         public StagedChangesViewModel(
             IMessengerService messengerService,
             IDialogService dialogService,
             INetworkService networkService,
-            ISettingsService settingsService)
+            ISettingsService settingsService,
+            IFileSystem fileSystem)
         {
             this.messengerService = messengerService;
             this.dialogService = dialogService;
             this.networkService = networkService;
             this.settingsService = settingsService;
+            this.fileSystem = fileSystem;
 
-            this.ClearStagedDeltasCommand = new AsyncRelayCommand(this.ClearStagedDeltasCommandHandlerAsync, 
+            this.ClearStagedDeltasCommand = new AsyncRelayCommand(
+                this.ClearStagedDeltasCommandHandlerAsync, 
                 () => this.VariableDeltas.Any());
 
-            this.CommitStagedDeltasCommand = new AsyncRelayCommand(this.CommitStagedDeltasCommandHandlerAsync,
+            this.CommitStagedDeltasCommand = new AsyncRelayCommand(
+                this.CommitStagedDeltasCommandHandlerAsync,
+                () => this.VariableDeltas.Any());
+
+            this.ClearSingleStagedDeltaCommand = new AsyncRelayCommand(
+                this.ClearSingleStagedDeltaCommandHandlerAsync,
+                () => this.SelectedDelta != null);
+
+            this.SaveDeltasToScriptFileCommand = new RelayCommand(
+                this.SaveDeltasToScriptFileCommandHandler,
                 () => this.VariableDeltas.Any());
 
             this.VariableDeltas = new ObservableCollection<IVariable>();
+            this.VariableDeltas.CollectionChanged += (sender, args) => this.NotifyCommandsBasedOnPresentDeltas();
 
             // register messages
             this.messengerService.Register<StagedChangesViewModel, VariableStagedMessage>(this, (r, m) => r.Receive(m));
@@ -104,9 +125,21 @@
         public IAsyncRelayCommand ClearStagedDeltasCommand { get; }
 
         /// <summary>
+        /// Gets the command to clear a single staged delta (this is the selected variable, as
+        /// the single unstage option can only be accessed via a click to get to the context
+        /// menu
+        /// </summary>
+        public IAsyncRelayCommand ClearSingleStagedDeltaCommand { get; }
+
+        /// <summary>
         /// Gets the command used to commit the currently staged deltas to the router
         /// </summary>
         public IAsyncRelayCommand CommitStagedDeltasCommand { get; }
+
+        /// <summary>
+        /// Gets the command used to save the current staged deltas to a shell script file
+        /// </summary>
+        public IRelayCommand SaveDeltasToScriptFileCommand { get; }
 
         /// <summary>
         /// Gets or sets an <see cref="ObservableCollection{T}"/> of <see cref="IVariable"/> instances,
@@ -165,8 +198,6 @@
             this.VariableDeltas.Add(message.Value);
             this.NetChangeSizeBytes += message.Value.ValueDelta.Length - message.Value.OriginalValue.Length;
             this.SizeAfterCommitBytes += this.NetChangeSizeBytes;
-            this.ClearStagedDeltasCommand.NotifyCanExecuteChanged();
-            this.CommitStagedDeltasCommand.NotifyCanExecuteChanged();
         }
 
         /// <summary>
@@ -194,10 +225,7 @@
         /// <param name="_">An instance of <see cref="ClearStagedVariablesMessage"/></param>
         private void Receive(ClearStagedVariablesMessage _)
         {
-            this.VariableDeltas.Clear();
-            this.NetChangeSizeBytes = 0;
-            this.ClearStagedDeltasCommand.NotifyCanExecuteChanged();
-            this.CommitStagedDeltasCommand.NotifyCanExecuteChanged();
+            this.ClearDeltas();
         }
 
         /// <summary>
@@ -213,8 +241,7 @@
         /// <summary>
         /// Handler method for the <see cref="CommitStagedDeltasCommand"/>
         /// </summary>
-        /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
+        /// <returns>An asynchronous <see cref="Task"/></returns>
         private async Task CommitStagedDeltasCommandHandlerAsync()
         {
             if (this.settingsService.DisplayPreCommitWarning)
@@ -249,22 +276,12 @@
         /// <summary>
         /// Handler method for the <see cref="ClearStagedDeltasCommand"/>
         /// </summary>
+        /// <returns>An asynchronous <see cref="Task{TResult}"/></returns>
         private async Task ClearStagedDeltasCommandHandlerAsync()
         {
             int staged = this.VariableDeltas.Count;
 
-            MessageDialogResult unstageDialogResult = await this.dialogService.ShowMessageAsync(
-                this,
-                $"Clear {staged} staged variable{(staged > 1 ? "s" : string.Empty)}?",
-                ViewModelStrings.ClearStagedChangesDialogMessage,
-                MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
-                new MetroDialogSettings
-                {
-                    AffirmativeButtonText = "Unstage & keep changes",
-                    NegativeButtonText = "Unstaged & abandon changes",
-                    FirstAuxiliaryButtonText = "Cancel",
-                    DefaultButtonFocus = MessageDialogResult.Affirmative
-                });
+            MessageDialogResult unstageDialogResult = await this.ConfirmStagedDeltaClearDialog(false);
 
             // 'cancel'
             if (unstageDialogResult == MessageDialogResult.FirstAuxiliary)
@@ -275,12 +292,91 @@
             bool keepChanges = unstageDialogResult == MessageDialogResult.Affirmative;
             this.messengerService.Send(new VariablesUnstagedMessage(this.VariableDeltas.ToList(), keepChanges));
 
-            this.VariableDeltas.Clear();
-            this.NetChangeSizeBytes = 0;
-            this.ClearStagedDeltasCommand.NotifyCanExecuteChanged();
-            this.CommitStagedDeltasCommand.NotifyCanExecuteChanged();
+            this.ClearDeltas();
 
             this.messengerService.Send(new LogMessage($"{staged} variable{(staged > 1 ? "s" : string.Empty)} unstaged"));
+        }
+
+        /// <summary>
+        /// Handler method for the <see cref="ClearSingleStagedDeltaCommand"/>
+        /// </summary>
+        /// <returns>An asynchronous <see cref="Task{TResult}"/></returns>
+        private async Task ClearSingleStagedDeltaCommandHandlerAsync()
+        {
+            MessageDialogResult unstageDialogResult = await this.ConfirmStagedDeltaClearDialog(false);
+
+            // 'cancel'
+            if (unstageDialogResult == MessageDialogResult.FirstAuxiliary)
+            {
+                return;
+            }
+
+            bool keepChanges = unstageDialogResult == MessageDialogResult.Affirmative;
+            this.messengerService.Send(new VariablesUnstagedMessage(new List<IVariable> { this.SelectedDelta }, keepChanges));
+
+            this.ClearDeltas();
+
+            this.messengerService.Send(new LogMessage($"Unstaged '{this.SelectedDelta.Name}'"));
+        }
+
+        /// <summary>
+        /// Handler method for the <see cref="SaveDeltasToScriptFileCommand"/>
+        /// </summary>
+        private void SaveDeltasToScriptFileCommandHandler()
+        {
+            string path = this.dialogService.ShowSaveAsDialog(
+                "Shell files (*.sh)|*.sh|All files (*.*)|*.*",
+                "NVRAMTuner-Script.sh");
+
+            if (path == string.Empty)
+            {
+                return;
+            }
+
+            this.fileSystem.File.WriteAllText(path, this.networkService.BuildShellScriptFile(this.VariableDeltas.ToList()));
+        }
+
+        /// <summary>
+        /// Display a dialog asking the user if they sure they wish to unstage the changes, and
+        /// whether or not they want to unstage AND abandon their current changes, or to unstage
+        /// but keep the changes applied upon returning the variables to the main list
+        /// </summary>
+        /// <param name="singleDelta">A bool representing whether or not a single delta is being unstaged</param>
+        /// <returns>A <see cref="MessageDialogResult"/> wrapped in an asynchronous <see cref="Task{T}"/></returns>
+        private async Task<MessageDialogResult> ConfirmStagedDeltaClearDialog(bool singleDelta)
+        {
+            return await this.dialogService.ShowMessageAsync(
+                this,
+                $"Clear staged variable{(singleDelta ? string.Empty : "s")}?",
+                ViewModelStrings.ClearStagedChangesDialogMessage,
+                MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
+                new MetroDialogSettings
+                {
+                    AffirmativeButtonText = "Unstage & keep changes",
+                    NegativeButtonText = "Unstaged & abandon changes",
+                    FirstAuxiliaryButtonText = "Cancel",
+                    DefaultButtonFocus = MessageDialogResult.Affirmative
+                });
+        }
+
+        /// <summary>
+        /// Clears the staged changes/deltas and notifies relevant commands
+        /// </summary>
+        private void ClearDeltas()
+        {
+            this.VariableDeltas.Clear();
+            this.NetChangeSizeBytes = 0;
+        }
+
+        /// <summary>
+        /// Notify any commands that rely on the presence of staged variables/deltas to update
+        /// their CanExecute statuses
+        /// </summary>
+        private void NotifyCommandsBasedOnPresentDeltas()
+        {
+            this.ClearStagedDeltasCommand.NotifyCanExecuteChanged();
+            this.CommitStagedDeltasCommand.NotifyCanExecuteChanged();
+            this.SaveDeltasToScriptFileCommand.NotifyCanExecuteChanged();
         }
     }
 }

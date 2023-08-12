@@ -16,26 +16,41 @@
         /// </summary>
         public StagedChanges()
         {
+            // TODO - push this diff stuff into viewmodels/services so it can be tested
             this.InitializeComponent();
             this.DataContext = ((App)Application.Current).ServiceContainer.Services.GetService<StagedChangesViewModel>();
         }
 
         /// <summary>
-        /// MouseDown event handler for handling clicks on the staged variables
+        /// Mouse double click event for staged variables, opens the diff window
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void StagedVariableOnMouseDown(object sender, MouseButtonEventArgs e)
+        /// <param name="sender">Sender of the event</param>
+        /// <param name="e">The event args</param>
+        private void StagedVariableControlOnMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            // ignore everything but double clicks
-            if (e.ClickCount != 2)
-            {
-                return;
-            }
+            OpenDiffWindow();
+        }
 
+        /// <summary>
+        /// Mouse click event for the 'view diff' option in the staged variable's context menu
+        /// </summary>
+        /// <param name="sender">Sender of the event</param>
+        /// <param name="e">The event args</param>
+        private void StagedVariableCtxMenuOnClick(object sender, RoutedEventArgs e)
+        {
+            OpenDiffWindow();
+        }
+
+        /// <summary>
+        /// Opens the diff window
+        /// </summary>
+        private static void OpenDiffWindow()
+        {
             VariableDiffWindow diffWindow = new VariableDiffWindow
             {
-                DataContext = ((App)Application.Current).ServiceContainer.Services.GetService<VariableDiffWindowViewModel>()
+                DataContext = ((App)Application.Current).ServiceContainer.Services.GetService<VariableDiffWindowViewModel>(),
+                Owner = ((App)Application.Current).MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
             };
 
             diffWindow.ShowDialog();
