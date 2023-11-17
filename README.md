@@ -41,7 +41,7 @@ There are already several options to configure your experience, including 6 diff
 
 
 ## Others
-- Is implemented in C#/WPF using .NET Framework. As such is currently Windows only.
+- Is implemented in C#/WPF using .NET Framework. As such it is currently Windows only.
 - Uses the Windows DPAPI (Data Protection API) for encryption of router details.
 - Allows the export of all staged changes as Bash scripts if you wish to manually tinker further and/or see what the shell will end up being passed over the network when you press commit.
 - Allows refreshing of NVRAM contents from the router
