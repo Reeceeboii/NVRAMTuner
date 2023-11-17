@@ -121,6 +121,21 @@
     <value>You can choose to either clear the staging area and retain your edits or clear the staging area AND have variable values returned to their original states.</value>
     <comment>(StagedChangesViewModel) A dialog message displayed to the user when they try to unstage some staged variables. The outcome of the dialog, when displayed with this message, determines whether staged edits are retained when variables are returned back to the variables list, or whether the original values should be returned (i.e. the staged changes totally abandoned).</comment>
   </data>
+  <data name="CommitWarningDialogMessage" xml:space="preserve">
+    <value>Please note that changing variable values carries the risk of breaking aspects of your router, or potentially damaging its operations to such a degree that a reset is required.
+
+NVRAMTuner is not responsible for any damage caused to your router by altering NVRAM variables, and it does not do any form of exhaustive checking to ensure that the values you have entered actually make sense.
+You are responsible for taking regular backups and sanity checking the changes you are making.
+
+Also, there is no guarantee that the router's firmware will not overwrite your changes after subsequent reboots. This is outside of NVRAMTuner's control.
+
+By continuing, you agree that you are happy with the above.</value>
+    <comment>(StagedChangesViewModel) A dialog message displayed to the user when they are committing for the first time (or if they have seen this message before but opted out from not seeing it again. This is a generic warning that by changing variables, they can potentially break their router and require it to go through a hard reset. It also includes details on the fact that variables may be overwritten upon a reboot by the firmware, and that NVRAMTuner cannot control this.</comment>
+  </data>
+  <data name="DisconnectWhileVariablesAreStagedDialogMessage" xml:space="preserve">
+    <value>You currently have staged variables that you have made changes to. If you disconnect from your router, your staged changes will be abandoned. Are you sure you wish to continue?</value>
+    <comment>(HomeViewModel) A message displayed to the user when they attempt to disconnect from the currently connected router when they have staged variables.</comment>
+  </data>
   <data name="NoSavedRoutersFoundDialogMessage" xml:space="preserve">
     <value>NVRAMTuner was unable to find any routers on your system that were previously saved. If this is your first time using NVRAMTuner, enter the setup process now to add a router. Otherwise, please place a previously saved router file in the expected location.</value>
     <comment>(HomeViewModel) A message displayed in a dialog to the user when NVRAMTuner first starts if it is determined that there are no previously saved routers on their system that are able to be loaded.</comment>

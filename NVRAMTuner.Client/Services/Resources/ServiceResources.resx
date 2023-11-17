@@ -117,22 +117,41 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BourneShellCommand" xml:space="preserve">
+    <value>sh</value>
+    <comment>Calls the 'sh' command</comment>
+  </data>
+  <data name="ChmodExecuteCommand" xml:space="preserve">
+    <value>chmod +x</value>
+    <comment>https://man7.org/linux/man-pages/man1/chmod.1.html</comment>
+  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="firmwareVariableDefaults" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="FirmwareVariableDefaults" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>firmware_variable_defaults.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
-  <data name="HostName Command" xml:space="preserve">
+  <data name="HostNameCommand" xml:space="preserve">
     <value>hostname</value>
-    <comment>https://linux.die.net/man/1/hostname</comment>
+    <comment>https://man7.org/linux/man-pages/man1/hostname.1.html</comment>
   </data>
   <data name="MerlinCertClearScript" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>RMerlinCertClear.sh;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
-  <data name="NVRAM Show Command" xml:space="preserve">
+  <data name="NvramCommitCommand" xml:space="preserve">
+    <value>nvram commit</value>
+    <comment>Calls the 'nvram' command with the 'commit' option. This saves all changed variables to NVRAM</comment>
+  </data>
+  <data name="NvramSetCommand" xml:space="preserve">
+    <value>nvram set</value>
+    <comment>Calls the 'nvram' command with the 'set' option. This allows a variable to created or its existing value updated.</comment>
+  </data>
+  <data name="NvramShowCommand" xml:space="preserve">
     <value>nvram show</value>
     <comment>Calls the 'nvram' command with the 'show' option. This retrieves the entire NVRAM contents</comment>
   </data>
-  <data name="Uname Os Command" xml:space="preserve">
+  <data name="NvramTunerShTemplate" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>NVRAMTunerShTemplate.sh;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="UnameOsCommand" xml:space="preserve">
     <value>uname -o</value>
     <comment>Calls the 'uname' command with the '-o' flag:
 https://linux.die.net/man/1/uname</comment>

@@ -3,10 +3,12 @@
     using Client.Services.Wrappers.Interfaces;
     using CommunityToolkit.Mvvm.Messaging;
     using Moq;
+    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     /// Test utilities
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public static class TestUtils
     {
         /// <summary>

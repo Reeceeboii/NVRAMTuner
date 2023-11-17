@@ -46,5 +46,17 @@ namespace NVRAMTuner.Client.Properties {
                 this["SshKeepAliveIntervalMinutes"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool DisplayPreCommitWarning {
+            get {
+                return ((bool)(this["DisplayPreCommitWarning"]));
+            }
+            set {
+                this["DisplayPreCommitWarning"] = value;
+            }
+        }
     }
 }

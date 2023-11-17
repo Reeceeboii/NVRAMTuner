@@ -1,6 +1,6 @@
 ﻿namespace NVRAMTuner.Client.Events
 {
-    using Services.Network.Interfaces;
+    using Services.Interfaces;
     using System;
 
     /// <summary>

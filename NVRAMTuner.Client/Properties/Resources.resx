@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="BugReportURL" xml:space="preserve">
-    <value>https://github.com/Reeceeboii/NVRAMTuner/issues/new</value>
+    <value>https://github.com/Reeceeboii/NVRAMTuner/issues/new/choose</value>
     <comment>The GitHub issue page for this project</comment>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />

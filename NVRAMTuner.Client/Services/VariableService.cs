@@ -5,7 +5,6 @@
     using Messages.Variables;
     using Models.Nvram;
     using Models.Nvram.Concrete;
-    using Network.Interfaces;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using Renci.SshNet;
@@ -50,7 +49,7 @@
             this.networkService = networkService;
             this.messengerService = messengerService;
 
-            string rawFirmwareDefaults = ServiceResources.firmwareVariableDefaults;
+            string rawFirmwareDefaults = ServiceResources.FirmwareVariableDefaults;
             JObject defaultJsonObject = JsonConvert.DeserializeObject<JObject>(rawFirmwareDefaults);
 
             this.nvramDefaults = new Dictionary<string, Tuple<string, string>>();
@@ -71,7 +70,7 @@
         public async Task<Nvram> GetNvramVariablesAsync()
         {
             SshCommand command =
-                await this.networkService.RunCommandAgainstRouterAsync(ServiceResources.NVRAM_Show_Command);
+                await this.networkService.RunCommandAgainstRouterAsync(ServiceResources.NvramShowCommand);
 
             #region https://github.com/sshnet/SSH.NET/issues/1149
 

@@ -1,12 +1,15 @@
-﻿namespace NVRAMTuner.Client.Services.Network.Interfaces
+﻿namespace NVRAMTuner.Client.Services.Interfaces
 {
     using Events;
     using Models;
+    using Models.Nvram;
     using Renci.SshNet;
     using Renci.SshNet.Common;
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
+    using ViewModels.Variables;
 
     /// <summary>
     /// An interface for a service that handles network operations pertinent to NVRAMTuner
@@ -73,6 +76,14 @@
         Task<SshCommand> RunCommandAgainstRouterAsync(string command, SshClient clientOverride = null);
 
         /// <summary>
+        /// Commits a collection of changes to the target router
+        /// </summary>
+        /// <param name="variableDeltas">A list of <see cref="IVariable"/> instances. These
+        /// are typically passed through from the <see cref="StagedChangesViewModel"/></param>
+        /// <returns>An asynchronous <see cref="Task"/></returns>
+        Task CommitChangesToRouterAsync(List<IVariable> variableDeltas);
+
+        /// <summary>
         /// Scans the local system for a pair of SSH keys on behalf of the user
         /// </summary>
         /// <returns>An absolute path to a directory containing a pair of SSH keys,
@@ -85,6 +96,15 @@
         /// <param name="folder">The absolute path of the folder to test</param>
         /// <returns>True if the folder contains an SSH key pair, false if not</returns>
         bool FolderContainsSshKeys(string folder);
+
+        /// <summary>
+        /// Builds the contents of a .sh file that can be ran against the router to carry out the
+        /// alterations to NVRAM that the user has staged
+        /// </summary>
+        /// <param name="variableDeltas">A list of <see cref="IVariable"/> instances. These
+        /// are typically passed through from the <see cref="StagedChangesViewModel"/></param>
+        /// <returns>A completed shell script template</returns>
+        string BuildShellScriptFile(List<IVariable> variableDeltas);
 
         /// <summary>
         /// Disposes of any relevant resources

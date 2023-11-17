@@ -19,6 +19,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Margin="5" FontSize="{StaticResource MahApps.Font.Size.Dialog.Message}">
@@ -26,39 +27,98 @@
             <Run Text="{Binding VariableDeltas.Count, Mode=OneWay}" />
         </TextBlock>
 
-        <Separator Grid.Row="1" />
+        <Separator Grid.Row="1" Margin="0 0 0 5" />
 
-        <ListView Grid.Row="2" ItemsSource="{Binding VariableDeltas}" SelectedItem="{Binding SelectedDelta}">
+        <ListView Grid.Row="2" 
+                  ItemsSource="{Binding VariableDeltas}" 
+                  SelectedItem="{Binding SelectedDelta}"
+                  SelectionMode="Single">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel x:Name="StagedVariable" MouseDown="StagedVariableOnMouseDown">
-                        <TextBlock Text="{Binding Name}" />
-                    </StackPanel>
+                    <ContentControl x:Name="StagedVariableControl"
+                                    MouseDoubleClick="StagedVariableControlOnMouseDoubleClick">
+                        <StackPanel Margin="0 0 0 5">
+                            <TextBlock Text="{Binding Name}" 
+                                       FontWeight="Bold"
+                                       FontSize="{StaticResource MahApps.Font.Size.Button.Flat}" />
+                            <TextBlock Text="Modified" />
+                            <StackPanel.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem x:Name="StagedVariableCtxMenu"
+                                              Header="View diff" 
+                                              Click="StagedVariableCtxMenuOnClick" />
+                                    <MenuItem Header="Unstage"
+                                              Command="{Binding ClearSingleStagedDeltaCommand, 
+                                        RelativeSource={RelativeSource FindAncestor, AncestorType=viewModels:StagedChangesViewModel}}"/>
+                                </ContextMenu>
+                            </StackPanel.ContextMenu>
+                        </StackPanel>
+                    </ContentControl>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
 
-        <Separator Grid.Row="3"/>
+        <Separator Grid.Row="3"
+                   Visibility="{Binding VariableDeltas.Count, Converter={StaticResource ConfigurableIntToVisibilityConverter}, ConverterParameter=Normal}"/>
 
-        <StackPanel Grid.Row="4">
-            <TextBlock Text="test"></TextBlock>
+        <StackPanel Grid.Row="4" 
+                    Orientation="Vertical"
+                    Visibility="{Binding VariableDeltas.Count, Converter={StaticResource ConfigurableIntToVisibilityConverter}, ConverterParameter=Normal}">
+            <TextBlock>
+                <Run Text="Original size:" />
+                <Run Text="{Binding OriginalSizeBytes, Mode=OneWay, StringFormat={}{0:#,0}}" />
+                <Run Text="bytes" />
+            </TextBlock>
+            <TextBlock>
+                <TextBlock.Background>
+                    <SolidColorBrush Color="{Binding NetChangeSizeBytes, Converter={StaticResource IntSignToSolidColourBrushConverter}}" 
+                                     Opacity=".5" />
+                </TextBlock.Background>
+                <Run Text="Net change:" />
+                <Run Text="{Binding NetChangeSizeBytes, Mode=OneWay, StringFormat={}{0:#,0}}" />
+                <Run Text="bytes" />
+            </TextBlock>
+            <TextBlock>
+                <Run Text="Size after commit:" />
+                <Run Text="{Binding SizeAfterCommitBytes, Mode=OneWay, StringFormat={}{0:#,0}}" />
+                <Run Text="bytes" />
+            </TextBlock>
         </StackPanel>
 
-        <Separator Grid.Row="5"/>
+        <Separator Grid.Row="5"
+                   Visibility="{Binding VariableDeltas.Count, Converter={StaticResource ConfigurableIntToVisibilityConverter}, ConverterParameter=Normal}"/>
 
-        <UniformGrid Grid.Row="6" Rows="1">
+        <StackPanel Grid.Row="6">
+            <Button Margin="5"
+                    Command="{Binding SaveDeltasToScriptFileCommand}">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="SAVE CHANGES AS .SH SCRIPT FILE" 
+                               FontSize="{StaticResource MahApps.Font.Size.Button}" />
+                        <iconPacks:PackIconMaterial Kind="Console" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+        </StackPanel>
+
+        <UniformGrid Grid.Row="7" Rows="1">
             <Button Margin="5"
                     Command="{Binding ClearStagedDeltasCommand}">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal">
-                        <iconPacks:PackIconMaterial Kind="Delete" VerticalAlignment="Center" />
                         <Label Content="CLEAR STAGED" FontSize="{StaticResource MahApps.Font.Size.Button}"/>
+                        <iconPacks:PackIconMaterial Kind="Delete" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button.Content>
             </Button>
-            <Button Content="Commit changes" Margin="5" />
+            <Button Margin="5" Command="{Binding CommitStagedDeltasCommand}">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="COMMIT" FontSize="{StaticResource MahApps.Font.Size.Button}"/>
+                        <iconPacks:PackIconMaterial Kind="RouterNetwork" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
         </UniformGrid>
-
-
     </Grid>
 </UserControl>

@@ -103,6 +103,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\ConfigurableIntToVisibilityConverter.cs" />
+    <Compile Include="Converters\IntSignToSolidColourBrushConverter.cs" />
+    <Compile Include="Converters\Parameters\ConfigurableVisConverterParams.cs" />
     <Compile Include="Converters\RelayCommandCanExecuteToBoolConverter.cs" />
     <Compile Include="Converters\ConfigurableBoolToVisibilityConverter.cs" />
     <Compile Include="Converters\InverseBoolConverter.cs" />
@@ -113,8 +116,8 @@
     <Compile Include="Messages\NavigationRequestMessage.cs" />
     <Compile Include="Messages\OpenSettingsFlyoutMessage.cs" />
     <Compile Include="Messages\RouterDisconnectMessage.cs" />
-    <Compile Include="Messages\Theme\ThemeChangeMessage.cs" />
-    <Compile Include="Messages\Theme\ThemeRequestMessage.cs" />
+    <Compile Include="Messages\Settings\ThemeChangeMessage.cs" />
+    <Compile Include="Messages\Settings\ThemeRequestMessage.cs" />
     <Compile Include="Messages\Variables\Staged\ClearStagedVariablesMessage.cs" />
     <Compile Include="Messages\Variables\Staged\RequestNumOfStagedVariablesMessage.cs" />
     <Compile Include="Messages\Variables\Staged\RequestSelectedStagedVariableMessage.cs" />
@@ -147,8 +150,8 @@
     <Compile Include="Services\Wrappers\Interfaces\IMessengerService.cs" />
     <Compile Include="Services\Wrappers\EnvironmentService.cs" />
     <Compile Include="Services\Interfaces\IDialogService.cs" />
-    <Compile Include="Services\Network\NetworkService.cs" />
-    <Compile Include="Services\Network\Interfaces\INetworkService.cs" />
+    <Compile Include="Services\NetworkService.cs" />
+    <Compile Include="Services\Interfaces\INetworkService.cs" />
     <Compile Include="Services\Interfaces\IDataPersistenceService.cs" />
     <Compile Include="Services\Interfaces\IDataEncryptionService.cs" />
     <Compile Include="Services\Wrappers\Interfaces\IEnvironmentService.cs" />
@@ -169,6 +172,7 @@
     <Compile Include="Services\VariableService.cs" />
     <Compile Include="Services\Wrappers\MessengerService.cs" />
     <Compile Include="Services\Wrappers\WindowsSecurityService.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="Utils\ApplicationThemes.cs" />
     <Compile Include="Utils\StringUtils.cs" />
     <Compile Include="Validators\ValidIpv4AddressAttribute.cs" />
@@ -329,6 +333,7 @@
     </None>
     <None Include="Resources\README.md" />
     <None Include="Services\Resources\firmware_variable_defaults.json" />
+    <None Include="Services\Resources\NVRAMTunerShTemplate.sh" />
     <None Include="Services\Resources\RMerlinCertClear.sh" />
   </ItemGroup>
   <ItemGroup>
@@ -387,7 +392,7 @@
       <Version>2020.0.2</Version>
     </PackageReference>
     <PackageReference Include="System.IO.Abstractions">
-      <Version>19.2.29</Version>
+      <Version>19.2.51</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup />

@@ -10,66 +10,79 @@
              d:DesignHeight="30"
              d:DesignWidth="800">
 
-    <Menu IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
-        <MenuItem Header="_File">
-            <MenuItem 
-                Header="Disconnect from router" 
-                Command="{Binding DisconnectFromTargetRouterCommand}"
-                IsEnabled="{Binding DisconnectFromTargetRouterCommand, Converter={StaticResource RelayCommandCanExecuteToBoolConverter}}">
-                <MenuItem.Icon>
-                    <iconPacks:PackIconMaterial 
-                        Kind="RouterWirelessOff"/>
-                </MenuItem.Icon>
+    <Grid Margin="0 5 0 5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <Menu Grid.Column="0" IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBoolConverter}}">
+            <MenuItem Header="_File">
+                <MenuItem 
+                    Header="Disconnect from router" 
+                    Command="{Binding DisconnectFromTargetRouterCommand}"
+                    IsEnabled="{Binding DisconnectFromTargetRouterCommand, Converter={StaticResource RelayCommandCanExecuteToBoolConverter}}">
+                    <MenuItem.Icon>
+                        <iconPacks:PackIconMaterial 
+                            Kind="RouterWirelessOff"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Setup new router"
+                          Command="{Binding EnterSetupCommand}">
+                    <MenuItem.Icon>
+                        <iconPacks:PackIconMaterial Kind="PlusNetwork" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="Exit">
+                    <MenuItem.Icon>
+                        <iconPacks:PackIconMaterial Kind="ExitRun" />
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
-            <MenuItem Header="Setup new router"
-                      Command="{Binding EnterSetupCommand}">
-                <MenuItem.Icon>
-                    <iconPacks:PackIconMaterial Kind="PlusNetwork" />
-                </MenuItem.Icon>
+            <MenuItem Header="_Tools">
+                <MenuItem Header="Dump live NVRAM contents to file...">
+                    <MenuItem.Icon>
+                        <iconPacks:PackIconMaterial Kind="ContentSaveAll" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Dump edited NVRAM contents to file...">
+                    <MenuItem.Icon>
+                        <iconPacks:PackIconMaterial Kind="ContentSaveEdit" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="Settings" Command="{Binding OpenSettingsFlyoutCommand}">
+                    <MenuItem.Icon>
+                        <iconPacks:PackIconMaterial Kind="Cog" />
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
-            <Separator />
-            <MenuItem Header="Exit">
-                <MenuItem.Icon>
-                    <iconPacks:PackIconMaterial Kind="ExitRun" />
-                </MenuItem.Icon>
+            <MenuItem Header="_Help">
+                <MenuItem Header="View source" Command="{Binding ViewSourceMenuCommand}">
+                    <MenuItem.Icon>
+                        <iconPacks:PackIconMaterial Kind="Github" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Submit bug report" Command="{Binding ReportBugMenuCommand}">
+                    <MenuItem.Icon>
+                        <iconPacks:PackIconMaterial Kind="Bug" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="About" Click="AboutMenuItemOnClick">
+                    <MenuItem.Icon>
+                        <iconPacks:PackIconMaterial Kind="Information" />
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
-        </MenuItem>
-        <MenuItem Header="_Tools">
-            <MenuItem Header="Dump live NVRAM contents to file...">
-                <MenuItem.Icon>
-                    <iconPacks:PackIconMaterial Kind="ContentSaveAll" />
-                </MenuItem.Icon>
-            </MenuItem>
-            <MenuItem Header="Dump edited NVRAM contents to file...">
-                <MenuItem.Icon>
-                    <iconPacks:PackIconMaterial Kind="ContentSaveEdit" />
-                </MenuItem.Icon>
-            </MenuItem>
-            <Separator />
-            <MenuItem Header="Settings" Command="{Binding OpenSettingsFlyoutCommand}">
-                <MenuItem.Icon>
-                    <iconPacks:PackIconMaterial Kind="Cog" />
-                </MenuItem.Icon>
-            </MenuItem>
-        </MenuItem>
-        <MenuItem Header="_Help">
-            <MenuItem Header="View source" Command="{Binding ViewSourceMenuCommand}">
-                <MenuItem.Icon>
-                    <iconPacks:PackIconMaterial Kind="Github" />
-                </MenuItem.Icon>
-            </MenuItem>
-            <MenuItem Header="Submit bug report" Command="{Binding ReportBugMenuCommand}">
-                <MenuItem.Icon>
-                    <iconPacks:PackIconMaterial Kind="Bug" />
-                </MenuItem.Icon>
-            </MenuItem>
-            <Separator/>
-            <MenuItem Header="About" Click="AboutMenuItemOnClick">
-                <MenuItem.Icon>
-                    <iconPacks:PackIconMaterial Kind="Information" />
-                </MenuItem.Icon>
-            </MenuItem>
-        </MenuItem>
-    </Menu>
+        </Menu>
+
+        <Button Grid.Column="1"
+                Margin="0 0 5 0"
+                Command="{Binding OpenSettingsFlyoutCommand}">
+            <iconPacks:PackIconMaterial Kind="Cog" />
+        </Button>
+    </Grid>
 
 </UserControl>

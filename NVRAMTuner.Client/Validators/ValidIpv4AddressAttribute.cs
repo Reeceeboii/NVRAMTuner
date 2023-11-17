@@ -1,7 +1,6 @@
 ﻿namespace NVRAMTuner.Client.Validators
 {
     using Services;
-    using Services.Network;
     using System.ComponentModel.DataAnnotations;
 
     /// <summary>

@@ -61,7 +61,7 @@ namespace NVRAMTuner.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to https://github.com/Reeceeboii/NVRAMTuner/issues/new.
+        ///   Looks up a localized string similar to https://github.com/Reeceeboii/NVRAMTuner/issues/new/choose.
         /// </summary>
         public static string BugReportURL {
             get {

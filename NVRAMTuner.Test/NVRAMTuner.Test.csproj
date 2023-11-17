@@ -54,6 +54,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converters\ConfigurableBoolToVisibilityConverterTests.cs" />
+    <Compile Include="Converters\IntSignToSolidColourBrushConverterTests.cs" />
     <Compile Include="Services\NetworkServiceTests.cs" />
     <Compile Include="TestUtils\TestUtils.cs" />
     <Compile Include="ViewModels\AboutWindowViewModelTests.cs" />
@@ -84,7 +86,7 @@
       <Version>3.1.1</Version>
     </PackageReference>
     <PackageReference Include="System.IO.Abstractions">
-      <Version>19.2.29</Version>
+      <Version>19.2.51</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup />

@@ -4,9 +4,9 @@
 namespace NVRAMTuner.Test.Services
 #pragma warning restore IDE0079 // Remove unnecessary suppression
 {
+    using Client.Services;
     using Client.Services.Interfaces;
-    using Client.Services.Network;
-    using Client.Services.Network.Interfaces;
+    using Client.Services.Wrappers;
     using Client.Services.Wrappers.Interfaces;
     using CommunityToolkit.Mvvm.Messaging;
     using FluentAssertions;
@@ -67,8 +67,10 @@ namespace NVRAMTuner.Test.Services
         public void CanInitialiseNetworkServiceTest()
         {
             // Arrange
+            IMessengerService testMessengerService = new MessengerService(this.mockMessenger.Object);
+
             // Act
-            this.CreateSut();
+            this.CreateSut(testMessengerService);
 
             // Assert
             this.sut.Should().NotBeNull();
@@ -83,19 +85,22 @@ namespace NVRAMTuner.Test.Services
         public void FolderContainsSshKeysKeysReturnsTrueWhenKeysPresentTest()
         {
             // Arrange
+            IMessengerService testMessengerService = new MessengerService(this.mockMessenger.Object);
             const string testFolder = @"Some\Path\To\.ssh\Keys";
+
             this.mockFileSystem.Setup(m
                     => m.Path.Combine(
                         It.Is<string>(s => s.Equals(testFolder)),
                         It.Is<string>(s => s.Equals("id_rsa.pub") || s.Equals("id_rsa"))))
                 .Returns("something")
                 .Verifiable();
+
             this.mockFileSystem.Setup(m => m.File.Exists(It.IsAny<string>()))
                 .Returns(true)
                 .Verifiable();
 
             // Act
-            this.CreateSut();
+            this.CreateSut(testMessengerService);
             bool existResult = this.sut.FolderContainsSshKeys(testFolder);
 
             // Assert
@@ -110,19 +115,22 @@ namespace NVRAMTuner.Test.Services
         public void FolderContainsSshKeysKeysReturnsFalseWhenKeysNotPresentTest()
         {
             // Arrange
+            IMessengerService testMessengerService = new MessengerService(this.mockMessenger.Object);
             const string testFolder = @"Some\Path\To\.ssh\Keys";
+
             this.mockFileSystem.Setup(m
                     => m.Path.Combine(
                         It.Is<string>(s => s.Equals(testFolder)),
                         It.Is<string>(s => s.Equals("id_rsa.pub") || s.Equals("id_rsa"))))
                 .Returns("something")
                 .Verifiable();
+
             this.mockFileSystem.Setup(m => m.File.Exists(It.IsAny<string>()))
                 .Returns(false)
                 .Verifiable();
 
             // Act
-            this.CreateSut();
+            this.CreateSut(testMessengerService);
             bool existResult = this.sut.FolderContainsSshKeys(testFolder);
 
             // Assert
@@ -243,12 +251,13 @@ namespace NVRAMTuner.Test.Services
         /// <summary>
         /// Initialises a new instance of the <see cref="NetworkService"/> class for the tests
         /// </summary>
-        private void CreateSut()
+        /// <param name="testMessengerService">An instance of <see cref="IMessengerService"/></param>
+        private void CreateSut(IMessengerService testMessengerService)
         {
             this.sut = new NetworkService(
                 this.mockFileSystem.Object, 
                 this.mockEnvironmentService.Object,
-                this.mockMessenger.Object,
+                testMessengerService,
                 this.mockSettingsService.Object);
         }
     }

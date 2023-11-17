@@ -70,6 +70,29 @@ namespace NVRAMTuner.Client.ViewModels.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please note that changing variable values carries the risk of breaking aspects of your router, or potentially damaging its operations to such a degree that a reset is required.
+        ///
+        ///NVRAMTuner is not responsible for any damage caused to your router by altering NVRAM variables, and it does not do any form of exhaustive checking to ensure that the values you have entered actually make sense.
+        ///You are responsible for taking regular backups and sanity checking the changes you are making.
+        ///
+        ///Also, there is no guar [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string CommitWarningDialogMessage {
+            get {
+                return ResourceManager.GetString("CommitWarningDialogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You currently have staged variables that you have made changes to. If you disconnect from your router, your staged changes will be abandoned. Are you sure you wish to continue?.
+        /// </summary>
+        public static string DisconnectWhileVariablesAreStagedDialogMessage {
+            get {
+                return ResourceManager.GetString("DisconnectWhileVariablesAreStagedDialogMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to NVRAMTuner was unable to find any routers on your system that were previously saved. If this is your first time using NVRAMTuner, enter the setup process now to add a router. Otherwise, please place a previously saved router file in the expected location..
         /// </summary>
         public static string NoSavedRoutersFoundDialogMessage {

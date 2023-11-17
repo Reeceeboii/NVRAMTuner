@@ -1,10 +1,10 @@
 ﻿namespace NVRAMTuner.Client.Services
 {
     using Interfaces;
-    using Messages;
-    using Messages.Theme;
+    using Messages.Settings;
     using Models.Enums;
     using Properties;
+    using System;
     using System.ComponentModel;
     using System.Configuration;
     using Wrappers.Interfaces;
@@ -31,10 +31,14 @@
         public SettingsService(IMessengerService messengerService)
         {
             this.messengerService = messengerService;
-
             this.settings = Settings.Default;
             this.settings.PropertyChanged += this.SettingsOnPropertyChanged;
         }
+
+        /// <summary>
+        /// An event fired whenever settings are saved to disk
+        /// </summary>
+        public event EventHandler SettingsChangedEvent;
 
         /// <summary>
         /// Gets or sets the current <see cref="ApplicationTheme"/> stored in settings
@@ -70,6 +74,22 @@
         }
 
         /// <summary>
+        /// Gets or sets a value representing whether or not the pre-commit warning message
+        /// should be displayed to the user
+        /// </summary>
+        public bool DisplayPreCommitWarning
+        {
+            get => this.settings.DisplayPreCommitWarning;
+            set
+            {
+                if (value != this.settings.DisplayPreCommitWarning)
+                {
+                    this.settings.DisplayPreCommitWarning = value;
+                }
+            }
+        }
+
+        /// <summary>
         /// Method handler for the <see cref="ApplicationSettingsBase.PropertyChanged"/> event.
         /// This is subscribed to such that the settings file can be saved whenever a setting value
         /// is altered
@@ -79,7 +99,7 @@
         private void SettingsOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             this.settings.Save();
-            this.messengerService.Send(new LogMessage("Settings have been saved"));
+            this.SettingsChangedEvent?.Invoke(this, EventArgs.Empty);
         }
     }
 }

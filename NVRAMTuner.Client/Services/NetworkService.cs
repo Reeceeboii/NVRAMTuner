@@ -1,23 +1,25 @@
 ﻿#nullable enable
 
-namespace NVRAMTuner.Client.Services.Network
+namespace NVRAMTuner.Client.Services
 {
-    using CommunityToolkit.Mvvm.Messaging;
     using Events;
     using Interfaces;
     using Messages;
     using Models;
     using Models.Enums;
+    using Models.Nvram;
     using Renci.SshNet;
     using Renci.SshNet.Common;
     using Resources;
-    using Services.Interfaces;
     using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.IO.Abstractions;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using ViewModels.Variables;
     using Wrappers.Interfaces;
 
     /// <summary>
@@ -37,9 +39,9 @@ namespace NVRAMTuner.Client.Services.Network
         private readonly IEnvironmentService environmentService;
 
         /// <summary>
-        /// An instance of <see cref="IMessenger"/>
+        /// An instance of <see cref="IMessengerService"/>
         /// </summary>
-        private readonly IMessenger messenger;
+        private readonly IMessengerService messengerService;
 
         /// <summary>
         /// An instance of <see cref="ISettingsService"/>
@@ -50,11 +52,6 @@ namespace NVRAMTuner.Client.Services.Network
         /// Instance of <see cref="SshClient"/>
         /// </summary>
         private SshClient? client;
-
-        /// <summary>
-        /// Timer used to track the elapsed time of the current connection
-        /// </summary>
-        private readonly Timer activeConnectionTimer;
 
         /// <summary>
         /// The time at which the active connection was initiated.
@@ -73,20 +70,20 @@ namespace NVRAMTuner.Client.Services.Network
         /// </summary>
         /// <param name="fileSystem">An instance of <see cref="IFileSystem"/></param>
         /// <param name="environmentService">An instance of <see cref="IEnvironmentService"/></param>
-        /// <param name="messenger">An instance of <see cref="IMessenger"/></param>
+        /// <param name="messengerService">An instance of <see cref="IMessengerService"/></param>
         /// <param name="settingsService">An instance of <see cref="ISettingsService"/></param>
         public NetworkService(
             IFileSystem fileSystem,
             IEnvironmentService environmentService,
-            IMessenger messenger,
+            IMessengerService messengerService,
             ISettingsService settingsService)
         {
             this.fileSystem = fileSystem;
             this.environmentService = environmentService;
-            this.messenger = messenger;
+            this.messengerService = messengerService;
             this.settingsService = settingsService;
 
-            this.activeConnectionTimer = new Timer(
+            Timer timer = new Timer(
                 _ => this.ActiveConnectionTimerOnTick(),
                 null, 
                 0, 
@@ -152,12 +149,12 @@ namespace NVRAMTuner.Client.Services.Network
         /// <summary>
         /// Event to be raised when an error occurs in the connection to the router via the <see cref="SshClient"/>
         /// </summary>
-        public event EventHandler? SshClientOnErrorOccurred;
+        public event EventHandler SshClientOnErrorOccurred;
 
         /// <summary>
         /// Event to be raised whenever a new command is executed against a remote server
         /// </summary>
-        public event EventHandler? CommandRan;
+        public event EventHandler CommandRan;
 
         /// <summary>
         /// Event raised by the timer tracking the length of the current connection. Fired every second
@@ -208,7 +205,7 @@ namespace NVRAMTuner.Client.Services.Network
 
                 if (!this.fileSystem.File.Exists(privateKeyPath))
                 {
-                    this.messenger.Send(new LogMessage("Private SSH key not found"));
+                    this.messengerService.Send(new LogMessage("Private SSH key not found"));
                     throw new FileNotFoundException("Private SSH key not found", privateKeyPath);
                 }
 
@@ -231,7 +228,7 @@ namespace NVRAMTuner.Client.Services.Network
                     {
                         Tuple<string, string> tempHnAndOs = await this.GetRouterHostnameAndOs(tempClient);
 
-                        this.messenger.Send(new LogMessage($"Connected successfully to {tempHnAndOs.Item1} using temporary client. Disconnecting..."));
+                        this.messengerService.Send(new LogMessage($"Connected successfully to {tempHnAndOs.Item1} using temporary client. Disconnecting..."));
 
                         tempClient.Disconnect();
 
@@ -246,7 +243,7 @@ namespace NVRAMTuner.Client.Services.Network
                     tempClient.Disconnect();
                 }
 
-                this.messenger.Send(new LogMessage("Failed to connect using temporary client"));
+                this.messengerService.Send(new LogMessage("Failed to connect using temporary client"));
 
                 return new SshConnectionInfo
                 {
@@ -265,7 +262,7 @@ namespace NVRAMTuner.Client.Services.Network
             }
             catch (Exception ex)
             {
-                this.messenger.Send(new LogMessage($"Error during connection to '{router.RouterNickname}': \"{ex.Message}\""));
+                this.messengerService.Send(new LogMessage($"Error during connection to '{router.RouterNickname}': \"{ex.Message}\""));
 
                 return new SshConnectionInfo
                 {
@@ -279,7 +276,7 @@ namespace NVRAMTuner.Client.Services.Network
             Tuple<string, string> hnAndOs = await this.GetRouterHostnameAndOs();
             this.client.ErrorOccurred += this.ClientOnErrorOccurred;
 
-            this.messenger.Send(new LogMessage($"Connected to {hnAndOs.Item1}"));
+            this.messengerService.Send(new LogMessage($"Connected to {hnAndOs.Item1}"));
 
             return new SshConnectionInfo
             {
@@ -304,7 +301,7 @@ namespace NVRAMTuner.Client.Services.Network
             {
                 this.client.ErrorOccurred -= this.ClientOnErrorOccurred;
                 this.client.Disconnect();
-                this.messenger.Send(new LogMessage("Disconnected"));
+                this.messengerService.Send(new LogMessage("Disconnected"));
                 this.StopActiveConnectionTimer();
             });
         }
@@ -337,9 +334,47 @@ namespace NVRAMTuner.Client.Services.Network
                 throw new InvalidOperationException("Overridden client is uninitialised");
             }
 
-            SshCommand commandResult = await Task.Run(() => this.client.RunCommand(command));
+            SshCommand commandResult = null;
+            try
+            {
+                commandResult = await Task.Run(() => this.client.RunCommand(command));
+            }
+            catch (Exception ex)
+            {
+                // TODO https://github.com/Reeceeboii/NVRAMTuner/issues/41
+                Debug.WriteLine(ex);
+            }
+
             this.CommandRan?.Invoke(this, EventArgs.Empty);
             return commandResult;
+        }
+
+        /// <summary>
+        /// Commits a collection of changes to the target router
+        /// </summary>
+        /// <param name="variableDeltas">A list of <see cref="IVariable"/> instances. These
+        /// are typically passed through from the <see cref="StagedChangesViewModel"/></param>
+        /// <returns>An asynchronous <see cref="Task"/></returns>
+        public async Task CommitChangesToRouterAsync(List<IVariable> variableDeltas)
+        {
+            string fileContents = this.BuildShellScriptFile(variableDeltas);
+            string fileName = $"NVRAMTunerScript-{DateTime.Now:dd-MM@HH.mm}.sh";
+            
+            try
+            {
+                // upload shell script to router's /tmp directory
+                await this.RunCommandAgainstRouterAsync($@"echo ""{fileContents}"" > /tmp/{fileName}");
+                // ensure that script has execute bit set (-rwxrwxrwx)
+                await this.RunCommandAgainstRouterAsync($"{ServiceResources.ChmodExecuteCommand} /tmp/{fileName}");
+                // execute the file to apply the user's changes
+                SshCommand cmd = await this.RunCommandAgainstRouterAsync($"{ServiceResources.BourneShellCommand} /tmp/{fileName}");
+                this.messengerService.Send(new LogMessage(cmd.Result));
+            }
+            catch (Exception ex)
+            {
+                // https://www.youtube.com/watch?v=KnhXwlFeRP8
+                this.messengerService.Send(new DialogErrorMessage(ex));
+            }
         }
 
         /// <summary>
@@ -368,6 +403,45 @@ namespace NVRAMTuner.Client.Services.Network
             bool privateKeyExists = this.fileSystem.File.Exists(privateKeyPath);
 
             return pubKeyExists && privateKeyExists;
+        }
+
+        /// <summary>
+        /// Builds the contents of a .sh file that can be ran against the router to carry out the
+        /// alterations to NVRAM that the user has staged
+        /// </summary>
+        /// <param name="variableDeltas">A list of <see cref="IVariable"/> instances. These
+        /// are typically passed through from the <see cref="StagedChangesViewModel"/></param>
+        /// <returns>A completed shell script template</returns>
+        public string BuildShellScriptFile(List<IVariable> variableDeltas)
+        {
+            // final sanity check to ensure that we won't be uselessly setting variables to be equal to themselves
+            List<IVariable> targetList = variableDeltas
+                .Where(v => v.ValueDelta != v.OriginalValue)
+                .ToList();
+
+            using StringWriter writer = new StringWriter
+            {
+                NewLine = "\n"
+            };
+
+            writer.WriteLine("# Applying changes to existing variables");
+            writer.WriteLine($"echo Applying {targetList.Count} variable alterations");
+
+            foreach (IVariable variable in targetList)
+            {
+                string formattedValue = variable.ValueDelta.Contains(" ")
+                    ? $"\"{variable.ValueDelta}\""
+                    : variable.ValueDelta;
+                writer.WriteLine($"{ServiceResources.NvramSetCommand} {variable.Name}={formattedValue}");
+            }
+
+            writer.WriteLine("\n# Committing all changes to memory");
+            writer.WriteLine($"{ServiceResources.NvramCommitCommand}");
+
+            return string.Format(
+                ServiceResources.NvramTunerShTemplate,
+                DateTime.Now.ToString("MM/dd/yyyy @ HH:mm"),
+                writer.GetStringBuilder());
         }
 
         /// <summary>
@@ -418,8 +492,8 @@ namespace NVRAMTuner.Client.Services.Network
         /// <returns>A <see cref="Tuple{T1, T2}"/> that contains the hostname and operating system of the router</returns>
         private async Task<Tuple<string, string>> GetRouterHostnameAndOs(SshClient? clientOverride = null)
         {
-            SshCommand hostName = await this.RunCommandAgainstRouterAsync(ServiceResources.HostName_Command, clientOverride);
-            SshCommand os = await this.RunCommandAgainstRouterAsync(ServiceResources.Uname_Os_Command, clientOverride);
+            SshCommand hostName = await this.RunCommandAgainstRouterAsync(ServiceResources.HostNameCommand, clientOverride);
+            SshCommand os = await this.RunCommandAgainstRouterAsync(ServiceResources.UnameOsCommand, clientOverride);
 
             return new Tuple<string, string>(
                 hostName.Result.TrimEnd('\r', '\n'),
@@ -427,7 +501,7 @@ namespace NVRAMTuner.Client.Services.Network
         }
 
         /// <summary>
-        /// Tick event for <see cref="activeConnectionTimer"/>. Sends out a new <see cref="INetworkService.ConnectionTimerSecondTick"/> event
+        /// Sends out a new <see cref="INetworkService.ConnectionTimerSecondTick"/> event
         /// </summary>
         private void ActiveConnectionTimerOnTick()
         {
