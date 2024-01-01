@@ -389,7 +389,7 @@
       <Version>5.0.1</Version>
     </PackageReference>
     <PackageReference Include="SSH.NET">
-      <Version>2020.0.2</Version>
+      <Version>2023.0.1</Version>
     </PackageReference>
     <PackageReference Include="System.IO.Abstractions">
       <Version>19.2.51</Version>
